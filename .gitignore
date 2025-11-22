@@ -8,7 +8,14 @@ npm-debug.log*
 # 环境变量和密钥
 .env
 .env.local
+.env.*
 backend/.env
+backend/.env.*
+*.env
+
+# 文档文件（可能包含敏感信息）
+*.md
+!README.md
 
 # SSH工具和配置（包含服务器信息）
 plink.exe
