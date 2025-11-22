@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史记录功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>历史记录功能测试</h1>
+    
+    <div class="test-section">
+        <h2>1. 状态管理测试</h2>
+        <button onclick="testStateManagement()">运行测试</button>
+        <div id="stateResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 历史记录存储测试</h2>
+        <button onclick="testHistoryStorage()">运行测试</button>
+        <div id="storageResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. localStorage 测试</h2>
+        <button onclick="testLocalStorage()">运行测试</button>
+        <div id="localStorageResult"></div>
+    </div>
+
+    <script src="js/core/constants.js"></script>
+    <script src="js/core/state.js"></script>
+    
+    <script>
+        function showResult(elementId, success, message) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="test-result ${success ? 'success' : 'error'}">${message}</div>`;
+        }
+        
+        function testStateManagement() {
+            try {
+                // 测试基本功能
+                if (typeof AppState === 'undefined') {
+                    throw new Error('AppState 未定义');
+                }
+                
+                if (typeof AppState.addToHistory !== 'function') {
+                    throw new Error('addToHistory 方法不存在');
+                }
+                
+                if (typeof AppState.getHistory !== 'function') {
+                    throw new Error('getHistory 方法不存在');
+                }
+                
+                showResult('stateResult', true, '✅ 状态管理模块加载成功！所有必需方法都存在。');
+            } catch (error) {
+                showResult('stateResult', false, `❌ 测试失败: ${error.message}`);
+            }
+        }
+        
+        function testHistoryStorage() {
+            try {
+                // 清空历史记录
+                AppState.clearHistory();
+                
+                // 添加测试记录
+                const testRecord = {
+                    prompt: '测试提示词',
+                    model: 'gemini-3-pro-image-preview',
+                    frameCount: 16,
+                    loopConsistency: true,
+                    tolerance: 50,
+                    spriteUrl: 'data:image/png;base64,test',
+                    rawImageUrl: 'data:image/png;base64,test',
+                    frames: [],
+                    rows: 4,
+                    cols: 4
+                };
+                
+                const record = AppState.addToHistory(testRecord);
+                
+                if (!record.id) {
+                    throw new Error('记录ID未生成');
+                }
+                
+                if (!record.timestamp) {
+                    throw new Error('时间戳未生成');
+                }
+                
+                // 获取历史记录
+                const history = AppState.getHistory();
+                if (history.length !== 1) {
+                    throw new Error(`历史记录数量错误: 期望1，实际${history.length}`);
+                }
+                
+                // 通过ID获取记录
+                const retrieved = AppState.getHistoryById(record.id);
+                if (!retrieved) {
+                    throw new Error('无法通过ID获取记录');
+                }
+                
+                if (retrieved.prompt !== testRecord.prompt) {
+                    throw new Error('记录内容不匹配');
+                }
+                
+                // 删除记录
+                AppState.deleteHistoryById(record.id);
+                const afterDelete = AppState.getHistory();
+                if (afterDelete.length !== 0) {
+                    throw new Error('删除记录失败');
+                }
+                
+                showResult('storageResult', true, '✅ 历史记录存储功能测试通过！添加、获取、删除功能正常。');
+            } catch (error) {
+                showResult('storageResult', false, `❌ 测试失败: ${error.message}`);
+            }
+        }
+        
+        function testLocalStorage() {
+            try {
+                // 测试 localStorage 可用性
+                const testKey = 'xmframer_test';
+                const testValue = 'test_value';
+                
+                localStorage.setItem(testKey, testValue);
+                const retrieved = localStorage.getItem(testKey);
+                
+                if (retrieved !== testValue) {
+                    throw new Error('localStorage 读写失败');
+                }
+                
+                localStorage.removeItem(testKey);
+                
+                // 测试历史记录持久化
+                AppState.clearHistory();
+                
+                const testRecord = {
+                    prompt: '持久化测试',
+                    model: 'gemini-3-pro-image-preview',
+                    frameCount: 16,
+                    loopConsistency: true,
+                    tolerance: 50,
+                    spriteUrl: 'data:image/png;base64,test',
+                    rawImageUrl: 'data:image/png;base64,test',
+                    frames: [],
+                    rows: 4,
+                    cols: 4
+                };
+                
+                AppState.addToHistory(testRecord);
+                
+                // 检查 localStorage
+                const saved = localStorage.getItem('xmframer_history');
+                if (!saved) {
+                    throw new Error('历史记录未保存到 localStorage');
+                }
+                
+                const parsed = JSON.parse(saved);
+                if (!Array.isArray(parsed) || parsed.length !== 1) {
+                    throw new Error('localStorage 中的数据格式错误');
+                }
+                
+                // 测试加载
+                AppState.generationHistory = [];
+                AppState._loadHistoryFromStorage();
+                
+                const loaded = AppState.getHistory();
+                if (loaded.length !== 1) {
+                    throw new Error('从 localStorage 加载失败');
+                }
+                
+                if (loaded[0].prompt !== testRecord.prompt) {
+                    throw new Error('加载的数据不匹配');
+                }
+                
+                // 清理
+                AppState.clearHistory();
+                
+                showResult('localStorageResult', true, '✅ localStorage 持久化测试通过！数据可以正确保存和加载。');
+            } catch (error) {
+                showResult('localStorageResult', false, `❌ 测试失败: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

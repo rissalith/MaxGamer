@@ -1,0 +1,46 @@
+/**
+ * 主CSS文件
+ * 导入所有CSS模块
+ * 
+ * 模块化结构说明：
+ * - base.css: 基础样式、全局重置、body样式
+ * - animations.css: 所有动画效果定义
+ * - layout.css: 主布局结构
+ * - sidebar.css: 侧边栏相关样式
+ * - buttons.css: 按钮样式
+ * - forms.css: 表单输入样式
+ * - components.css: 通用组件样式
+ * - tabs.css: 标签页系统样式
+ * - preview.css: 预览区域样式
+ * - responsive.css: 响应式适配样式
+ */
+
+/* 基础样式 - 必须最先加载 */
+@import url('base.css');
+
+/* 动画效果 - 在其他模块之前加载，因为其他模块会引用这些动画 */
+@import url('animations.css');
+
+/* 布局样式 */
+@import url('layout.css');
+
+/* 侧边栏样式 */
+@import url('sidebar.css');
+
+/* 按钮样式 */
+@import url('buttons.css');
+
+/* 表单样式 */
+@import url('forms.css');
+
+/* 通用组件样式 */
+@import url('components.css');
+
+/* 标签页样式 */
+@import url('tabs.css');
+
+/* 预览区域样式 */
+@import url('preview.css');
+
+/* 响应式样式 - 最后加载，以便覆盖其他样式 */
+@import url('responsive.css');

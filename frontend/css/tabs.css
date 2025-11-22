@@ -1,0 +1,232 @@
+/**
+ * 标签页样式模块
+ * 包含标签栏、标签项、标签内容等样式
+ */
+
+/* TAB导航栏 */
+.tab-navigation {
+    display: flex;
+    gap: 8px;
+    padding: 12px 18px 0;
+    background: rgba(0, 0, 0, 0.02);
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+    position: relative;
+    z-index: 2;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid transparent;
+    border-bottom: none;
+    position: relative;
+    user-select: none;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #555;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    border-color: rgba(102, 126, 234, 0.3);
+    border-bottom: none;
+    box-shadow: 0 -2px 10px rgba(102, 126, 234, 0.2);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+
+/* TAB标签栏（旧版兼容） */
+.tab-bar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 18px 0;
+    background: rgba(0, 0, 0, 0.02);
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+    position: relative;
+    z-index: 2;
+}
+
+.tab-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid transparent;
+    border-bottom: none;
+    position: relative;
+    user-select: none;
+}
+
+.tab-item:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+}
+
+.tab-item.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    border-color: rgba(102, 126, 234, 0.3);
+    border-bottom: none;
+    box-shadow: 0 -2px 10px rgba(102, 126, 234, 0.2);
+}
+
+.tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+
+.tab-icon {
+    font-size: 1.2em;
+}
+
+.tab-text {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #555;
+}
+
+.tab-item.active .tab-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* TAB内容区 */
+.tab-content {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    animation: tabFadeIn 0.4s ease-out;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+.tab-pane {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    animation: tabFadeIn 0.4s ease-out;
+}
+
+.tab-pane.active {
+    display: flex;
+}
+
+/* 面板头部 */
+.pane-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px;
+    border-bottom: 2px solid transparent;
+    border-image: linear-gradient(90deg, #667eea, #764ba2, transparent) 1;
+}
+
+.pane-title {
+    margin: 0;
+    font-size: 1.05em;
+    font-weight: 600;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 面板主体 */
+.pane-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* 帧网格布局 */
+.frames-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    padding: 10px;
+}
+
+.frame-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.05);
+    border: 2px solid rgba(102, 126, 234, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.frame-item:hover {
+    transform: scale(1.05);
+    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.frame-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.frame-number {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: 600;
+}
+
+/* TAB动画 */
+@keyframes tabFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

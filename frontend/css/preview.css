@@ -1,0 +1,460 @@
+/**
+ * 预览区域样式模块
+ * 包含预览窗口、帧网格、精灵图、GIF预览等样式
+ */
+
+/* 预览窗口 */
+.preview-window {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+    backdrop-filter: blur(20px);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15), 0 0 0 1px rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: windowFadeIn 0.6s ease-out;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.preview-window::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.05) 0%, transparent 70%);
+    animation: sectionRotate 20s linear infinite;
+    pointer-events: none;
+}
+
+.preview-window:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.25), 0 0 0 1px rgba(102, 126, 234, 0.2);
+}
+
+/* 预览控制 */
+.preview-controls {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+/* 帧网格 */
+.frames-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 600px;
+    padding: 5px;
+}
+
+.frame-item {
+    position: relative;
+    background: linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%);
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.frame-item:hover {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+}
+
+.frame-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+    background: 
+        linear-gradient(45deg, #e0e0e0 25%, transparent 25%),
+        linear-gradient(-45deg, #e0e0e0 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e0e0e0 75%),
+        linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+
+.frame-number {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.75em;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+    min-width: 28px;
+    text-align: center;
+    z-index: 10;
+}
+
+/* 精灵图控制 - 新样式 */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.tolerance-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.tolerance-control .label-text {
+    font-weight: 600;
+    color: #667eea;
+    white-space: nowrap;
+    font-size: 0.9em;
+}
+
+.tolerance-input {
+    width: 70px !important;
+    padding: 6px 10px;
+    text-align: center;
+    font-weight: 600;
+    color: #667eea;
+}
+
+/* 移除旧的滑块样式 */
+.sprite-controls {
+    display: none;
+}
+
+/* 精灵图预览 */
+.sprite-preview-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    max-height: 600px;
+    overflow: hidden;
+    background:
+        linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+    background-size: 30px 30px;
+    background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+}
+
+.sprite-preview-box img {
+    max-width: 90%;
+    max-height: 90%;
+    width: auto;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+    transition: transform 0.3s, opacity 0.3s;
+    display: block;
+    cursor: zoom-in;
+    transform-origin: center center;
+}
+
+.sprite-preview-box img:hover {
+    opacity: 0.95;
+}
+
+/* GIF控制区域 */
+.gif-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.gif-controls .input-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.gif-status-inline {
+    font-size: 0.85em;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.gif-status-inline.processing {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    color: #667eea;
+}
+
+.gif-status-inline.success {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(56, 142, 60, 0.1) 100%);
+    color: #4caf50;
+}
+
+.gif-status-inline.error {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(211, 47, 47, 0.1) 100%);
+    color: #f44336;
+}
+
+/* GIF预览 */
+.gif-preview-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    min-height: 300px;
+    background:
+        linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+    background-size: 30px 30px;
+    background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
+    border-radius: 12px;
+    transition: background 0.3s ease;
+    padding: 20px;
+}
+
+.gif-preview-box.no-checkerboard {
+    background: linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%);
+}
+
+.gif-preview-box img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+    transition: transform 0.3s;
+}
+
+.gif-preview-box img:hover {
+    transform: scale(1.02);
+}
+
+/* 原图预览 */
+.original-info-box {
+    padding: 15px;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.original-info-box .info-text {
+    margin: 0;
+    color: #667eea;
+    font-size: 0.95em;
+    font-weight: 500;
+}
+
+.original-preview-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    max-height: 600px;
+    overflow: hidden;
+    background:
+        linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+    background-size: 30px 30px;
+    background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+}
+
+.original-preview-box img {
+    max-width: 90%;
+    max-height: 90%;
+    width: auto;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+    transition: transform 0.3s, opacity 0.3s;
+    display: block;
+    cursor: zoom-in;
+    transform-origin: center center;
+}
+
+.original-preview-box img:hover {
+    opacity: 0.95;
+}
+
+/* 图片模态框 */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+.image-modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    position: relative;
+    max-width: 95%;
+    max-height: 95%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content img {
+    max-width: 100%;
+    max-height: 95vh;
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+    transform-origin: center center;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10001;
+    transition: all 0.3s;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    backdrop-filter: blur(10px);
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.modal-zoom-info {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    backdrop-filter: blur(10px);
+    z-index: 10001;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* 帧图片可点击样式 */
+.frame-item img {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.frame-item img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* 插帧控制区域 */
+.interpolation-controls {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.control-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.control-group .input-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.control-group .label-text {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #555;
+    white-space: nowrap;
+}
+
+.control-group .param-input {
+    min-width: 180px;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.control-buttons .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+.frame-info {
+    font-size: 0.9em;
+    color: #666;
+    font-weight: 600;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.frame-info span {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.frame-info span:last-child {
+    margin-right: 0;
+}

@@ -1,0 +1,54 @@
+# 依赖目录
+node_modules/
+
+# 日志文件
+*.log
+npm-debug.log*
+
+# 环境变量和密钥
+.env
+.env.local
+backend/.env
+
+# SSH工具和配置（包含服务器信息）
+plink.exe
+pscp.exe
+setup-ssh-key.ps1
+sync-to-server-python.ps1
+*.ps1
+
+# 部署脚本（包含服务器密码）
+deploy*.bat
+fix-server.bat
+diagnose-and-fix.bat
+update-code.bat
+
+# Nginx配置（可能包含服务器信息）
+nginx-*.conf
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# IDE 配置
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# 构建输出
+dist/
+build/
+
+# Python缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+backend/__pycache__/

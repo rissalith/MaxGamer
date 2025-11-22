@@ -1,0 +1,106 @@
+/**
+ * 表单样式模块
+ * 包含输入框、选择框、标签等表单元素样式
+ */
+
+/* 输入组 */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.input-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+}
+
+.input-label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label-text {
+    font-weight: 600;
+    font-size: 0.85em;
+    color: #555;
+}
+
+/* AI 提示词输入框 */
+.ai-prompt-input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    color: #333;
+    position: relative;
+    z-index: 1;
+}
+
+.ai-prompt-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 8px 20px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.ai-prompt-input::placeholder {
+    color: #999;
+}
+
+/* 参数输入框 */
+.param-input {
+    padding: 8px 10px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 8px;
+    font-size: 0.9em;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    color: #333;
+    font-weight: 500;
+}
+
+.param-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 4px 12px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+}
+
+/* 复选框标签 */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: #666;
+    user-select: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.checkbox-label:hover {
+    background: rgba(102, 126, 234, 0.15);
+    color: #667eea;
+    transform: scale(1.05);
+}
+
+.checkbox-label input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}

@@ -1,0 +1,43 @@
+/**
+ * 响应式样式模块
+ * 包含不同屏幕尺寸的适配样式
+ */
+
+/* 中等屏幕 (平板) */
+@media (max-width: 1200px) {
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .left-panel {
+        width: 100%;
+    }
+    
+    .right-panel {
+        width: 100%;
+    }
+}
+
+/* 小屏幕 (手机) */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        max-height: auto;
+    }
+    
+    .main-area {
+        flex: 1;
+    }
+    
+    .frames-grid {
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    }
+    
+    .input-row {
+        grid-template-columns: 1fr;
+    }
+}
