@@ -29,7 +29,8 @@ CORS(app)
 
 # 配置
 PORT = int(os.getenv('PORT', 3000))
-AI_IMAGE_API_KEY = os.getenv('AI_IMAGE_API_KEY')
+# 优先从系统环境变量读取，然后从.env文件读取
+AI_IMAGE_API_KEY = os.getenv('FRAMEWORKER_AI_API_KEY') or os.getenv('AI_IMAGE_API_KEY')
 PROXY_URL = os.getenv('PROXY_URL') or os.getenv('HTTP_PROXY') or os.getenv('HTTPS_PROXY')
 
 # API 配置
