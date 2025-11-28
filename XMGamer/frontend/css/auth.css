@@ -166,21 +166,19 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     animation: fadeInLeft 1s ease-out;
     pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 85px;
 }
 
-/* 文字容器 - 独立图层，可拖拽 */
+/* 文字容器 - 嵌套在brand-section内，可拖拽 */
 .brand-text-container {
-    position: fixed;
-    left: 35px;
-    top: calc(30% + 75px);
-    transform: translateY(-50%);
-    z-index: 31;
     color: white;
     cursor: move;
     pointer-events: auto;
     user-select: none;
-    padding: 25px 35px;
-    animation: fadeInBrand 1s ease-out;
+    animation: fadeIn 1s ease-out;
 }
 
 .brand-text-container:active {
@@ -284,17 +282,6 @@
     }
 }
 
-/* 品牌文字淡入动画 - 保持垂直居中 */
-@keyframes fadeInBrand {
-    from {
-        opacity: 0;
-        transform: translateX(-30px) translateY(-50%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0) translateY(-50%);
-    }
-}
 
 /* 主容器 */
 .auth-container {
