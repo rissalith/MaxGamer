@@ -39,7 +39,7 @@
 .brand-section {
     position: fixed;
     left: 5%;
-    top: 30%;
+    top: 20%;
     z-index: 10;
     color: white;
     max-width: 450px;
@@ -54,6 +54,7 @@
     transition: all 0.3s ease;
     cursor: move;
     pointer-events: auto;
+    transform-origin: left top;
 }
 
 .brand-section:hover {
@@ -98,16 +99,17 @@
 
 .video-container {
     position: fixed;
-    left: 9%;
-    top: 45%;
+    left: 5%;
+    top: calc(20% + 180px);
     z-index: 5;
-    max-width: 600px;
-    max-height: 320px;
+    width: 450px;
+    max-width: 450px;
     overflow: hidden;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     animation: fadeInLeft 1s ease-out 0.4s backwards;
     pointer-events: auto;
+    transform-origin: left top;
 }
 
 .brand-video {
