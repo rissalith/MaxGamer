@@ -36,14 +36,27 @@ class InteractionButtons {
         this.container = document.createElement('div');
         this.container.className = 'interaction-buttons';
         
-        // 创建点赞按钮
-        const likeBtn = this.createButton('like', '👍', '点赞');
+        // 创建点赞按钮 - SVG图标
+        const likeSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+        </svg>`;
+        const likeBtn = this.createButton('like', likeSvg, '点赞');
         
-        // 创建礼物按钮
-        const giftBtn = this.createButton('gift', '🎁', '礼物');
+        // 创建礼物按钮 - SVG图标
+        const giftSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 12 20 22 4 22 4 12"></polyline>
+            <rect x="2" y="7" width="20" height="5"></rect>
+            <line x1="12" y1="22" x2="12" y2="7"></line>
+            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+        </svg>`;
+        const giftBtn = this.createButton('gift', giftSvg, '礼物');
         
-        // 创建评论按钮
-        const commentBtn = this.createButton('comment', '💬', '评论');
+        // 创建评论按钮 - SVG图标
+        const commentSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>`;
+        const commentBtn = this.createButton('comment', commentSvg, '评论');
         
         // 添加到容器
         this.container.appendChild(likeBtn);
@@ -57,16 +70,16 @@ class InteractionButtons {
     /**
      * 创建单个按钮
      */
-    createButton(type, icon, title) {
+    createButton(type, iconSvg, title) {
         const button = document.createElement('div');
         button.className = `interaction-btn ${type}-btn`;
         button.setAttribute('data-type', type);
         button.setAttribute('title', title);
         
-        // 图标
+        // 图标容器
         const iconSpan = document.createElement('span');
         iconSpan.className = 'icon';
-        iconSpan.textContent = icon;
+        iconSpan.innerHTML = iconSvg;
         
         // 计数
         const countSpan = document.createElement('span');
