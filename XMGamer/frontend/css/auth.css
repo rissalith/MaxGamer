@@ -153,12 +153,12 @@
 /* 左侧品牌区域 */
 .brand-section {
     position: fixed;
-    left: 5%;
+    left: -50px;
     top: 30%;
     z-index: 30;
     color: white;
-    max-width: 450px;
-    padding: 25px 35px;
+    max-width: 500px;
+    padding: 25px 35px 25px 85px;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -166,15 +166,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     animation: fadeInLeft 1s ease-out;
-    transition: all 0.3s ease;
-    cursor: move;
-    pointer-events: auto;
-}
-
-.brand-section:hover {
-    background: rgba(0, 0, 0, 0.5);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
 }
 
 .brand-title {
@@ -184,8 +176,10 @@
     line-height: 1.1;
     text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     letter-spacing: -1px;
-    cursor: pointer;
+    cursor: move;
     transition: all 0.3s ease;
+    pointer-events: auto;
+    user-select: none;
 }
 
 .brand-title:hover {
@@ -201,8 +195,10 @@
     line-height: 1.5;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     opacity: 0.95;
-    cursor: pointer;
+    cursor: move;
     transition: all 0.3s ease;
+    pointer-events: auto;
+    user-select: none;
 }
 
 .brand-subtitle:hover {
