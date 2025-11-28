@@ -155,6 +155,7 @@
     position: fixed;
     left: -50px;
     top: 30%;
+    transform: translateY(-50%);
     z-index: 30;
     width: 500px;
     height: 150px;
