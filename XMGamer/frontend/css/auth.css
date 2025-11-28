@@ -155,7 +155,6 @@
     position: fixed;
     left: -50px;
     top: 30%;
-    transform: translateY(-50%);
     z-index: 30;
     width: 500px;
     height: 150px;
@@ -173,7 +172,7 @@
 .brand-text-container {
     position: fixed;
     left: 35px;
-    top: 30%;
+    top: calc(30% + 75px);
     transform: translateY(-50%);
     z-index: 31;
     color: white;
