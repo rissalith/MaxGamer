@@ -104,8 +104,8 @@ class BrandDraggable {
             // 添加过渡动画
             this.textContainer.style.transition = 'transform 0.3s ease-out';
             
-            // 重置位置到原点，保持垂直居中
-            this.textContainer.style.transform = 'translate(0px, 0px) translateY(-50%)';
+            // 重置位置到原点
+            this.textContainer.style.transform = 'translate(0px, 0px)';
             
             // 动画完成后移除transition
             setTimeout(() => {
