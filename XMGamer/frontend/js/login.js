@@ -111,8 +111,8 @@ const LoginPage = {
             googleLoginBtn, twitterLoginBtn, wechatLoginBtn
         } = this.elements;
         
-        // 初始化拖动功能
-        this._initDraggable();
+        // 初始化拖动功能 - 已移至 brand-draggable.js
+        // this._initDraggable();
         
         // 登录模式切换
         modeBtns.forEach(btn => {

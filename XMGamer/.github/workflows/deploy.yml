@@ -50,31 +50,52 @@ jobs:
           ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
             set -e
             
-            echo "备份当前版本..."
-            cd /var/www
-            if [ -d "FrameWorker" ]; then
-              BACKUP_NAME="FrameWorker.backup.$(date +%Y%m%d_%H%M%S)"
-              mv FrameWorker "$BACKUP_NAME"
-              echo "已备份到: $BACKUP_NAME"
+            echo "创建FrameWorker目录（如果不存在）..."
+            mkdir -p /var/www/FrameWorker
+            
+            echo "备份Nginx配置..."
+            if [ -d "/var/www/FrameWorker/nginx" ]; then
+              cp -r /var/www/FrameWorker/nginx /tmp/nginx-backup-$(date +%Y%m%d_%H%M%S)
+              echo "Nginx配置已备份"
             fi
             
-            echo "部署新版本..."
-            mv /tmp/frameworker-deploy FrameWorker
-            cd FrameWorker
+            echo "同步新文件..."
+            rsync -av --delete \
+              --exclude='nginx/' \
+              --exclude='venv/' \
+              --exclude='*.db' \
+              --exclude='__pycache__/' \
+              /tmp/frameworker-deploy/ /var/www/FrameWorker/
+            
+            echo "恢复Nginx配置（如果需要）..."
+            if [ ! -d "/var/www/FrameWorker/nginx/conf.d" ]; then
+              mkdir -p /var/www/FrameWorker/nginx/conf.d
+              # 如果配置文件不存在，从备份恢复或使用默认配置
+              if [ -f "/var/www/FrameWorker/nginx-xmframer.conf" ]; then
+                cp /var/www/FrameWorker/nginx-xmframer.conf /var/www/FrameWorker/nginx/conf.d/xmgamer.conf
+                echo "已恢复Nginx配置"
+              fi
+            fi
+            
+            cd /var/www/FrameWorker
             
             echo "设置权限..."
-            chown -R www-data:www-data /var/www/FrameWorker
+            chown -R www-data:www-data /var/www/FrameWorker/XMGamer
             
             echo "安装Python依赖..."
-            cd backend
+            cd XMGamer/backend
             if [ ! -d "venv" ]; then
               python3 -m venv venv
             fi
             source venv/bin/activate
             pip install -r requirements.txt
             
-            echo "重启服务..."
-            systemctl restart frameworker || echo "警告: 服务重启失败，请手动检查"
+            echo "重启Docker容器..."
+            docker restart xmgamer-gateway || echo "警告: Nginx容器重启失败"
+            docker restart xmgamer-api || echo "警告: API容器重启失败"
+            
+            echo "清理临时文件..."
+            rm -rf /tmp/frameworker-deploy
             
             echo "部署完成！"
           ENDSSH

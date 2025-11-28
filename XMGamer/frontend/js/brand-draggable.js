@@ -1,6 +1,6 @@
 /**
  * 品牌区域文字拖拽功能
- * 只移动文字，底框保持固定
+ * 文字容器独立于底框，可以自由拖拽
  */
 
 class BrandDraggable {
@@ -46,6 +46,9 @@ class BrandDraggable {
     startDrag(clientX, clientY) {
         this.isDragging = true;
 
+        // 清除transition，确保拖拽流畅
+        this.textContainer.style.transition = 'none';
+
         // 获取当前transform值
         const style = window.getComputedStyle(this.textContainer);
         const matrix = new DOMMatrix(style.transform);
@@ -78,6 +81,7 @@ class BrandDraggable {
         const newX = this.offsetX + deltaX;
         const newY = this.offsetY + deltaY;
 
+        // 直接对文字容器应用transform
         this.textContainer.style.transform = `translate(${newX}px, ${newY}px)`;
     }
 
@@ -96,7 +100,21 @@ class BrandDraggable {
     endDrag() {
         if (this.textContainer) {
             this.textContainer.style.cursor = 'move';
+            
+            // 添加过渡动画
+            this.textContainer.style.transition = 'transform 0.3s ease-out';
+            
+            // 重置位置到原点
+            this.textContainer.style.transform = 'translate(0px, 0px)';
+            
+            // 动画完成后移除transition
+            setTimeout(() => {
+                if (this.textContainer) {
+                    this.textContainer.style.transition = '';
+                }
+            }, 300);
         }
+        
         this.isDragging = false;
     }
 }

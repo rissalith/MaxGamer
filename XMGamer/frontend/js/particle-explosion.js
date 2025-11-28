@@ -65,85 +65,15 @@ class ParticleExplosion {
     }
 
     bindEvents() {
-        // 记录初始位置
-        const rect = this.brandSection.getBoundingClientRect();
-        this.initialPosition = {
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2
-        };
-
-        // 为标题和副标题都绑定事件
+        // 为标题和副标题绑定点击爆炸事件
         [this.title, this.subtitle].forEach(element => {
-            // 鼠标/触摸事件
-            element.addEventListener('mousedown', (e) => this.handleStart(e));
-            element.addEventListener('touchstart', (e) => this.handleStart(e.touches[0]), { passive: false });
-            
-            // 点击事件（短按）
+            // 点击事件 - 触发爆炸效果
             element.addEventListener('click', (e) => {
-                if (!this.isDragging) {
-                    this.explode(e.clientX, e.clientY);
-                }
+                this.explode(e.clientX, e.clientY);
             });
         });
         
-        // 全局移动和释放事件
-        document.addEventListener('mousemove', (e) => this.handleMove(e));
-        document.addEventListener('touchmove', (e) => this.handleMove(e.touches[0]), { passive: false });
-        
-        document.addEventListener('mouseup', (e) => this.handleEnd(e));
-        document.addEventListener('touchend', (e) => this.handleEnd(e.changedTouches[0]));
-    }
-
-    handleStart(e) {
-        this.dragStartTime = Date.now();
-        const rect = this.brandSection.getBoundingClientRect();
-        
-        this.dragOffset = {
-            x: e.clientX - rect.left - rect.width / 2,
-            y: e.clientY - rect.top - rect.height / 2
-        };
-
-        // 设置长按定时器
-        this.dragTimer = setTimeout(() => {
-            this.isDragging = true;
-            this.brandSection.style.cursor = 'grabbing';
-            this.brandSection.style.transition = 'none';
-        }, this.longPressDuration);
-    }
-
-    handleMove(e) {
-        if (this.isDragging) {
-            e.preventDefault();
-            
-            const x = e.clientX - this.dragOffset.x;
-            const y = e.clientY - this.dragOffset.y;
-            
-            // 计算相对于初始位置的偏移
-            const rect = this.brandSection.getBoundingClientRect();
-            const offsetX = x - (this.initialPosition.x - rect.width / 2);
-            const offsetY = y - (this.initialPosition.y - rect.height / 2);
-            
-            this.brandSection.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-            this.currentPosition = { x, y };
-        }
-    }
-
-    handleEnd(e) {
-        clearTimeout(this.dragTimer);
-        
-        const pressDuration = Date.now() - this.dragStartTime;
-        
-        if (this.isDragging) {
-            // 长按拖动后松开 - 回到初始位置（保留原有的translateY(-50%)）
-            this.brandSection.style.cursor = 'pointer';
-            this.brandSection.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            this.brandSection.style.transform = 'translateY(-50%)';
-            
-            this.isDragging = false;
-        } else if (pressDuration < this.longPressDuration) {
-            // 短按 - 触发爆炸效果
-            // 点击事件会处理爆炸
-        }
+        // 拖拽功能已移至 brand-draggable.js
     }
 
     explode(x, y) {

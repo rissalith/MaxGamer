@@ -156,9 +156,8 @@
     left: -50px;
     top: 30%;
     z-index: 30;
-    color: white;
-    max-width: 500px;
-    padding: 25px 35px 25px 85px;
+    width: 500px;
+    height: 150px;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -169,12 +168,17 @@
     pointer-events: none;
 }
 
-/* 文字容器 - 可拖拽 */
+/* 文字容器 - 独立图层，可拖拽 */
 .brand-text-container {
+    position: fixed;
+    left: 35px;
+    top: 30%;
+    z-index: 31;
+    color: white;
     cursor: move;
     pointer-events: auto;
     user-select: none;
-    transition: transform 0.1s ease-out;
+    padding: 25px 35px;
 }
 
 .brand-text-container:active {
