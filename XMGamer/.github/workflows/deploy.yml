@@ -1,0 +1,90 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+      
+      - name: Deploy to server
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          echo "开始部署到服务器..."
+          
+          # 创建临时目录
+          ssh $SERVER_USER@$SERVER_IP "mkdir -p /tmp/frameworker-deploy"
+          
+          # 使用rsync同步文件（排除不需要的文件）
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='__pycache__' \
+            --exclude='*.pyc' \
+            --exclude='.env' \
+            --exclude='venv' \
+            --exclude='*.db' \
+            ./ $SERVER_USER@$SERVER_IP:/tmp/frameworker-deploy/
+          
+          # 在服务器上执行部署脚本
+          ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
+            set -e
+            
+            echo "备份当前版本..."
+            cd /var/www
+            if [ -d "FrameWorker" ]; then
+              BACKUP_NAME="FrameWorker.backup.$(date +%Y%m%d_%H%M%S)"
+              mv FrameWorker "$BACKUP_NAME"
+              echo "已备份到: $BACKUP_NAME"
+            fi
+            
+            echo "部署新版本..."
+            mv /tmp/frameworker-deploy FrameWorker
+            cd FrameWorker
+            
+            echo "设置权限..."
+            chown -R www-data:www-data /var/www/FrameWorker
+            
+            echo "安装Python依赖..."
+            cd backend
+            if [ ! -d "venv" ]; then
+              python3 -m venv venv
+            fi
+            source venv/bin/activate
+            pip install -r requirements.txt
+            
+            echo "重启服务..."
+            systemctl restart frameworker || echo "警告: 服务重启失败，请手动检查"
+            
+            echo "部署完成！"
+          ENDSSH
+          
+          echo "✅ 部署成功完成！"
+      
+      - name: Verify deployment
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          echo "验证部署状态..."
+          ssh $SERVER_USER@$SERVER_IP "systemctl status frameworker --no-pager || true"
