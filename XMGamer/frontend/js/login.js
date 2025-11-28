@@ -111,6 +111,9 @@ const LoginPage = {
             googleLoginBtn, twitterLoginBtn, wechatLoginBtn
         } = this.elements;
         
+        // 初始化拖动功能
+        this._initDraggable();
+        
         // 登录模式切换
         modeBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1070,6 +1073,128 @@ const LoginPage = {
             registerBtn.classList.remove('loading');
             registerBtn.textContent = originalText;
         }
+    },
+    
+    /**
+     * 初始化拖动功能
+     * @private
+     */
+    _initDraggable() {
+        const brandSection = document.querySelector('.brand-section');
+        const brandTitle = document.querySelector('.brand-title');
+        const brandSubtitle = document.querySelector('.brand-subtitle');
+        
+        if (!brandSection) return;
+        
+        // 保存初始位置
+        const initialPosition = {
+            left: '5%',
+            top: '30%'
+        };
+        
+        // 拖动状态
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+        
+        // 鼠标按下事件
+        const dragStart = (e) => {
+            // 只允许在brand-section、标题或副标题上拖动
+            if (e.target === brandSection || e.target === brandTitle || e.target === brandSubtitle) {
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+                isDragging = true;
+                brandSection.style.cursor = 'grabbing';
+            }
+        };
+        
+        // 鼠标移动事件
+        const drag = (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                xOffset = currentX;
+                yOffset = currentY;
+                
+                // 使用transform进行拖动,不改变left/top
+                brandSection.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            }
+        };
+        
+        // 鼠标松开事件 - 回到初始位置
+        const dragEnd = () => {
+            if (isDragging) {
+                isDragging = false;
+                brandSection.style.cursor = 'move';
+                
+                // 添加过渡动画
+                brandSection.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                
+                // 重置到初始位置
+                brandSection.style.transform = 'translate(0, 0)';
+                xOffset = 0;
+                yOffset = 0;
+                
+                // 移除过渡效果(避免影响后续拖动)
+                setTimeout(() => {
+                    brandSection.style.transition = '';
+                }, 500);
+            }
+        };
+        
+        // 绑定事件
+        brandSection.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+        
+        // 触摸事件支持(移动端)
+        const touchStart = (e) => {
+            if (e.target === brandSection || e.target === brandTitle || e.target === brandSubtitle) {
+                const touch = e.touches[0];
+                initialX = touch.clientX - xOffset;
+                initialY = touch.clientY - yOffset;
+                isDragging = true;
+                brandSection.style.cursor = 'grabbing';
+            }
+        };
+        
+        const touchMove = (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                currentX = touch.clientX - initialX;
+                currentY = touch.clientY - initialY;
+                xOffset = currentX;
+                yOffset = currentY;
+                
+                brandSection.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            }
+        };
+        
+        const touchEnd = () => {
+            if (isDragging) {
+                isDragging = false;
+                brandSection.style.cursor = 'move';
+                
+                brandSection.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                brandSection.style.transform = 'translate(0, 0)';
+                xOffset = 0;
+                yOffset = 0;
+                
+                setTimeout(() => {
+                    brandSection.style.transition = '';
+                }, 500);
+            }
+        };
+        
+        brandSection.addEventListener('touchstart', touchStart, { passive: false });
+        document.addEventListener('touchmove', touchMove, { passive: false });
+        document.addEventListener('touchend', touchEnd);
     }
 };
 
