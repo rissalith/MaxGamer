@@ -70,7 +70,6 @@ class AIDialogue {
         this.listenToInteractionButtons();
         // 不再自动开始介绍，只在交互时显示
         // this.startAutoIntro();
-        console.log('AI对话气泡初始化完成（隐藏状态）');
     }
 
     /**
@@ -147,7 +146,6 @@ class AIDialogue {
     handleInteraction(type) {
         // 如果正在思考，忽略新的交互
         if (this.isThinking) {
-            console.log('AI正在思考中，请稍候...');
             return;
         }
         
@@ -295,22 +293,17 @@ class AIDialogue {
             
             if (response.ok) {
                 const data = await response.json();
-                console.log('[AI API] 收到响应:', data);
                 if (data.success && data.message) {
-                    console.log('[AI API] 使用真实AI回复:', data.message);
                     this.updateBubble(data.message, `${interactionType}-response`);
                 } else {
                     // API返回失败，使用预设消息
-                    console.warn('[AI API] API返回失败，使用备用消息');
                     this.useFallbackMessage(interactionType);
                 }
             } else {
                 // HTTP错误，使用预设消息
-                console.warn('[AI API] HTTP错误:', response.status);
                 this.useFallbackMessage(interactionType);
             }
         } catch (error) {
-            console.error('[AI API] 调用失败:', error);
             // 网络错误，使用预设消息
             this.useFallbackMessage(interactionType);
         } finally {
@@ -324,12 +317,10 @@ class AIDialogue {
      * 使用备用消息（当API失败时）
      */
     useFallbackMessage(interactionType) {
-        console.warn('[备用消息] 使用硬编码的备用消息');
         const responses = this.interactionResponses[interactionType];
         if (responses && responses.length > 0) {
             const randomIndex = Math.floor(Math.random() * responses.length);
             const message = responses[randomIndex];
-            console.log('[备用消息] 选择的消息:', message);
             this.updateBubble(message, `${interactionType}-response`);
         }
     }

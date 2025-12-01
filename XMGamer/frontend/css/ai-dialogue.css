@@ -3,10 +3,10 @@
  * 纯文字气泡显示在人物右上方
  */
 
-/* AI对话气泡容器 */
+/* AI对话气泡容器 - 位于人物左上方 */
 .ai-dialogue-container {
     position: fixed;
-    left: 38%;
+    left: 8%;
     top: 8%;
     width: 280px;
     max-height: 300px;
@@ -36,19 +36,19 @@
     max-width: 100%;
 }
 
-/* 气泡尾巴（指向人物） */
+/* 气泡尾巴（指向人物右侧） */
 .ai-message::before {
     content: '';
     position: absolute;
-    left: -8px;
+    right: -8px;
     top: 50%;
     transform: translateY(-50%);
     width: 0;
     height: 0;
     border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
-    border-right: 8px solid rgba(255, 255, 255, 0.95);
-    filter: drop-shadow(-2px 0 2px rgba(0, 0, 0, 0.1));
+    border-left: 8px solid rgba(255, 255, 255, 0.95);
+    filter: drop-shadow(2px 0 2px rgba(0, 0, 0, 0.1));
 }
 
 /* 不同类型的气泡颜色 */
@@ -58,7 +58,7 @@
 }
 
 .ai-message.intro::before {
-    border-right-color: rgba(102, 126, 234, 0.95);
+    border-left-color: rgba(102, 126, 234, 0.95);
 }
 
 .ai-message.like-response {
@@ -67,7 +67,7 @@
 }
 
 .ai-message.like-response::before {
-    border-right-color: rgba(255, 107, 107, 0.95);
+    border-left-color: rgba(255, 107, 107, 0.95);
 }
 
 .ai-message.gift-response {
@@ -76,7 +76,7 @@
 }
 
 .ai-message.gift-response::before {
-    border-right-color: rgba(255, 217, 61, 0.95);
+    border-left-color: rgba(255, 217, 61, 0.95);
 }
 
 .ai-message.comment-response {
@@ -85,7 +85,7 @@
 }
 
 .ai-message.comment-response::before {
-    border-right-color: rgba(79, 172, 254, 0.95);
+    border-left-color: rgba(79, 172, 254, 0.95);
 }
 
 /* 思考中状态 */
@@ -96,7 +96,7 @@
 }
 
 .ai-message.thinking::before {
-    border-right-color: rgba(156, 136, 255, 0.95);
+    border-left-color: rgba(156, 136, 255, 0.95);
 }
 
 /* 打字效果 */
@@ -157,14 +157,14 @@
 /* 响应式设计 */
 @media (max-width: 1400px) {
     .ai-dialogue-container {
-        left: 40%;
+        left: 6%;
         width: 260px;
     }
 }
 
 @media (max-width: 1200px) {
     .ai-dialogue-container {
-        left: 38%;
+        left: 5%;
         width: 240px;
     }
     
@@ -176,14 +176,14 @@
 
 @media (max-width: 1024px) {
     .ai-dialogue-container {
-        left: 35%;
+        left: 4%;
         width: 220px;
     }
 }
 
 @media (max-width: 992px) {
     .ai-dialogue-container {
-        left: 32%;
+        left: 3%;
         width: 200px;
     }
     
