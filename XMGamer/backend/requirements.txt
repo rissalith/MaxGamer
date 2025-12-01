@@ -27,3 +27,8 @@ sendgrid>=6.11.0
 
 # 网络代理
 PySocks>=1.7.1
+
+# RAG 知识库系统（AI对话功能）
+sentence-transformers==2.2.2
+faiss-cpu==1.7.4
+numpy>=1.24.0

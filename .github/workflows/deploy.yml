@@ -68,7 +68,7 @@ jobs:
     name: Deploy to Server
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     
     steps:
       - name: Checkout code
@@ -289,97 +289,34 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH || '/var/www/FrameWorker' }}
             
             # 创建必要的目录
-            mkdir -p data/mysql data/redis logs/nginx logs/platform logs/game-witch nginx/ssl backups
+            mkdir -p data/mysql data/redis logs/nginx logs/platform logs/game-witch nginx/ssl backups vector_db
             
-            # 停止所有旧容器
+            # 登录到GitHub Container Registry
+            echo "登录到GitHub Container Registry..."
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # 拉取最新镜像
+            echo "拉取最新镜像..."
+            docker pull ghcr.io/${{ github.repository_owner }}/xmgamer-platform-api:latest
+            docker pull ghcr.io/${{ github.repository_owner }}/xmgamer-game-witch:latest
+            
+            # 停止并删除旧容器
             echo "停止旧容器..."
-            docker stop $(docker ps -aq) 2>/dev/null || true
-            docker rm $(docker ps -aq) 2>/dev/null || true
+            docker-compose -f docker-compose.prod.yml down 2>/dev/null || true
             
-            # 创建Docker网络
-            docker network create xmgamer-net 2>/dev/null || true
+            # 使用docker-compose启动所有服务
+            echo "启动服务..."
+            docker-compose -f docker-compose.prod.yml up -d
             
-            # 启动MySQL
-            echo "启动MySQL..."
-            docker run -d \
-              --name xmgamer-db \
-              --network xmgamer-net \
-              --restart always \
-              -e MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }} \
-              -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
-              -e MYSQL_USER=${{ secrets.MYSQL_USER }} \
-              -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
-              -e TZ=Asia/Shanghai \
-              -v $(pwd)/data/mysql:/var/lib/mysql \
-              mysql:8.0 \
-              --character-set-server=utf8mb4 \
-              --collation-server=utf8mb4_unicode_ci \
-              --max_connections=500 \
-              --innodb_buffer_pool_size=1G
-            
-            # 启动Redis
-            echo "启动Redis..."
-            docker run -d \
-              --name xmgamer-redis \
-              --network xmgamer-net \
-              --restart always \
-              -v $(pwd)/data/redis:/data \
-              redis:7-alpine \
-              redis-server --appendonly yes --requirepass ${{ secrets.REDIS_PASSWORD }}
-            
-            # 等待数据库启动
-            echo "等待数据库启动..."
-            sleep 10
-            
-            # 启动后端API（使用本地代码）
-            echo "启动后端API..."
-            docker run -d \
-              --name xmgamer-api \
-              --network xmgamer-net \
-              --restart always \
-              -p 5000:5000 \
-              -v $(pwd)/XMGamer/backend:/app \
-              -v $(pwd)/XMGamer/backend/vector_db:/app/vector_db \
-              -v $(pwd)/.env:/app/.env:ro \
-              -w /app \
-              -e PYTHONUNBUFFERED=1 \
-              -e DB_HOST=xmgamer-db \
-              -e DB_PORT=3306 \
-              -e DB_NAME=${{ secrets.MYSQL_DATABASE }} \
-              -e DB_USER=${{ secrets.MYSQL_USER }} \
-              -e DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
-              -e REDIS_HOST=xmgamer-redis \
-              -e REDIS_PORT=6379 \
-              -e REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \
-              -e FLASK_ENV=production \
-              -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
-              -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
-              -e VECTORAPI_KEY=${{ secrets.VECTORAPI_KEY }} \
-              -e VECTORAPI_BASE_URL=https://api.vectorengine.ai/v1 \
-              -e VECTORAPI_MODEL=gemini-2.0-flash-exp \
-              -e PORT=5000 \
-              -e TZ=Asia/Shanghai \
-              python:3.11-slim \
-              bash -c "pip install --no-cache-dir -r requirements.txt && python app.py"
-            
-            # 启动Nginx（使用本地前端文件）
-            echo "启动Nginx..."
-            docker run -d \
-              --name xmgamer-gateway \
-              --network xmgamer-net \
-              --restart always \
-              -p 80:80 -p 443:443 \
-              -v $(pwd)/nginx/conf.d:/etc/nginx/conf.d:ro \
-              -v $(pwd)/nginx/ssl:/etc/nginx/ssl:ro \
-              -v $(pwd)/XMGamer/frontend:/usr/share/nginx/html/platform:ro \
-              -v $(pwd)/logs/nginx:/var/log/nginx \
-              nginx:alpine
+            # 等待服务启动
+            echo "等待服务启动..."
+            sleep 15
             
             # 显示运行状态
             echo "容器运行状态："
-            docker ps
+            docker-compose -f docker-compose.prod.yml ps
             
-            # 清理旧镜像
+            # 清理未使用的镜像
             docker image prune -af
       
       - name: Health check
