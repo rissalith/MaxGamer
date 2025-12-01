@@ -117,38 +117,25 @@ class InteractionButtons {
     handleButtonClick(type, button) {
         const data = this.buttons[type];
         
-        // 切换激活状态
-        data.active = !data.active;
+        // 每次点击都增加计数（不再切换状态）
+        data.count++;
         
-        if (data.active) {
-            // 激活：增加计数
-            data.count++;
+        // 始终保持激活状态
+        if (!data.active) {
+            data.active = true;
             button.classList.add('active');
-            
-            // 显示计数
-            const countSpan = button.querySelector('.count');
-            countSpan.textContent = this.formatCount(data.count);
-            countSpan.classList.add('show');
-            
-            // 触发特效
-            this.triggerEffect(type, button);
-            
-            // 播放音效（如果需要）
-            this.playSound(type);
-            
-        } else {
-            // 取消激活：减少计数
-            data.count = Math.max(0, data.count - 1);
-            button.classList.remove('active');
-            
-            // 更新计数显示
-            const countSpan = button.querySelector('.count');
-            if (data.count === 0) {
-                countSpan.classList.remove('show');
-            } else {
-                countSpan.textContent = this.formatCount(data.count);
-            }
         }
+        
+        // 显示/更新计数
+        const countSpan = button.querySelector('.count');
+        countSpan.textContent = this.formatCount(data.count);
+        countSpan.classList.add('show');
+        
+        // 触发特效
+        this.triggerEffect(type, button);
+        
+        // 播放音效（如果需要）
+        this.playSound(type);
     }
 
     /**
@@ -421,11 +408,9 @@ class InteractionButtons {
     }
 }
 
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', () => {
-    const interactionButtons = new InteractionButtons();
-    interactionButtons.init();
-    
-    // 将实例挂载到window，方便调试和外部访问
-    window.interactionButtons = interactionButtons;
-});
+// 立即初始化（因为脚本是动态加载的，DOM已经准备好了）
+const interactionButtons = new InteractionButtons();
+interactionButtons.init();
+
+// 将实例挂载到window，方便调试和外部访问
+window.interactionButtons = interactionButtons;

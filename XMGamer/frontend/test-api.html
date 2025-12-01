@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API测试</title>
+</head>
+<body>
+    <h1>API测试页面</h1>
+    <button onclick="testAPI()">测试API</button>
+    <pre id="result"></pre>
+    
+    <script>
+        async function testAPI() {
+            const result = document.getElementById('result');
+            const token = localStorage.getItem('xmframer_token');
+            
+            result.textContent = 'Token: ' + (token ? token.substring(0, 50) + '...' : '无') + '\n\n';
+            
+            if (!token) {
+                result.textContent += '错误：未找到token，请先登录';
+                return;
+            }
+            
+            const apiUrl = 'https://api.xmframer.com/api/auth/me';
+            result.textContent += '请求URL: ' + apiUrl + '\n\n';
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                
+                result.textContent += '状态码: ' + response.status + '\n';
+                result.textContent += '状态文本: ' + response.statusText + '\n\n';
+                
+                const contentType = response.headers.get('content-type');
+                result.textContent += 'Content-Type: ' + contentType + '\n\n';
+                
+                const text = await response.text();
+                result.textContent += '响应内容:\n' + text;
+                
+            } catch (error) {
+                result.textContent += '错误: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

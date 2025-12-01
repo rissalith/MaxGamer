@@ -1,0 +1,272 @@
+/**
+ * AI对话气泡样式
+ * 纯文字气泡显示在人物右上方
+ */
+
+/* AI对话气泡容器 */
+.ai-dialogue-container {
+    position: fixed;
+    left: 38%;
+    top: 8%;
+    width: 280px;
+    max-height: 300px;
+    z-index: 30;
+    pointer-events: none;
+    /* Safari优化 */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform, opacity;
+}
+
+/* 单个对话气泡 */
+.ai-message {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 12px 16px;
+    border-radius: 16px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: bubbleSlideIn 0.5s ease-out;
+    position: relative;
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
+/* 气泡尾巴（指向人物） */
+.ai-message::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid rgba(255, 255, 255, 0.95);
+    filter: drop-shadow(-2px 0 2px rgba(0, 0, 0, 0.1));
+}
+
+/* 不同类型的气泡颜色 */
+.ai-message.intro {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+    color: white;
+}
+
+.ai-message.intro::before {
+    border-right-color: rgba(102, 126, 234, 0.95);
+}
+
+.ai-message.like-response {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.95) 0%, rgba(255, 135, 135, 0.95) 100%);
+    color: white;
+}
+
+.ai-message.like-response::before {
+    border-right-color: rgba(255, 107, 107, 0.95);
+}
+
+.ai-message.gift-response {
+    background: linear-gradient(135deg, rgba(255, 217, 61, 0.95) 0%, rgba(255, 184, 0, 0.95) 100%);
+    color: #333;
+}
+
+.ai-message.gift-response::before {
+    border-right-color: rgba(255, 217, 61, 0.95);
+}
+
+.ai-message.comment-response {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.95) 0%, rgba(0, 242, 254, 0.95) 100%);
+    color: white;
+}
+
+.ai-message.comment-response::before {
+    border-right-color: rgba(79, 172, 254, 0.95);
+}
+
+/* 思考中状态 */
+.ai-message.thinking {
+    background: linear-gradient(135deg, rgba(156, 136, 255, 0.95) 0%, rgba(172, 182, 229, 0.95) 100%);
+    color: white;
+    animation: thinkingPulse 1.5s ease-in-out infinite;
+}
+
+.ai-message.thinking::before {
+    border-right-color: rgba(156, 136, 255, 0.95);
+}
+
+/* 打字效果 */
+.ai-message.typing::after {
+    content: '▋';
+    animation: blink 1s step-end infinite;
+    margin-left: 2px;
+}
+
+/* 淡出动画（用于移除旧消息） */
+.ai-message.fade-out {
+    animation: bubbleFadeOut 0.5s ease-out forwards;
+}
+
+/* 动画定义 */
+@keyframes bubbleSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes bubbleFadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-20px) scale(0.9);
+    }
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes thinkingPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.85;
+        transform: scale(1.02);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 1400px) {
+    .ai-dialogue-container {
+        left: 40%;
+        width: 260px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .ai-dialogue-container {
+        left: 38%;
+        width: 240px;
+    }
+    
+    .ai-message {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .ai-dialogue-container {
+        left: 35%;
+        width: 220px;
+    }
+}
+
+@media (max-width: 992px) {
+    .ai-dialogue-container {
+        left: 32%;
+        width: 200px;
+    }
+    
+    .ai-message {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+}
+
+/* 平板竖屏 - 移到顶部中央 */
+@media (max-width: 768px) {
+    .ai-dialogue-container {
+        left: 50%;
+        top: 20px;
+        transform: translateX(-50%);
+        width: calc(100% - 40px);
+        max-width: 320px;
+    }
+    
+    .ai-message::before {
+        display: none;
+    }
+}
+
+/* 手机横屏和小屏手机 */
+@media (max-width: 480px) {
+    .ai-dialogue-container {
+        width: calc(100% - 24px);
+        top: 12px;
+        max-height: 200px;
+    }
+    
+    .ai-message {
+        font-size: 12px;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        border-radius: 12px;
+    }
+}
+
+/* 超小屏幕 */
+@media (max-width: 375px) {
+    .ai-dialogue-container {
+        width: calc(100% - 20px);
+    }
+    
+    .ai-message {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+}
+
+/* 横屏模式优化 */
+@media (max-height: 600px) and (orientation: landscape) {
+    .ai-dialogue-container {
+        top: 10px;
+        max-height: 150px;
+    }
+    
+    .ai-message {
+        font-size: 11px;
+        padding: 6px 10px;
+        margin-bottom: 6px;
+    }
+}
+
+/* Safari特定优化 */
+@supports (-webkit-touch-callout: none) {
+    .ai-dialogue-container {
+        /* iOS Safari 顶部安全区域适配 */
+        top: calc(15% + env(safe-area-inset-top));
+    }
+    
+    @media (max-width: 768px) {
+        .ai-dialogue-container {
+            top: calc(20px + env(safe-area-inset-top));
+        }
+    }
+}
+
+/* 隐藏状态 */
+.ai-dialogue-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}

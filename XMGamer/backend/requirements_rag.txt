@@ -1,0 +1,17 @@
+# RAG (检索增强生成) 依赖包 - 兼容版本
+# 用于MaxGamer AI对话系统的知识库检索
+
+# 向量模型 - 使用更新的版本以兼容新的huggingface_hub
+sentence-transformers>=2.3.0
+
+# 向量数据库 - 使用FAISS替代ChromaDB（更轻量，无需编译）
+faiss-cpu>=1.8.0
+
+# 安装方法:
+# pip install -r requirements_rag.txt
+
+# 注意:
+# 1. sentence-transformers会自动下载模型文件（约420MB）
+# 2. 首次运行会比较慢，后续会使用缓存
+# 3. 如果网络不好，可以手动下载模型到 ~/.cache/torch/sentence_transformers/
+# 4. FAISS是Facebook开发的向量检索库，性能优秀且易于安装

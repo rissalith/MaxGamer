@@ -7,9 +7,16 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
     <title>登录 - XMGamer</title>
-    <link rel="stylesheet" href="css/main.css?v=20251128">
-    <link rel="stylesheet" href="css/auth.css?v=20251128">
-    <link rel="stylesheet" href="css/interaction-buttons.css?v=20251128">
+    
+    <!-- 版本管理系统 -->
+    <script src="js/version.js"></script>
+    <script>
+        // 动态加载CSS
+        loadStylesheet('css/main.css');
+        loadStylesheet('css/auth.css');
+        loadStylesheet('css/interaction-buttons.css');
+        loadStylesheet('css/ai-dialogue.css');
+    </script>
 </head>
 <body class="auth-page">
     <!-- 流光溢彩光晕效果 -->
@@ -310,26 +317,6 @@
         </div>
     </div>
 
-    <!-- OAuth配置 -->
-    <script src="js/config/oauth.js?v=20251128"></script>
-    
-    <!-- 引入认证管理模块 -->
-    <script src="js/modules/authManager.js?v=20251128"></script>
-    
-    <!-- 图片轮播器 -->
-    <script src="js/image-carousel.js?v=20251128"></script>
-    
-    <!-- 品牌区域拖拽 -->
-    <script src="js/brand-draggable.js?v=20251128"></script>
-    
-    <!-- 交互按钮 -->
-    <script src="js/interaction-buttons.js?v=20251128"></script>
-    
-    <!-- 粒子爆炸效果 -->
-    <script src="js/particle-explosion.js?v=20251128"></script>
-    
-    <!-- 登录页面脚本 -->
-    
     <!-- 视频音量控制 -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -360,6 +347,30 @@
             }
         });
     </script>
-    <script src="js/login.js?v=20251128"></script>
+    
+    <!-- 动态加载所有JS模块 -->
+    <script>
+        // 按顺序加载所有必需的脚本
+        Promise.all([
+            loadScript('js/config/oauth.js'),
+            loadScript('js/modules/authManager.js')
+        ]).then(() => {
+            // 加载其他脚本
+            return Promise.all([
+                loadScript('js/image-carousel.js'),
+                loadScript('js/brand-draggable.js'),
+                loadScript('js/interaction-buttons.js'),
+                loadScript('js/particle-explosion.js'),
+                loadScript('js/ai-dialogue.js')
+            ]);
+        }).then(() => {
+            // 最后加载登录页面主脚本
+            return loadScript('js/login.js');
+        }).then(() => {
+            console.log('[登录页面] 所有模块加载完成 ✅');
+        }).catch(error => {
+            console.error('[登录页面] 模块加载失败:', error);
+        });
+    </script>
 </body>
 </html>

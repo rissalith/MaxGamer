@@ -4,7 +4,6 @@ from datetime import datetime
 from pathlib import Path
 
 from flask import Flask, jsonify, request, send_from_directory
-from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from dotenv import load_dotenv
 
@@ -60,22 +59,34 @@ load_dotenv()
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
 app.config['SECRET_KEY'] = 'xmgamer-secret-key-2024'
 
-# 配置CORS - 允许来自前端域名的跨域请求
-CORS(app, resources={
-    r"/api/*": {
-        "origins": [
-            "https://www.xmframer.com",
-            "https://xmframer.com",
-            "http://localhost:*",
-            "http://127.0.0.1:*"
-        ],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "expose_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": True,
-        "max_age": 3600
-    }
-})
+# 配置CORS - 生产环境由Nginx处理，本地开发环境启用
+# 检测是否在Docker容器中运行（生产环境）
+import os.path
+is_docker = os.path.exists('/.dockerenv')
+
+if not is_docker:
+    # 本地开发环境：启用CORS
+    try:
+        from flask_cors import CORS
+        CORS(app, resources={
+            r"/api/*": {
+                "origins": [
+                    "http://localhost:*",
+                    "http://127.0.0.1:*"
+                ],
+                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+                "allow_headers": ["Content-Type", "Authorization"],
+                "expose_headers": ["Content-Type", "Authorization"],
+                "supports_credentials": True,
+                "max_age": 3600
+            }
+        })
+        print('[OK] 本地开发环境：CORS已启用')
+    except ImportError:
+        print('[WARNING] flask-cors未安装，CORS功能不可用')
+else:
+    # 生产环境（Docker）：CORS由Nginx处理，不添加CORS头
+    print('[OK] 生产环境（Docker）：CORS由Nginx处理')
 
 # 初始化SocketIO
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')

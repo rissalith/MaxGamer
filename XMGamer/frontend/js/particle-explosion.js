@@ -203,13 +203,9 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// 页面加载完成后初始化
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        const explosion = new ParticleExplosion();
-        explosion.init();
-    });
-} else {
-    const explosion = new ParticleExplosion();
-    explosion.init();
-}
+// 立即初始化（因为脚本是动态加载的，DOM已经准备好了）
+const explosion = new ParticleExplosion();
+explosion.init();
+
+// 将实例挂载到window，方便调试和外部访问
+window.particleExplosion = explosion;

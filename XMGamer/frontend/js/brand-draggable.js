@@ -119,11 +119,9 @@ class BrandDraggable {
     }
 }
 
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', () => {
-    const brandDraggable = new BrandDraggable();
-    brandDraggable.init();
-    
-    // 将实例挂载到window，方便调试
-    window.brandDraggable = brandDraggable;
-});
+// 立即初始化（因为脚本是动态加载的，DOM已经准备好了）
+const brandDraggable = new BrandDraggable();
+brandDraggable.init();
+
+// 将实例挂载到window，方便调试
+window.brandDraggable = brandDraggable;

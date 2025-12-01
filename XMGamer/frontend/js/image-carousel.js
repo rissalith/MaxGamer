@@ -241,11 +241,9 @@ class ImageCarousel {
     }
 }
 
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', () => {
-    const carousel = new ImageCarousel();
-    carousel.init();
-    
-    // 将轮播器实例挂载到window，方便调试
-    window.imageCarousel = carousel;
-});
+// 立即初始化（因为脚本是动态加载的，DOM已经准备好了）
+const carousel = new ImageCarousel();
+carousel.init();
+
+// 将轮播器实例挂载到window，方便调试
+window.imageCarousel = carousel;
