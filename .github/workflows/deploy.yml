@@ -20,14 +20,12 @@ jobs:
       packages: write
     
     strategy:
+      fail-fast: false
       matrix:
         service:
           - name: platform-api
             context: ./XMGamer
             dockerfile: ./XMGamer/Dockerfile
-          - name: game-witch
-            context: ./GameLibrary/games/fortune-game
-            dockerfile: ./GameLibrary/games/fortune-game/Dockerfile
     
     steps:
       - name: Checkout code
@@ -68,7 +66,7 @@ jobs:
     name: Deploy to Server
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    if: needs.build-and-push.result == 'success' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     
     steps:
       - name: Checkout code
@@ -177,7 +175,6 @@ jobs:
                 - ./XMGamer/frontend:/usr/share/nginx/html/platform:ro
               depends_on:
                 - platform-api
-                - game-witch
               networks:
                 - xmgamer-net
           
@@ -240,26 +237,6 @@ jobs:
               networks:
                 - xmgamer-net
           
-            game-witch:
-              image: ghcr.io/${{ github.repository_owner }}/xmgamer-game-witch:latest
-              container_name: game-witch
-              restart: always
-              environment:
-                REDIS_HOST: redis
-                REDIS_PORT: 6379
-                REDIS_PASSWORD: ${REDIS_PASSWORD}
-                GAME_MODE: production
-                MAX_PLAYERS: 100
-                DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
-                GEMINI_API_KEY: ${GEMINI_API_KEY}
-                PORT: 5001
-                TZ: Asia/Shanghai
-              volumes:
-                - ./logs/game-witch:/app/logs
-              depends_on:
-                - redis
-              networks:
-                - xmgamer-net
           
           networks:
             xmgamer-net:
@@ -298,7 +275,6 @@ jobs:
             # 拉取最新镜像
             echo "拉取最新镜像..."
             docker pull ghcr.io/${{ github.repository_owner }}/xmgamer-platform-api:latest
-            docker pull ghcr.io/${{ github.repository_owner }}/xmgamer-game-witch:latest
             
             # 停止并删除旧容器
             echo "停止旧容器..."
