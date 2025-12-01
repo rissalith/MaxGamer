@@ -23,13 +23,12 @@ except ImportError as e:
     print(f'[WARNING] 游戏直播服务模块不可用: {e}')
     print('[INFO] 直播功能将不可用')
 
-# 导入认证、历史记录、游戏、钱包、商品和AI对话路由
+# 导入认证、历史记录、游戏、钱包和商品路由
 auth_bp = None
 history_bp = None
 games_bp = None
 wallet_bp = None
 products_bp = None
-ai_dialogue_bp = None
 ROUTES_AVAILABLE = False
 
 try:
@@ -37,7 +36,6 @@ try:
     from routes.games import games_bp  # type: ignore
     from routes.wallet import wallet_bp  # type: ignore
     from routes.products import products_bp  # type: ignore
-    from routes.ai_dialogue import ai_dialogue_bp  # type: ignore
     ROUTES_AVAILABLE = True
 except ImportError as e:
     print(f'警告: 路由模块不可用: {e}')
@@ -102,7 +100,7 @@ if LIVE_SERVICE_AVAILABLE:
         print(f'[ERROR] 初始化游戏直播服务失败: {e}')
         LIVE_SERVICE_AVAILABLE = False
 
-# 注册认证、历史记录、游戏、钱包、商品和AI对话路由蓝图
+# 注册认证、历史记录、游戏、钱包和商品路由蓝图
 if ROUTES_AVAILABLE:
     if auth_bp is not None:
         app.register_blueprint(auth_bp)
@@ -119,9 +117,6 @@ if ROUTES_AVAILABLE:
     if products_bp is not None:
         app.register_blueprint(products_bp)
         print('[OK] 商品管理路由已注册')
-    if ai_dialogue_bp is not None:
-        app.register_blueprint(ai_dialogue_bp, url_prefix='/api/ai')
-        print('[OK] AI对话路由已注册')
 
 # 初始化并注册游戏库
 if GAME_LIBRARY_AVAILABLE:
