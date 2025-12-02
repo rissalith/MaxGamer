@@ -43,7 +43,8 @@ RUN pip install --upgrade pip setuptools wheel && \
 COPY backend/ .
 
 # 创建必要的目录
-RUN mkdir -p /app/logs /app/vector_db
+RUN mkdir -p /app/logs /app/vector_db /app/data && \
+    chmod 777 /app/data
 
 # 暴露端口
 EXPOSE 5000
