@@ -595,7 +595,7 @@ def login_with_password():
                 return jsonify({
                     'success': False,
                     'error': '登录失败',
-                    'message': '账号或密码错误'
+                    'message': '账号未注册，请先注册'
                 }), 400
             
             # 检查用户是否设置了密码
