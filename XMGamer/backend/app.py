@@ -5,6 +5,7 @@ from pathlib import Path
 
 from flask import Flask, jsonify, request, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 
 # 导入游戏的直播服务
@@ -60,6 +61,16 @@ load_dotenv()
 
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
 app.config['SECRET_KEY'] = 'xmgamer-secret-key-2024'
+
+# 配置ProxyFix以正确处理Nginx代理头
+# 这样Flask就能正确识别HTTPS协议和真实的客户端IP
+app.wsgi_app = ProxyFix(
+    app.wsgi_app,
+    x_for=1,  # X-Forwarded-For
+    x_proto=1,  # X-Forwarded-Proto
+    x_host=1,  # X-Forwarded-Host
+    x_prefix=1  # X-Forwarded-Prefix
+)
 
 # 配置CORS - 生产环境由Nginx处理，本地开发环境启用
 # 检测是否在Docker容器中运行（生产环境）
