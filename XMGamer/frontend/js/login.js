@@ -905,10 +905,11 @@ const LoginPage = {
             // 调用AuthManager的Google登录方法
             const result = await AuthManager.loginWithGoogle();
             
-            // 检查是否需要设置密码（首次登录）
-            if (result.needSetPassword && result.isNewUser) {
+            // 检查是否需要设置密码（无论新老用户）
+            if (result.needSetPassword) {
                 googleLoginBtn.disabled = false;
-                this.showStatus('success', '✅ 首次登录，请完善信息');
+                const message = result.isNewUser ? '✅ 首次登录，请完善信息' : '✅ 请设置密码以完善账号';
+                this.showStatus('success', message);
                 
                 // 显示首次登录注册界面
                 setTimeout(() => {
