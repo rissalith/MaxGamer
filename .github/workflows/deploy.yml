@@ -79,7 +79,7 @@ jobs:
           # Vector Engine AI 配置（登录页AI对话）
           VECTORAPI_KEY=${{ secrets.VECTORAPI_KEY }}
           VECTORAPI_BASE_URL=https://api.vectorengine.ai/v1
-          VECTORAPI_MODEL=gemini-2.0-flash-exp
+          VECTORAPI_MODEL=gpt-4o-mini
           
           # 短信服务配置
           ALIYUN_ACCESS_KEY_ID=${{ secrets.ALIYUN_ACCESS_KEY_ID }}
