@@ -166,9 +166,22 @@
                         window.close();
                     }, 1000);
                 } else {
-                    // 如果没有父窗口，直接跳转到主页
-                    localStorage.setItem('xmframer_token', data.token);
-                    window.location.href = '/';
+                    // 如果没有父窗口，检查是否需要设置密码
+                    if (data.needSetPassword) {
+                        // 需要设置密码，跳转到登录页并传递参数
+                        const params = new URLSearchParams({
+                            needSetPassword: 'true',
+                            token: data.token,
+                            isNewUser: data.isNewUser || 'false',
+                            email: data.user.email || '',
+                            nickname: data.user.nickname || ''
+                        });
+                        window.location.href = `/login.html?${params.toString()}`;
+                    } else {
+                        // 不需要设置密码，直接保存token并跳转
+                        localStorage.setItem('xmframer_token', data.token);
+                        window.location.href = '/';
+                    }
                 }
                 
             } catch (error) {
