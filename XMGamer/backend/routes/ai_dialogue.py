@@ -29,7 +29,7 @@ ai_dialogue_bp = Blueprint('ai_dialogue', __name__)
 # 从环境变量获取配置
 VECTORAPI_KEY = os.getenv('VECTORAPI_KEY')
 VECTORAPI_BASE_URL = os.getenv('VECTORAPI_BASE_URL', 'https://api.vectorengine.ai/v1')
-# 使用更稳定的模型，gemini-2.0-flash-exp在当前分组不可用
+# 使用gpt-4o-mini模型(更快速且成本更低)
 VECTORAPI_MODEL = os.getenv('VECTORAPI_MODEL', 'gpt-4o-mini')
 
 
