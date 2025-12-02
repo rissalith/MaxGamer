@@ -373,7 +373,16 @@ class GameLaunch(Base):
 
 # 数据库配置
 # 使用持久化目录存储SQLite数据库
-DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:////app/data/frameworker.db')
+# 本地开发时使用相对路径，Docker容器内使用绝对路径
+if os.getenv('FLASK_ENV') == 'production':
+    # 生产环境（Docker容器内）
+    DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:////app/data/frameworker.db')
+else:
+    # 本地开发环境
+    db_dir = os.path.join(os.path.dirname(__file__), 'data')
+    os.makedirs(db_dir, exist_ok=True)
+    db_path = os.path.join(db_dir, 'frameworker.db')
+    DATABASE_URL = os.getenv('DATABASE_URL', f'sqlite:///{db_path}')
 
 # 创建引擎
 engine = create_engine(
@@ -396,6 +405,21 @@ def init_db():
     print(f'   创建的表: users, sessions, sms_codes, email_codes, generation_history, user_quotas')
     print(f'   点数系统表: wallets, transactions, products, licenses')
     print(f'   游戏相关表: game_licenses, game_launches')
+
+
+# 自动初始化数据库（如果不存在）
+try:
+    # 检查数据库是否存在
+    if 'sqlite' in DATABASE_URL:
+        db_path = DATABASE_URL.replace('sqlite:///', '')
+        if not os.path.exists(db_path):
+            print(f'[INFO] 数据库文件不存在，正在创建: {db_path}')
+            init_db()
+    else:
+        # 对于非SQLite数据库，尝试创建表
+        Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f'[WARNING] 自动初始化数据库失败: {e}')
 
 
 def get_db():
