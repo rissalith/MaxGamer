@@ -214,6 +214,16 @@ jobs:
                 VECTORAPI_MODEL: ${VECTORAPI_MODEL}
                 GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
                 GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+                ENVIRONMENT: production
+                EMAIL_SERVICE: sendgrid
+                SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+                SENDGRID_FROM_EMAIL: ${SENDGRID_FROM_EMAIL}
+                SENDGRID_FROM_NAME: XMGamer
+                ALIYUN_ACCESS_KEY_ID: ${ALIYUN_ACCESS_KEY_ID}
+                ALIYUN_ACCESS_KEY_SECRET: ${ALIYUN_ACCESS_KEY_SECRET}
+                ALIYUN_SMS_SIGN_NAME: ${ALIYUN_SMS_SIGN_NAME}
+                ALIYUN_SMS_TEMPLATE_CODE: ${ALIYUN_SMS_TEMPLATE_CODE}
+                FRONTEND_DOMAIN: ${DOMAIN}
                 PORT: 5000
                 TZ: Asia/Shanghai
               volumes:
