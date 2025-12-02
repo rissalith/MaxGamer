@@ -1094,8 +1094,9 @@ def google_callback():
         # 配置（需要在环境变量或配置文件中设置）
         client_id = os.getenv('GOOGLE_CLIENT_ID', 'YOUR_GOOGLE_CLIENT_ID')
         client_secret = os.getenv('GOOGLE_CLIENT_SECRET', 'YOUR_GOOGLE_CLIENT_SECRET')
-        # 动态构建redirect_uri，支持HTTP和HTTPS
-        redirect_uri = f"{request.scheme}://{request.host}/oauth-callback.html"
+        # 使用前端域名构建redirect_uri（从环境变量或Referer获取）
+        frontend_domain = os.getenv('FRONTEND_DOMAIN', 'www.xmframer.com')
+        redirect_uri = f"https://{frontend_domain}/oauth-callback.html"
         
         # 交换授权码获取access token
         token_url = 'https://oauth2.googleapis.com/token'
@@ -1247,8 +1248,13 @@ def google_login():
         # 配置
         client_id = os.getenv('GOOGLE_CLIENT_ID', 'YOUR_GOOGLE_CLIENT_ID')
         client_secret = os.getenv('GOOGLE_CLIENT_SECRET', 'YOUR_GOOGLE_CLIENT_SECRET')
-        # 动态构建redirect_uri，支持HTTP和HTTPS
-        redirect_uri = f"{request.scheme}://{request.host}/oauth-callback.html"
+        # 使用前端域名构建redirect_uri（从环境变量或Referer获取）
+        frontend_domain = os.getenv('FRONTEND_DOMAIN', 'www.xmframer.com')
+        # 本地开发环境特殊处理
+        if request.host.startswith('localhost') or request.host.startswith('127.0.0.1'):
+            redirect_uri = f"http://{request.host}/oauth-callback.html"
+        else:
+            redirect_uri = f"https://{frontend_domain}/oauth-callback.html"
         
         print(f'[DEBUG] redirect_uri: {redirect_uri}')
         print(f'[DEBUG] client_id: {client_id}')
