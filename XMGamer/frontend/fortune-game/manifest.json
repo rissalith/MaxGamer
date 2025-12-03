@@ -1,0 +1,136 @@
+{
+    "id": "fortune-game",
+    "version": "1.0.0",
+    "name": "巫女占卜 - Fortune Teller",
+    "engine": "HTML5",
+    "description": "互动式占卜游戏，观众可以通过礼物或弹幕触发占卜，获取每日运势、事业、爱情、健康、财运等方面的神秘预测。",
+    
+    "tech_specs": {
+        "width": 1200,
+        "height": 800,
+        "transparent": true,
+        "minWidth": 800,
+        "minHeight": 600
+    },
+    
+    "assets": {
+        "icon": "assets/icon.png",
+        "cover": "assets/cover.png"
+    },
+    
+    "actions": [
+        {
+            "code": "DRAW_FORTUNE",
+            "label": "抽签占卜",
+            "description": "为指定观众进行占卜抽签，随机获取一张签文",
+            "preview_gif": "assets/preview_draw.gif",
+            "default_trigger": {
+                "type": "gift",
+                "value": "玫瑰"
+            }
+        },
+        {
+            "code": "DRAW_LOVE",
+            "label": "姻缘签",
+            "description": "专门针对爱情运势的占卜",
+            "params": [
+                {
+                    "key": "style",
+                    "label": "签文风格",
+                    "input_type": "select",
+                    "options": ["古典", "现代", "搞笑"],
+                    "default": "古典"
+                }
+            ]
+        },
+        {
+            "code": "DRAW_CAREER",
+            "label": "事业签",
+            "description": "专门针对事业运势的占卜"
+        },
+        {
+            "code": "DRAW_HEALTH",
+            "label": "健康签",
+            "description": "专门针对健康运势的占卜"
+        },
+        {
+            "code": "DRAW_WEALTH",
+            "label": "财运签",
+            "description": "专门针对财运的占卜"
+        },
+        {
+            "code": "DAILY_FORTUNE",
+            "label": "今日运势",
+            "description": "获取今日综合运势概览",
+            "default_trigger": {
+                "type": "comment",
+                "value": "占卜"
+            }
+        },
+        {
+            "code": "RESET_SCENE",
+            "label": "重置场景",
+            "description": "清除当前占卜结果，重置场景到初始状态",
+            "admin_only": true
+        },
+        {
+            "code": "WITCH_CHAT",
+            "label": "AI对话",
+            "description": "让巫女Lili与观众互动对话",
+            "params": [
+                {
+                    "key": "message",
+                    "label": "对话内容",
+                    "input_type": "text",
+                    "placeholder": "观众想说的话..."
+                }
+            ]
+        },
+        {
+            "code": "SHOW_EFFECT",
+            "label": "播放特效",
+            "description": "播放指定的视觉特效",
+            "params": [
+                {
+                    "key": "effect_type",
+                    "label": "特效类型",
+                    "input_type": "select",
+                    "options": ["樱花飘落", "星光闪烁", "神秘光环", "烟花绽放"],
+                    "default": "樱花飘落"
+                },
+                {
+                    "key": "duration",
+                    "label": "持续时间(秒)",
+                    "input_type": "number",
+                    "default": 5,
+                    "min": 1,
+                    "max": 30
+                }
+            ]
+        }
+    ],
+    
+    "events": [
+        {
+            "code": "FORTUNE_RESULT",
+            "label": "占卜结果",
+            "description": "当占卜完成时触发",
+            "payload": {
+                "user": "触发用户信息",
+                "result": "签文结果",
+                "fortune_type": "运势类型"
+            }
+        },
+        {
+            "code": "SCENE_READY",
+            "label": "场景就绪",
+            "description": "游戏场景加载完成时触发"
+        }
+    ],
+    
+    "author": "MaxGamer Team",
+    "homepage": "https://maxgamer.com",
+    "support_email": "support@maxgamer.com"
+}
+
+

@@ -27,7 +27,7 @@
     font-weight: 400;
     color: #202124;
     margin: 0;
-    font-family: 'Google Sans', 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: -0.2px;
 }
 
 /* 主体区域 */
@@ -120,7 +120,7 @@
     font-weight: 500;
     color: #202124;
     margin: 0;
-    font-family: 'Google Sans', 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: -0.1px;
 }
 
 .auto-save-hint {

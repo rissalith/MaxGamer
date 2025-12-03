@@ -97,6 +97,7 @@ const SettingsManager = {
         this._bindPasswordToggle();
         this._bindPreferenceToggles();
         this._bindLanguageChange();
+        this._bindThemeChange();
     },
     
     /**
@@ -363,6 +364,30 @@ const SettingsManager = {
     },
     
     /**
+     * 绑定主题切换 - 即时生效
+     */
+    _bindThemeChange() {
+        const themeRadios = document.querySelectorAll('input[name="theme"]');
+        
+        themeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const theme = e.target.value;
+                this._applyTheme(theme);
+                localStorage.setItem('theme', theme);
+                
+                const themeNames = {
+                    'white': '白色',
+                    'purple': '紫色',
+                    'gold': '金色',
+                    'dark': '黑色'
+                };
+                
+                this._showToast(`主题已切换为${themeNames[theme]}`, 'success');
+            });
+        });
+    },
+    
+    /**
      * 绑定语言切换 - 即时生效
      */
     _bindLanguageChange() {
@@ -409,13 +434,13 @@ const SettingsManager = {
      * 加载并应用用户偏好设置
      */
     _loadAndApplyPreferences() {
-        // 深色模式
-        const darkMode = localStorage.getItem('dark_mode') === 'true';
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        if (darkModeToggle) {
-            darkModeToggle.checked = darkMode;
+        // 主题色
+        const savedTheme = localStorage.getItem('theme') || 'white';
+        const themeRadio = document.querySelector(`input[name="theme"][value="${savedTheme}"]`);
+        if (themeRadio) {
+            themeRadio.checked = true;
         }
-        this._applyDarkMode(darkMode);
+        this._applyTheme(savedTheme);
         
         // 动画效果
         const animationsEnabled = localStorage.getItem('animations_enabled') !== 'false';
@@ -448,14 +473,11 @@ const SettingsManager = {
     },
     
     /**
-     * 应用深色模式
+     * 应用主题色
      */
-    _applyDarkMode(enabled) {
-        if (enabled) {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
+    _applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        console.log('[设置] 主题已切换为:', theme);
     },
     
     /**
@@ -512,11 +534,11 @@ const SettingsManager = {
 
 // 页面加载时应用保存的设置（在设置页面之外也生效）
 (function applyGlobalSettings() {
-    const darkMode = localStorage.getItem('dark_mode') === 'true';
-    if (darkMode) {
-        document.body.classList.add('dark-mode');
-    }
+    // 应用主题
+    const savedTheme = localStorage.getItem('theme') || 'white';
+    document.documentElement.setAttribute('data-theme', savedTheme);
     
+    // 应用动画设置
     const animationsEnabled = localStorage.getItem('animations_enabled') !== 'false';
     if (!animationsEnabled) {
         document.body.classList.add('no-animations');

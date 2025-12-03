@@ -73,19 +73,29 @@ def generate_order_id():
 
 
 def get_or_create_wallet(db, user_id):
-    """获取或创建用户钱包"""
+    """获取或创建用户钱包，并同步用户表余额"""
     wallet = db.query(Wallet).filter(Wallet.user_id == user_id).first()
+    user = db.query(User).filter(User.id == user_id).first()
+    
     if not wallet:
+        # 创建钱包，使用用户表的余额（如果有）
+        initial_balance = user.balance if user and user.balance else 0
         wallet = Wallet(
             user_id=user_id,
-            balance=0,
+            balance=initial_balance,
             frozen_balance=0,
-            total_recharged=0,
+            total_recharged=initial_balance,
             total_consumed=0
         )
         db.add(wallet)
         db.commit()
         db.refresh(wallet)
+    else:
+        # 同步：确保用户表和钱包表余额一致
+        if user and user.balance != wallet.balance:
+            user.balance = wallet.balance
+            db.commit()
+    
     return wallet
 
 
@@ -291,6 +301,11 @@ def complete_recharge():
             amount_val: int = transaction.amount  # type: ignore
             wallet.balance = wallet.balance + amount_val  # type: ignore
             wallet.total_recharged = wallet.total_recharged + amount_val  # type: ignore
+            
+            # 同步用户表余额
+            user = db.query(User).filter(User.id == user_id).first()
+            if user:
+                user.balance = wallet.balance
             
             # 更新交易记录
             transaction.status = 'completed'  # type: ignore

@@ -13,7 +13,7 @@
     align-items: center;
     justify-content: flex-end;
     padding-right: 10%;
-    font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+    font-family: 'Noto Sans SC', 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
     position: relative;
     overflow: hidden;
 }

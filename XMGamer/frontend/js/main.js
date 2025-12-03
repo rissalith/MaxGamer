@@ -26,8 +26,14 @@ const App = {
         // 更新用户信息显示
         this._updateUserDisplay();
         
+        // 加载用户余额
+        this._loadUserBalance();
+        
         // 绑定用户菜单事件
         this._bindUserMenuEvents();
+        
+        // 绑定充值按钮事件
+        this._bindRechargeButton();
         
         // 监听认证状态变化
         this._bindAuthEvents();
@@ -40,8 +46,35 @@ const App = {
             GameMarket.init();
         }
         
-        console.log('XMGamer 已加载 ✅');
+        console.log('MaxGamer V1.0 已加载 ✅');
         console.log('欢迎来到直播互动游戏平台！');
+    },
+    
+    /**
+     * 绑定充值按钮事件
+     * @private
+     */
+    _bindRechargeButton() {
+        const btnRecharge = document.getElementById('btnRecharge');
+        const balanceCard = document.getElementById('balanceCard');
+        
+        const handleRecharge = () => {
+            // 导航到充值中心
+            if (window.Router) {
+                Router.navigate('wallet');
+            }
+        };
+        
+        if (btnRecharge) {
+            btnRecharge.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleRecharge();
+            });
+        }
+        
+        if (balanceCard) {
+            balanceCard.addEventListener('click', handleRecharge);
+        }
     },
     
     /**
@@ -126,8 +159,16 @@ const App = {
                 }
                 break;
             case 'wallet':
-                const walletMsg = window.I18n ? I18n.t('wallet_coming_soon') : '钱包功能即将推出';
-                alert(walletMsg);
+                // 导航到充值中心
+                if (window.Router) {
+                    Router.navigate('wallet');
+                }
+                break;
+            case 'admin':
+                // 导航到用户管理页面
+                if (window.Router) {
+                    Router.navigate('admin-users');
+                }
                 break;
             case 'logout':
                 const logoutMsg = window.I18n ? I18n.t('logout_confirm') : '确定要退出登录吗？';
@@ -146,9 +187,73 @@ const App = {
         const user = AuthManager.getCurrentUser();
         if (!user) return;
         
+        // 更新用户名
         const userNameEl = document.querySelector('.user-name');
         if (userNameEl) {
-            userNameEl.textContent = user.nickname || user.phone || '游戏玩家';
+            userNameEl.textContent = user.nickname || user.phone || user.email || '游戏玩家';
+        }
+        
+        // 更新用户角色
+        const userRoleEl = document.getElementById('userRole');
+        if (userRoleEl) {
+            if (user.role === 'admin') {
+                userRoleEl.textContent = '管理员';
+                userRoleEl.className = 'user-role admin';
+            } else if (user.role === 'creator') {
+                userRoleEl.textContent = '创作者';
+                userRoleEl.className = 'user-role creator';
+            } else {
+                userRoleEl.textContent = '';
+                userRoleEl.className = 'user-role';
+            }
+        }
+        
+        // 显示/隐藏管理员菜单（用户下拉菜单中的选项）
+        const adminMenuOption = document.getElementById('adminMenuOption');
+        if (adminMenuOption) {
+            adminMenuOption.style.display = user.role === 'admin' ? 'flex' : 'none';
+        }
+        
+        // 显示/隐藏管理员侧边栏菜单组
+        const adminMenuGroup = document.getElementById('adminMenuGroup');
+        if (adminMenuGroup) {
+            adminMenuGroup.style.display = user.role === 'admin' ? 'block' : 'none';
+        }
+        
+        // 显示/隐藏创作者侧边栏菜单组
+        const creatorMenuGroup = document.getElementById('creatorMenuGroup');
+        if (creatorMenuGroup) {
+            // 创作者和管理员都可以看到创作者菜单
+            creatorMenuGroup.style.display = (user.role === 'creator' || user.role === 'admin') ? 'block' : 'none';
+        }
+        
+        // 更新余额显示
+        const userBalanceEl = document.getElementById('userBalance');
+        if (userBalanceEl) {
+            const balance = user.balance || 0;
+            userBalanceEl.textContent = balance.toLocaleString();
+        }
+    },
+    
+    /**
+     * 加载用户余额
+     * @private
+     */
+    async _loadUserBalance() {
+        try {
+            const response = await AuthManager.authenticatedFetch(
+                `${AuthManager.apiBaseUrl}/wallet`
+            );
+            const data = await response.json();
+            
+            if (data.success && data.wallet) {
+                const userBalanceEl = document.getElementById('userBalance');
+                if (userBalanceEl) {
+                    userBalanceEl.textContent = data.wallet.balance.toLocaleString();
+                }
+            }
+        } catch (error) {
+            console.error('加载余额失败:', error);
         }
     },
     

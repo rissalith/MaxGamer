@@ -1,0 +1,967 @@
+<!-- 游戏库管理页面 (管理员) -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+    .admin-games-page {
+        padding: 24px;
+        font-family: 'Noto Sans SC', sans-serif;
+        background: var(--content-bg, #f8f9fa);
+        min-height: 100%;
+    }
+    
+    .page-header {
+        background: var(--content-card-bg, #fff);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .page-header h1 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        background: var(--header-title-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .page-header p {
+        color: var(--content-text-secondary, #5f6368);
+        margin: 0;
+    }
+    
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .btn-upload {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: var(--btn-primary-bg, #1a73e8);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-upload:hover {
+        filter: brightness(0.9);
+        transform: translateY(-1px);
+    }
+    
+    .btn-upload svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+    }
+    
+    .game-card {
+        background: var(--content-card-bg, #fff);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all 0.2s;
+    }
+    
+    .game-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    
+    .game-card-header {
+        height: 120px;
+        background: var(--card-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .game-card-header img {
+        max-height: 80px;
+        max-width: 80px;
+        border-radius: 12px;
+    }
+    
+    .game-status-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+    }
+    
+    .status-published { background: #34a853; color: white; }
+    .status-draft { background: #f9ab00; color: white; }
+    .status-offline { background: #ea4335; color: white; }
+    
+    .game-card-body {
+        padding: 16px;
+    }
+    
+    .game-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--content-text, #202124);
+        margin: 0 0 4px 0;
+    }
+    
+    .game-id {
+        font-size: 12px;
+        color: var(--content-text-secondary, #5f6368);
+        font-family: monospace;
+        margin-bottom: 12px;
+    }
+    
+    .game-meta {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 12px;
+        font-size: 13px;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--content-text-secondary, #5f6368);
+    }
+    
+    .game-actions-count {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        background: var(--btn-secondary-bg, #f1f3f4);
+        border-radius: 8px;
+        font-size: 13px;
+        color: var(--content-text, #202124);
+        margin-bottom: 12px;
+    }
+    
+    .game-card-actions {
+        display: flex;
+        gap: 8px;
+        padding-top: 12px;
+        border-top: 1px solid var(--content-border, #e8eaed);
+    }
+    
+    .btn-action {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-edit { background: var(--btn-secondary-bg, #f1f3f4); color: var(--content-text, #202124); }
+    .btn-edit:hover { background: #e8eaed; }
+    .btn-delete { background: #fce8e6; color: #c5221f; }
+    .btn-delete:hover { background: #fad2cf; }
+    
+    /* 上传模态框 */
+    .upload-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .upload-modal.active { display: flex; }
+    
+    .upload-dialog {
+        background: var(--content-card-bg, #fff);
+        border-radius: 16px;
+        width: 90%;
+        max-width: 700px;
+        max-height: 90vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .upload-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--content-border, #e8eaed);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .upload-header h2 {
+        margin: 0;
+        font-size: 18px;
+        color: var(--content-text, #202124);
+    }
+    
+    .btn-close {
+        background: none;
+        border: none;
+        padding: 8px;
+        cursor: pointer;
+        color: var(--content-text-secondary, #5f6368);
+        border-radius: 50%;
+    }
+    
+    .btn-close:hover { background: var(--btn-secondary-bg, #f1f3f4); }
+    
+    .upload-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .upload-steps {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+    }
+    
+    .step {
+        flex: 1;
+        text-align: center;
+        padding: 12px;
+        background: var(--btn-secondary-bg, #f1f3f4);
+        border-radius: 8px;
+        font-size: 13px;
+        color: var(--content-text-secondary, #5f6368);
+    }
+    
+    .step.active {
+        background: var(--btn-primary-bg, #1a73e8);
+        color: white;
+    }
+    
+    .step.completed {
+        background: #34a853;
+        color: white;
+    }
+    
+    /* 拖拽上传区域 */
+    .drop-zone {
+        border: 2px dashed var(--content-border, #dadce0);
+        border-radius: 12px;
+        padding: 48px;
+        text-align: center;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .drop-zone:hover, .drop-zone.dragover {
+        border-color: var(--btn-primary-bg, #1a73e8);
+        background: var(--theme-primary-light, #e8f0fe);
+    }
+    
+    .drop-zone svg {
+        width: 48px;
+        height: 48px;
+        color: var(--content-text-secondary, #5f6368);
+        margin-bottom: 16px;
+    }
+    
+    .drop-zone h3 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        color: var(--content-text, #202124);
+    }
+    
+    .drop-zone p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--content-text-secondary, #5f6368);
+    }
+    
+    /* 解析结果 */
+    .parse-result {
+        display: none;
+    }
+    
+    .parse-result.active { display: block; }
+    
+    .parse-section {
+        background: var(--btn-secondary-bg, #f1f3f4);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .parse-section h4 {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        color: var(--content-text, #202124);
+    }
+    
+    .parse-info {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .info-label {
+        font-size: 12px;
+        color: var(--content-text-secondary, #5f6368);
+    }
+    
+    .info-value {
+        font-size: 14px;
+        color: var(--content-text, #202124);
+        font-weight: 500;
+    }
+    
+    .actions-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .action-tag {
+        padding: 6px 12px;
+        background: var(--content-card-bg, #fff);
+        border-radius: 20px;
+        font-size: 13px;
+        color: var(--content-text, #202124);
+    }
+    
+    /* 配置表单 */
+    .config-form {
+        display: none;
+    }
+    
+    .config-form.active { display: block; }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--content-text, #202124);
+        margin-bottom: 6px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--input-border, #dadce0);
+        border-radius: 8px;
+        font-size: 14px;
+        background: var(--input-bg, #fff);
+        color: var(--content-text, #202124);
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--input-focus-border, #1a73e8);
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+    
+    .upload-footer {
+        padding: 16px 24px;
+        border-top: 1px solid var(--content-border, #e8eaed);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    
+    .btn-cancel {
+        padding: 10px 20px;
+        border: 1px solid var(--content-border, #dadce0);
+        background: var(--content-card-bg, #fff);
+        color: var(--content-text, #202124);
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    
+    .btn-submit {
+        padding: 10px 20px;
+        background: var(--btn-primary-bg, #1a73e8);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+    
+    .btn-submit:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    /* 空状态 */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--content-card-bg, #fff);
+        border-radius: 12px;
+    }
+    
+    .empty-state svg {
+        width: 64px;
+        height: 64px;
+        color: var(--content-text-secondary, #5f6368);
+        margin-bottom: 16px;
+    }
+    
+    .empty-state h3 {
+        margin: 0 0 8px 0;
+        color: var(--content-text, #202124);
+    }
+    
+    .empty-state p {
+        margin: 0 0 20px 0;
+        color: var(--content-text-secondary, #5f6368);
+    }
+</style>
+
+<div class="admin-games-page">
+    <div class="page-header">
+        <h1>游戏库管理</h1>
+        <p>上传、管理和配置 MaxGamer 平台游戏</p>
+    </div>
+    
+    <div class="toolbar">
+        <span id="gamesCount">0 款游戏</span>
+        <button class="btn-upload" onclick="AdminGames.openUploadModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17,8 12,3 7,8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            上传游戏
+        </button>
+    </div>
+    
+    <div class="games-grid" id="gamesGrid">
+        <!-- 游戏卡片将动态渲染 -->
+    </div>
+    
+    <div class="empty-state" id="emptyState" style="display: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="6" width="20" height="12" rx="2"/>
+            <circle cx="8" cy="12" r="2"/>
+            <path d="M14 10h4M16 8v4"/>
+        </svg>
+        <h3>暂无游戏</h3>
+        <p>点击上方"上传游戏"按钮添加第一款游戏</p>
+    </div>
+</div>
+
+<!-- 上传模态框 -->
+<div class="upload-modal" id="uploadModal">
+    <div class="upload-dialog">
+        <div class="upload-header">
+            <h2>上传游戏</h2>
+            <button class="btn-close" onclick="AdminGames.closeUploadModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="upload-body">
+            <div class="upload-steps">
+                <div class="step active" id="step1">1. 上传 ZIP</div>
+                <div class="step" id="step2">2. 解析预览</div>
+                <div class="step" id="step3">3. 配置发布</div>
+            </div>
+            
+            <!-- Step 1: 上传 -->
+            <div id="uploadStep" class="upload-step">
+                <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17,8 12,3 7,8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <h3>拖拽游戏 ZIP 包到此处</h3>
+                    <p>或点击选择文件 (最大 100MB)</p>
+                </div>
+                <input type="file" id="fileInput" accept=".zip" style="display: none;" onchange="AdminGames.handleFileSelect(event)">
+                <div id="uploadProgress" style="display: none; margin-top: 16px;">
+                    <p>上传中... <span id="progressText">0%</span></p>
+                    <div style="height: 4px; background: #e8eaed; border-radius: 2px;">
+                        <div id="progressBar" style="height: 100%; background: #1a73e8; border-radius: 2px; width: 0; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 2: 解析结果 -->
+            <div id="parseStep" class="parse-result">
+                <div class="parse-section">
+                    <h4>📦 基础信息</h4>
+                    <div class="parse-info">
+                        <div class="info-item">
+                            <span class="info-label">游戏 ID</span>
+                            <span class="info-value" id="parseId">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">版本</span>
+                            <span class="info-value" id="parseVersion">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">名称</span>
+                            <span class="info-value" id="parseName">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">引擎</span>
+                            <span class="info-value" id="parseEngine">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="parse-section">
+                    <h4>🎮 识别到的动作 (<span id="actionsCount">0</span> 个)</h4>
+                    <div class="actions-list" id="actionsList">
+                        <!-- 动作标签 -->
+                    </div>
+                </div>
+                
+                <div class="parse-section">
+                    <h4>📐 技术参数</h4>
+                    <div class="parse-info">
+                        <div class="info-item">
+                            <span class="info-label">分辨率</span>
+                            <span class="info-value" id="parseResolution">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">透明背景</span>
+                            <span class="info-value" id="parseTransparent">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="updateWarning" style="display: none; padding: 12px; background: #fef7e0; border-radius: 8px; margin-top: 16px;">
+                    <strong>⚠️ 更新模式</strong>
+                    <p style="margin: 8px 0 0 0; font-size: 13px;">检测到该游戏已存在，将更新版本。原有的定价和配置将保留。</p>
+                </div>
+            </div>
+            
+            <!-- Step 3: 配置 -->
+            <div id="configStep" class="config-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>展示名称</label>
+                        <input type="text" id="configName" placeholder="用户看到的游戏名称">
+                    </div>
+                    <div class="form-group">
+                        <label>状态</label>
+                        <select id="configStatus">
+                            <option value="draft">草稿 (仅管理员可见)</option>
+                            <option value="published">已发布</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>租赁价格 (MaxPoints)</label>
+                        <input type="number" id="configPrice" value="500" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>租赁时长 (天)</label>
+                        <input type="number" id="configDuration" value="30" min="1">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>标签 (用逗号分隔)</label>
+                    <input type="text" id="configTags" placeholder="互动, 抽奖, 直播">
+                </div>
+            </div>
+        </div>
+        
+        <div class="upload-footer">
+            <button class="btn-cancel" onclick="AdminGames.closeUploadModal()">取消</button>
+            <button class="btn-submit" id="btnNext" onclick="AdminGames.nextStep()" disabled>下一步</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const AdminGames = {
+    games: [],
+    currentStep: 1,
+    uploadData: null,
+    tempId: null,
+    
+    async init() {
+        console.log('[AdminGames] 初始化...');
+        await this.loadGames();
+        this.setupDropZone();
+    },
+    
+    setupDropZone() {
+        const dropZone = document.getElementById('dropZone');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
+            dropZone.addEventListener(event, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+        
+        ['dragenter', 'dragover'].forEach(event => {
+            dropZone.addEventListener(event, () => dropZone.classList.add('dragover'));
+        });
+        
+        ['dragleave', 'drop'].forEach(event => {
+            dropZone.addEventListener(event, () => dropZone.classList.remove('dragover'));
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].name.endsWith('.zip')) {
+                this.uploadFile(files[0]);
+            }
+        });
+    },
+    
+    async loadGames() {
+        try {
+            const response = await AuthManager.authenticatedFetch(
+                `${AuthManager.apiBaseUrl}/game-library/list`
+            );
+            const data = await response.json();
+            
+            if (data.success) {
+                this.games = data.games;
+                this.renderGames();
+            }
+        } catch (error) {
+            console.error('[AdminGames] 加载游戏失败:', error);
+        }
+    },
+    
+    renderGames() {
+        const grid = document.getElementById('gamesGrid');
+        const empty = document.getElementById('emptyState');
+        const count = document.getElementById('gamesCount');
+        
+        count.textContent = `${this.games.length} 款游戏`;
+        
+        if (this.games.length === 0) {
+            grid.style.display = 'none';
+            empty.style.display = 'block';
+            return;
+        }
+        
+        grid.style.display = 'grid';
+        empty.style.display = 'none';
+        
+        grid.innerHTML = this.games.map(game => `
+            <div class="game-card">
+                <div class="game-card-header">
+                    ${game.icon_url ? `<img src="${game.icon_url}" alt="${game.name}">` : ''}
+                    <span class="game-status-badge status-${game.status}">${this.getStatusText(game.status)}</span>
+                </div>
+                <div class="game-card-body">
+                    <h3 class="game-name">${game.name_display || game.name}</h3>
+                    <div class="game-id">${game.id} v${game.version || '1.0'}</div>
+                    <div class="game-meta">
+                        <div class="meta-item">
+                            <span>💰</span>
+                            <span>${game.price} MP</span>
+                        </div>
+                        <div class="meta-item">
+                            <span>📅</span>
+                            <span>${game.duration_days} 天</span>
+                        </div>
+                    </div>
+                    <div class="game-actions-count">
+                        <span>🎮</span>
+                        <span>${(game.actions_schema || []).length} 个动作</span>
+                    </div>
+                    <div class="game-card-actions">
+                        <button class="btn-action btn-edit" onclick="AdminGames.editGame('${game.id}')">编辑</button>
+                        <button class="btn-action btn-delete" onclick="AdminGames.deleteGame('${game.id}')">删除</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    },
+    
+    getStatusText(status) {
+        const texts = {
+            'draft': '草稿',
+            'published': '已发布',
+            'offline': '已下架'
+        };
+        return texts[status] || status;
+    },
+    
+    openUploadModal() {
+        document.getElementById('uploadModal').classList.add('active');
+        this.resetUploadModal();
+    },
+    
+    closeUploadModal() {
+        document.getElementById('uploadModal').classList.remove('active');
+        // 如果有临时文件，取消上传
+        if (this.tempId) {
+            AuthManager.authenticatedFetch(
+                `${AuthManager.apiBaseUrl}/game-library/cancel-upload/${this.tempId}`,
+                { method: 'DELETE' }
+            ).catch(() => {});
+        }
+        this.resetUploadModal();
+    },
+    
+    resetUploadModal() {
+        this.currentStep = 1;
+        this.uploadData = null;
+        this.tempId = null;
+        
+        // 重置步骤指示器
+        document.querySelectorAll('.step').forEach((el, i) => {
+            el.classList.remove('active', 'completed');
+            if (i === 0) el.classList.add('active');
+        });
+        
+        // 重置内容
+        document.getElementById('uploadStep').style.display = 'block';
+        document.getElementById('parseStep').classList.remove('active');
+        document.getElementById('configStep').classList.remove('active');
+        document.getElementById('uploadProgress').style.display = 'none';
+        document.getElementById('btnNext').disabled = true;
+        document.getElementById('btnNext').textContent = '下一步';
+    },
+    
+    handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file && file.name.endsWith('.zip')) {
+            this.uploadFile(file);
+        }
+    },
+    
+    async uploadFile(file) {
+        const progress = document.getElementById('uploadProgress');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        
+        progress.style.display = 'block';
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        try {
+            // 模拟进度 (实际可用 XMLHttpRequest 获取真实进度)
+            let p = 0;
+            const interval = setInterval(() => {
+                p = Math.min(p + 10, 90);
+                progressBar.style.width = p + '%';
+                progressText.textContent = p + '%';
+            }, 100);
+            
+            const response = await AuthManager.authenticatedFetch(
+                `${AuthManager.apiBaseUrl}/game-library/upload`,
+                {
+                    method: 'POST',
+                    body: formData
+                }
+            );
+            
+            clearInterval(interval);
+            progressBar.style.width = '100%';
+            progressText.textContent = '100%';
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                this.uploadData = data;
+                this.tempId = data.temp_id;
+                this.showParseResult(data);
+            } else {
+                alert('上传失败: ' + (data.error || data.message));
+                progress.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('[AdminGames] 上传错误:', error);
+            alert('上传失败: ' + error.message);
+            progress.style.display = 'none';
+        }
+    },
+    
+    showParseResult(data) {
+        // 更新步骤
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step1').classList.add('completed');
+        document.getElementById('step2').classList.add('active');
+        
+        // 切换视图
+        document.getElementById('uploadStep').style.display = 'none';
+        document.getElementById('parseStep').classList.add('active');
+        
+        // 填充数据
+        const parsed = data.parsed;
+        document.getElementById('parseId').textContent = parsed.id;
+        document.getElementById('parseVersion').textContent = parsed.version;
+        document.getElementById('parseName').textContent = parsed.name;
+        document.getElementById('parseEngine').textContent = parsed.engine;
+        document.getElementById('actionsCount').textContent = parsed.actions_count;
+        
+        // 技术参数
+        const tech = parsed.tech_specs;
+        document.getElementById('parseResolution').textContent = `${tech.width} × ${tech.height}`;
+        document.getElementById('parseTransparent').textContent = tech.transparent ? '是' : '否';
+        
+        // 动作列表
+        const actionsList = document.getElementById('actionsList');
+        actionsList.innerHTML = parsed.actions.map(action => 
+            `<span class="action-tag">${action.label} (${action.code})</span>`
+        ).join('');
+        
+        // 更新警告
+        if (data.is_update) {
+            document.getElementById('updateWarning').style.display = 'block';
+        }
+        
+        // 启用下一步
+        document.getElementById('btnNext').disabled = false;
+        this.currentStep = 2;
+    },
+    
+    nextStep() {
+        if (this.currentStep === 2) {
+            // 进入配置步骤
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step2').classList.add('completed');
+            document.getElementById('step3').classList.add('active');
+            
+            document.getElementById('parseStep').classList.remove('active');
+            document.getElementById('configStep').classList.add('active');
+            
+            // 预填配置
+            const parsed = this.uploadData.parsed;
+            document.getElementById('configName').value = parsed.name;
+            
+            if (this.uploadData.existing) {
+                document.getElementById('configPrice').value = this.uploadData.existing.price;
+            }
+            
+            document.getElementById('btnNext').textContent = '确认发布';
+            this.currentStep = 3;
+            
+        } else if (this.currentStep === 3) {
+            // 提交发布
+            this.publishGame();
+        }
+    },
+    
+    async publishGame() {
+        const btn = document.getElementById('btnNext');
+        btn.disabled = true;
+        btn.textContent = '发布中...';
+        
+        try {
+            const tagsInput = document.getElementById('configTags').value;
+            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+            
+            const response = await AuthManager.authenticatedFetch(
+                `${AuthManager.apiBaseUrl}/game-library/publish`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        temp_id: this.tempId,
+                        name_display: document.getElementById('configName').value,
+                        price: parseInt(document.getElementById('configPrice').value) || 0,
+                        duration_days: parseInt(document.getElementById('configDuration').value) || 30,
+                        status: document.getElementById('configStatus').value,
+                        tags: tags
+                    })
+                }
+            );
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert(data.message);
+                this.closeUploadModal();
+                this.loadGames();
+            } else {
+                alert('发布失败: ' + (data.error || data.message));
+                btn.disabled = false;
+                btn.textContent = '确认发布';
+            }
+        } catch (error) {
+            console.error('[AdminGames] 发布错误:', error);
+            alert('发布失败: ' + error.message);
+            btn.disabled = false;
+            btn.textContent = '确认发布';
+        }
+    },
+    
+    async editGame(gameId) {
+        // TODO: 实现编辑功能
+        alert('编辑功能开发中...');
+    },
+    
+    async deleteGame(gameId) {
+        if (!confirm('确定要删除这款游戏吗？此操作不可恢复。')) return;
+        
+        try {
+            const response = await AuthManager.authenticatedFetch(
+                `${AuthManager.apiBaseUrl}/game-library/${gameId}`,
+                { method: 'DELETE' }
+            );
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                this.loadGames();
+            } else {
+                alert('删除失败: ' + (data.error || data.message));
+            }
+        } catch (error) {
+            alert('删除失败: ' + error.message);
+        }
+    }
+};
+
+// 导出到全局
+window.AdminGames = AdminGames;
+</script>
+
+

@@ -1,0 +1,751 @@
+<!-- 我的应用页面 - 统一风格 -->
+<div class="page-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+        <h1 class="page-title">我的应用</h1>
+        <p class="page-subtitle">管理您已购买的游戏和服务</p>
+    </div>
+
+    <!-- 页面内容 -->
+    <div class="page-body">
+        <!-- 工具栏 -->
+        <div class="content-toolbar">
+            <div class="toolbar-left">
+                <span class="result-count" id="appCount">0 个应用</span>
+            </div>
+            <div class="toolbar-right">
+                <div class="filter-group">
+                    <select class="filter-select" id="statusFilter" onchange="MyApps.filterByStatus(this.value)">
+                        <option value="all">全部状态</option>
+                        <option value="active">使用中</option>
+                        <option value="expiring">即将过期</option>
+                        <option value="expired">已过期</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 应用网格 -->
+        <div class="apps-grid" id="appsGrid">
+            <div class="loading-placeholder">
+                <div class="spinner"></div>
+                <p>加载应用中...</p>
+            </div>
+        </div>
+
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="6" width="20" height="12" rx="2"/>
+                    <circle cx="8" cy="12" r="2"/>
+                    <path d="M14 10h4M16 8v4"/>
+                </svg>
+            </div>
+            <h3>暂无应用</h3>
+            <p>您还没有购买任何游戏，去商城看看吧</p>
+            <button class="btn-primary" onclick="Router.navigate('market')">
+                浏览游戏市场
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 配置弹窗 -->
+<div class="modal-overlay" id="configModal" style="display: none;">
+    <div class="modal-dialog modal-large">
+        <div class="modal-header">
+            <h3>游戏配置</h3>
+            <button class="btn-close" onclick="MyApps.closeConfigModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="configForm">
+                <div class="form-section">
+                    <h4 class="section-title">基础设置</h4>
+                    <div class="form-group">
+                        <label>显示名称</label>
+                        <input type="text" id="configDisplayName" placeholder="在游戏中显示的名称">
+                    </div>
+                </div>
+                
+                <!-- 动作配置区域 (动态渲染) -->
+                <div class="form-section" id="actionsConfig">
+                    <div class="loading-placeholder" style="padding: 20px; text-align: center;">
+                        <div class="spinner"></div>
+                        <p>加载动作配置...</p>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="MyApps.closeConfigModal()">取消</button>
+            <button class="btn-primary" onclick="MyApps.saveConfig()">保存配置</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ========== 全局字体 ========== */
+* {
+    font-family: 'Noto Sans SC', 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ========== 统一页面容器 ========== */
+.page-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 页面头部 */
+.page-header {
+    padding: 24px 32px 20px;
+    border-bottom: 1px solid #e8eaed;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 400;
+    color: #202124;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.2px;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: #5f6368;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* 页面主体 */
+.page-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+}
+
+/* ========== 工具栏 ========== */
+.content-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.result-count {
+    font-size: 14px;
+    color: #5f6368;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filter-select {
+    padding: 8px 32px 8px 12px;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #3c4043;
+    background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e") no-repeat right 8px center;
+    background-size: 18px;
+    cursor: pointer;
+    appearance: none;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+/* ========== 应用网格 ========== */
+.apps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+}
+
+/* ========== 应用卡片 ========== */
+.app-card {
+    background: #fff;
+    border: 1px solid #e8eaed;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.app-card:hover {
+    border-color: #dadce0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.app-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.app-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.app-icon svg {
+    width: 28px;
+    height: 28px;
+    color: white;
+}
+
+.app-info h4 {
+    font-size: 15px;
+    font-weight: 500;
+    color: white;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.1px;
+}
+
+.app-status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+}
+
+.app-card-body {
+    padding: 20px;
+}
+
+.app-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.meta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.meta-label {
+    font-size: 13px;
+    color: #5f6368;
+}
+
+.meta-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: #202124;
+}
+
+.meta-value.active {
+    color: #188038;
+}
+
+.meta-value.expiring {
+    color: #f9ab00;
+}
+
+.meta-value.expired {
+    color: #d93025;
+}
+
+/* OBS链接区域 */
+.obs-link-section {
+    padding-top: 16px;
+    border-top: 1px solid #e8eaed;
+}
+
+.obs-link-label {
+    font-size: 12px;
+    color: #5f6368;
+    margin-bottom: 8px;
+}
+
+.obs-link-input {
+    display: flex;
+    gap: 8px;
+}
+
+.obs-link-input input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #3c4043;
+    background: #f8f9fa;
+}
+
+.btn-copy {
+    padding: 8px 16px;
+    background: #f1f3f4;
+    color: #5f6368;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.btn-copy:hover {
+    background: #e8eaed;
+    color: #202124;
+}
+
+.app-card-footer {
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px;
+    border-top: 1px solid #e8eaed;
+}
+
+/* ========== 操作按钮 ========== */
+.btn-app {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-app svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.btn-app.primary {
+    background: #1a73e8;
+    color: white;
+}
+
+.btn-app.primary:hover {
+    background: #1557b0;
+    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.3);
+}
+
+.btn-app.secondary {
+    background: #f1f3f4;
+    color: #5f6368;
+}
+
+.btn-app.secondary:hover {
+    background: #e8eaed;
+    color: #202124;
+}
+
+.btn-app.renew {
+    background: #d93025;
+    color: white;
+}
+
+.btn-app.renew:hover {
+    background: #b31412;
+}
+
+/* ========== 空状态 ========== */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-icon svg {
+    width: 40px;
+    height: 40px;
+    color: #9aa0a6;
+}
+
+.empty-state h3 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #202124;
+    margin: 0 0 8px 0;
+}
+
+.empty-state p {
+    font-size: 14px;
+    color: #5f6368;
+    margin: 0 0 24px 0;
+}
+
+/* ========== 加载状态 ========== */
+.loading-placeholder {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #5f6368;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e8eaed;
+    border-top-color: #1a73e8;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========== 弹窗 ========== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-dialog {
+    background: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal-dialog.modal-large {
+    max-width: 560px;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #202124;
+    margin: 0;
+}
+
+.btn-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5f6368;
+    transition: background 0.15s ease;
+}
+
+.btn-close:hover {
+    background: #f1f3f4;
+}
+
+.btn-close svg {
+    width: 20px;
+    height: 20px;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid #e8eaed;
+}
+
+/* 表单区块 */
+.form-section {
+    margin-bottom: 24px;
+}
+
+.form-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #202124;
+    margin: 0 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #3c4043;
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #202124;
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+.form-hint {
+    font-size: 12px;
+    color: #5f6368;
+    margin-top: 4px;
+}
+
+/* 按钮 */
+.btn-secondary {
+    padding: 10px 20px;
+    background: #fff;
+    color: #5f6368;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+    background: #f8f9fa;
+    border-color: #c6c9cc;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    background: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-primary:hover {
+    background: #1557b0;
+    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.3);
+}
+
+/* ========== 动作配置样式 ========== */
+.actions-config-header {
+    margin-bottom: 16px;
+}
+
+.actions-list-config {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.action-config-item {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #e8eaed;
+}
+
+.action-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.action-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #202124;
+}
+
+.action-code {
+    font-size: 12px;
+    font-family: monospace;
+    color: #5f6368;
+    background: #e8eaed;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.action-desc {
+    font-size: 12px;
+    color: #5f6368;
+}
+
+.action-trigger-config {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.trigger-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.trigger-row label {
+    min-width: 80px;
+    font-size: 13px;
+    color: #5f6368;
+}
+
+.trigger-row select,
+.trigger-row input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    font-size: 13px;
+    background: #fff;
+    color: #202124;
+}
+
+.trigger-row select:focus,
+.trigger-row input:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+}
+
+.action-params {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px dashed #dadce0;
+}
+
+.param-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.param-row label {
+    min-width: 80px;
+    font-size: 12px;
+    color: #5f6368;
+}
+
+.param-row select,
+.param-row input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #fff;
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 768px) {
+    .page-header {
+        padding: 20px;
+    }
+    
+    .page-body {
+        padding: 20px;
+    }
+    
+    .apps-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .content-toolbar {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+}
+</style>

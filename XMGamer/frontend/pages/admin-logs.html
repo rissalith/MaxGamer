@@ -1,0 +1,576 @@
+<!-- 管理日志页面 (管理员) -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+    .admin-logs-page {
+        padding: 24px;
+        font-family: 'Noto Sans SC', sans-serif;
+        background: var(--content-bg, #f8f9fa);
+        min-height: 100%;
+    }
+    
+    .page-header {
+        background: var(--content-card-bg, #fff);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .page-header h1 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .page-header p {
+        color: var(--content-text-secondary, #5f6368);
+        margin: 0;
+    }
+    
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    
+    .filters {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .filter-select {
+        padding: 8px 12px;
+        border: 1px solid var(--input-border, #dadce0);
+        border-radius: 8px;
+        font-size: 14px;
+        background: var(--input-bg, #fff);
+        color: var(--content-text, #202124);
+        min-width: 140px;
+    }
+    
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--input-focus-border, #f59e0b);
+    }
+    
+    .btn-refresh {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: var(--btn-secondary-bg, #f1f3f4);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        color: var(--content-text, #202124);
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+    
+    .btn-refresh:hover {
+        background: #e8eaed;
+    }
+    
+    .btn-refresh svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .logs-table-container {
+        background: var(--content-card-bg, #fff);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .logs-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .logs-table th,
+    .logs-table td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--table-border, #e8eaed);
+    }
+    
+    .logs-table th {
+        background: var(--table-header-bg, #f8f9fa);
+        font-weight: 600;
+        color: var(--content-text-secondary, #5f6368);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .logs-table tbody tr:hover {
+        background: var(--table-row-hover, #f8f9fa);
+    }
+    
+    .log-time {
+        color: var(--content-text-secondary, #5f6368);
+        font-size: 13px;
+        white-space: nowrap;
+    }
+    
+    .admin-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .admin-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .admin-details {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .admin-name {
+        font-weight: 500;
+        color: var(--content-text, #202124);
+        font-size: 14px;
+    }
+    
+    .admin-email {
+        font-size: 12px;
+        color: var(--content-text-secondary, #5f6368);
+    }
+    
+    .action-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .action-login { background: #e0f2fe; color: #0369a1; }
+    .action-create_user { background: #dcfce7; color: #16a34a; }
+    .action-edit_user { background: #fef3c7; color: #d97706; }
+    .action-delete_user { background: #fee2e2; color: #dc2626; }
+    .action-adjust_balance { background: #f3e8ff; color: #9333ea; }
+    .action-set_balance { background: #f3e8ff; color: #7c3aed; }
+    .action-set_role { background: #e0e7ff; color: #4f46e5; }
+    .action-create_game { background: #d1fae5; color: #059669; }
+    .action-edit_game { background: #fef9c3; color: #ca8a04; }
+    .action-delete_game { background: #fecaca; color: #dc2626; }
+    
+    .target-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .target-type {
+        font-size: 11px;
+        color: var(--content-text-secondary, #5f6368);
+        text-transform: uppercase;
+    }
+    
+    .target-name {
+        font-weight: 500;
+        color: var(--content-text, #202124);
+    }
+    
+    .details-cell {
+        max-width: 300px;
+    }
+    
+    .details-json {
+        font-size: 12px;
+        color: var(--content-text-secondary, #5f6368);
+        background: var(--table-header-bg, #f8f9fa);
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-family: 'Monaco', 'Consolas', monospace;
+        word-break: break-all;
+        max-height: 60px;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    
+    .details-json:hover {
+        max-height: none;
+    }
+    
+    .ip-cell {
+        font-size: 13px;
+        color: var(--content-text-secondary, #5f6368);
+        font-family: 'Monaco', 'Consolas', monospace;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border-top: 1px solid var(--table-border, #e8eaed);
+    }
+    
+    .pagination-info {
+        color: var(--content-text-secondary, #5f6368);
+        font-size: 14px;
+    }
+    
+    .pagination-btns {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .btn-page {
+        padding: 8px 16px;
+        background: var(--btn-secondary-bg, #f1f3f4);
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        color: var(--content-text, #202124);
+        transition: all 0.2s;
+    }
+    
+    .btn-page:hover:not(:disabled) {
+        background: #e8eaed;
+    }
+    
+    .btn-page:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .empty-state svg {
+        width: 64px;
+        height: 64px;
+        color: var(--content-text-secondary, #5f6368);
+        margin-bottom: 16px;
+    }
+    
+    .empty-state h3 {
+        margin: 0 0 8px 0;
+        color: var(--content-text, #202124);
+    }
+    
+    .empty-state p {
+        margin: 0;
+        color: var(--content-text-secondary, #5f6368);
+    }
+    
+    /* 响应式 */
+    @media (max-width: 1200px) {
+        .logs-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="admin-logs-page">
+    <div class="page-header">
+        <h1>📋 管理日志</h1>
+        <p>查看管理员的所有操作记录</p>
+    </div>
+    
+    <div class="toolbar">
+        <div class="filters">
+            <select class="filter-select" id="filterAction" onchange="AdminLogs.filter()">
+                <option value="">全部操作</option>
+            </select>
+            <select class="filter-select" id="filterTargetType" onchange="AdminLogs.filter()">
+                <option value="">全部类型</option>
+                <option value="user">用户</option>
+                <option value="game">游戏</option>
+                <option value="system">系统</option>
+            </select>
+        </div>
+        <button class="btn-refresh" onclick="AdminLogs.refresh()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6"/>
+                <path d="M1 20v-6h6"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            刷新
+        </button>
+    </div>
+    
+    <div class="logs-table-container">
+        <table class="logs-table">
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>管理员</th>
+                    <th>操作</th>
+                    <th>目标</th>
+                    <th>详情</th>
+                    <th>IP地址</th>
+                </tr>
+            </thead>
+            <tbody id="logsTableBody">
+                <!-- 日志数据将动态渲染 -->
+            </tbody>
+        </table>
+        
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            <h3>暂无日志</h3>
+            <p>还没有管理操作记录</p>
+        </div>
+        
+        <div class="pagination" id="pagination">
+            <div class="pagination-info" id="paginationInfo">显示 0-0 共 0 条</div>
+            <div class="pagination-btns">
+                <button class="btn-page" id="btnPrev" onclick="AdminLogs.prevPage()" disabled>上一页</button>
+                <button class="btn-page" id="btnNext" onclick="AdminLogs.nextPage()" disabled>下一页</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const AdminLogs = {
+    logs: [],
+    currentPage: 0,
+    pageSize: 50,
+    total: 0,
+    actionFilter: '',
+    targetTypeFilter: '',
+    
+    // 操作类型映射
+    actionLabels: {
+        'login': '管理员登录',
+        'create_user': '创建用户',
+        'edit_user': '编辑用户',
+        'delete_user': '删除用户',
+        'adjust_balance': '调整余额',
+        'set_balance': '设置余额',
+        'set_role': '设置角色',
+        'create_game': '创建游戏',
+        'edit_game': '编辑游戏',
+        'delete_game': '删除游戏'
+    },
+    
+    async init() {
+        console.log('[AdminLogs] 初始化...');
+        await this.loadActionTypes();
+        await this.loadLogs();
+    },
+    
+    async loadActionTypes() {
+        try {
+            const response = await AuthManager.authenticatedFetch(
+                `${AuthManager.apiBaseUrl}/admin/logs/actions`
+            );
+            const data = await response.json();
+            
+            if (data.success) {
+                const select = document.getElementById('filterAction');
+                data.actions.forEach(action => {
+                    const option = document.createElement('option');
+                    option.value = action.value;
+                    option.textContent = action.label;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('[AdminLogs] 加载操作类型失败:', error);
+        }
+    },
+    
+    async loadLogs() {
+        try {
+            const offset = this.currentPage * this.pageSize;
+            let url = `${AuthManager.apiBaseUrl}/admin/logs?limit=${this.pageSize}&offset=${offset}`;
+            
+            if (this.actionFilter) {
+                url += `&action=${encodeURIComponent(this.actionFilter)}`;
+            }
+            if (this.targetTypeFilter) {
+                url += `&target_type=${encodeURIComponent(this.targetTypeFilter)}`;
+            }
+            
+            const response = await AuthManager.authenticatedFetch(url);
+            const data = await response.json();
+            
+            if (data.success) {
+                this.logs = data.logs;
+                this.total = data.total;
+                this.renderLogs();
+                this.updatePagination();
+            }
+        } catch (error) {
+            console.error('[AdminLogs] 加载日志失败:', error);
+        }
+    },
+    
+    renderLogs() {
+        const tbody = document.getElementById('logsTableBody');
+        const empty = document.getElementById('emptyState');
+        const pagination = document.getElementById('pagination');
+        
+        if (this.logs.length === 0) {
+            tbody.innerHTML = '';
+            empty.style.display = 'block';
+            pagination.style.display = 'none';
+            return;
+        }
+        
+        empty.style.display = 'none';
+        pagination.style.display = 'flex';
+        
+        tbody.innerHTML = this.logs.map(log => `
+            <tr>
+                <td class="log-time">${this.formatTime(log.created_at)}</td>
+                <td>
+                    <div class="admin-info">
+                        <div class="admin-avatar">
+                            ${log.admin_nickname ? log.admin_nickname[0].toUpperCase() : 'A'}
+                        </div>
+                        <div class="admin-details">
+                            <span class="admin-name">${log.admin_nickname || '未知'}</span>
+                            <span class="admin-email">${log.admin_email || '-'}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="action-badge action-${log.action}">
+                        ${this.getActionIcon(log.action)}
+                        ${this.actionLabels[log.action] || log.action}
+                    </span>
+                </td>
+                <td>
+                    ${log.target_type ? `
+                        <div class="target-info">
+                            <span class="target-type">${this.getTargetTypeLabel(log.target_type)}</span>
+                            <span class="target-name">${log.target_name || log.target_id || '-'}</span>
+                        </div>
+                    ` : '-'}
+                </td>
+                <td class="details-cell">
+                    ${log.details ? `
+                        <div class="details-json" title="点击展开">${this.formatDetails(log.details)}</div>
+                    ` : '-'}
+                </td>
+                <td class="ip-cell">${log.ip_address || '-'}</td>
+            </tr>
+        `).join('');
+    },
+    
+    getActionIcon(action) {
+        const icons = {
+            'login': '🔐',
+            'create_user': '➕',
+            'edit_user': '✏️',
+            'delete_user': '🗑️',
+            'adjust_balance': '💰',
+            'set_balance': '💵',
+            'set_role': '👤',
+            'create_game': '🎮',
+            'edit_game': '🔧',
+            'delete_game': '❌'
+        };
+        return icons[action] || '📝';
+    },
+    
+    getTargetTypeLabel(type) {
+        const labels = {
+            'user': '用户',
+            'game': '游戏',
+            'system': '系统'
+        };
+        return labels[type] || type;
+    },
+    
+    formatTime(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    },
+    
+    formatDetails(details) {
+        if (!details) return '-';
+        try {
+            return JSON.stringify(details, null, 2);
+        } catch {
+            return String(details);
+        }
+    },
+    
+    updatePagination() {
+        const start = this.currentPage * this.pageSize + 1;
+        const end = Math.min((this.currentPage + 1) * this.pageSize, this.total);
+        
+        document.getElementById('paginationInfo').textContent = 
+            `显示 ${this.total > 0 ? start : 0}-${end} 共 ${this.total} 条`;
+        
+        document.getElementById('btnPrev').disabled = this.currentPage === 0;
+        document.getElementById('btnNext').disabled = end >= this.total;
+    },
+    
+    prevPage() {
+        if (this.currentPage > 0) {
+            this.currentPage--;
+            this.loadLogs();
+        }
+    },
+    
+    nextPage() {
+        const maxPage = Math.ceil(this.total / this.pageSize) - 1;
+        if (this.currentPage < maxPage) {
+            this.currentPage++;
+            this.loadLogs();
+        }
+    },
+    
+    filter() {
+        this.actionFilter = document.getElementById('filterAction').value;
+        this.targetTypeFilter = document.getElementById('filterTargetType').value;
+        this.currentPage = 0;
+        this.loadLogs();
+    },
+    
+    refresh() {
+        this.loadLogs();
+    }
+};
+
+// 页面加载后初始化
+if (window.AdminLogs) {
+    AdminLogs.init();
+}
+</script>
+

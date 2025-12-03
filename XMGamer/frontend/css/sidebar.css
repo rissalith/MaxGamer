@@ -80,9 +80,25 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
     border-bottom: none;
     background: transparent;
+    overflow-y: auto;
+}
+
+/* 菜单分组 */
+.menu-group {
+    margin-bottom: 8px;
+}
+
+.menu-group-title {
+    font-size: 0.7em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 8px 15px 4px;
+    margin-bottom: 2px;
 }
 
 .menu-item {
@@ -139,6 +155,18 @@
     background: rgba(0, 0, 0, 0.2);
     position: relative;
     z-index: 10;
+}
+
+/* 用户角色标签 */
+.user-role {
+    font-size: 0.7em;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 2px;
+}
+
+.user-role.admin {
+    color: #ffd700;
+    font-weight: 600;
 }
 
 /* 用户资料 */

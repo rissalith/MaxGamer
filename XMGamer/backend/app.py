@@ -39,10 +39,15 @@ try:
     from routes.wallet import wallet_bp  # type: ignore
     from routes.products import products_bp  # type: ignore
     from routes.ai_dialogue import ai_dialogue_bp  # type: ignore
+    from routes.admin import admin_bp  # type: ignore
+    from routes.obs import obs_bp, player_bp  # type: ignore
+    from routes.game_library import game_library_bp  # type: ignore
     ROUTES_AVAILABLE = True
 except ImportError as e:
     print(f'警告: 路由模块不可用: {e}')
     print('这可能是因为依赖包未安装，请运行: pip install -r requirements.txt')
+    admin_bp = None
+    obs_bp = None
 
 # 导入游戏管理器和会话管理器
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -113,7 +118,7 @@ if LIVE_SERVICE_AVAILABLE:
         print(f'[ERROR] 初始化游戏直播服务失败: {e}')
         LIVE_SERVICE_AVAILABLE = False
 
-# 注册认证、历史记录、游戏、钱包、商品和AI对话路由蓝图
+# 注册认证、历史记录、游戏、钱包、商品、AI对话和管理员路由蓝图
 if ROUTES_AVAILABLE:
     if auth_bp is not None:
         app.register_blueprint(auth_bp)
@@ -133,6 +138,18 @@ if ROUTES_AVAILABLE:
     if ai_dialogue_bp is not None:
         app.register_blueprint(ai_dialogue_bp, url_prefix='/api/ai')
         print('[OK] AI对话路由已注册')
+    if admin_bp is not None:
+        app.register_blueprint(admin_bp)
+        print('[OK] 管理员路由已注册')
+    if obs_bp is not None:
+        app.register_blueprint(obs_bp)
+        print('[OK] OBS鉴权路由已注册')
+    if player_bp is not None:
+        app.register_blueprint(player_bp)
+        print('[OK] 播放器验证路由已注册')
+    if game_library_bp is not None:
+        app.register_blueprint(game_library_bp)
+        print('[OK] 游戏库管理路由已注册')
 
 # 初始化并注册游戏库
 if GAME_LIBRARY_AVAILABLE:

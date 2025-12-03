@@ -47,13 +47,128 @@
     animation: titlePulse 3s ease-in-out infinite;
 }
 
+/* 右上角固定悬浮余额显示 - 金橘渐变玻璃风格 */
+.floating-balance {
+    position: fixed !important;
+    top: 12px !important;
+    right: 20px !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%) !important;
+    padding: 6px 10px 6px 14px !important;
+    border-radius: 20px !important;
+    box-shadow: 
+        0 4px 16px rgba(255, 165, 0, 0.4),
+        0 2px 6px rgba(255, 140, 0, 0.3),
+        inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+}
+
+/* 玻璃光泽动画 */
+.floating-balance::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    animation: glassShine 3s ease-in-out infinite;
+}
+
+@keyframes glassShine {
+    0% { left: -100%; }
+    50%, 100% { left: 100%; }
+}
+
+.floating-balance:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 
+        0 6px 20px rgba(255, 165, 0, 0.5),
+        0 4px 10px rgba(255, 140, 0, 0.4),
+        inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
+}
+
+.floating-balance .balance-info {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: baseline !important;
+    gap: 4px !important;
+    position: relative;
+    z-index: 1;
+    white-space: nowrap !important;
+    flex-wrap: nowrap !important;
+}
+
+.floating-balance .balance-value {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #1a1a2e !important;
+    letter-spacing: -0.3px !important;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
+
+.floating-balance .balance-unit {
+    font-size: 11px !important;
+    color: rgba(26, 26, 46, 0.8) !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
+
+.floating-balance .btn-recharge {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+    border-radius: 50% !important;
+    border: none !important;
+    background: rgba(26, 26, 46, 0.15) !important;
+    color: #1a1a2e !important;
+    cursor: pointer;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+}
+
+.floating-balance .btn-recharge:hover {
+    background: rgba(26, 26, 46, 0.25) !important;
+    transform: scale(1.1) rotate(90deg);
+}
+
+.floating-balance .btn-recharge svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
 .main-content {
     flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
+    overflow: hidden;
+    position: relative;
 }
 
 /* 左侧控制面板 */

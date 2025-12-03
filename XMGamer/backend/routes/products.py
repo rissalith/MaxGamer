@@ -234,6 +234,11 @@ def purchase_product():
             wallet.total_consumed += product.price
             balance_after = wallet.balance
             
+            # 同步用户表余额
+            user = db.query(User).filter(User.id == user_id).first()
+            if user:
+                user.balance = balance_after
+            
             # 生成订单号
             order_id = generate_order_id()
             
@@ -378,9 +383,17 @@ def get_my_licenses():
         user_id = g.current_user_id
         game_id = request.args.get('game_id')
         
+        print(f'[my-licenses] 请求用户 ID: {user_id}')
+        
         db = get_db_session()
         try:
             query = db.query(License).filter(License.user_id == user_id)
+            
+            # 调试: 查看所有 licenses
+            all_licenses = db.query(License).all()
+            print(f'[my-licenses] 数据库中总共 {len(all_licenses)} 条授权')
+            for lic in all_licenses:
+                print(f'[my-licenses]   License ID={lic.id}, user_id={lic.user_id}, game_id={lic.game_id}')
             
             if game_id:
                 query = query.filter(License.game_id == game_id)
@@ -413,6 +426,58 @@ def get_my_licenses():
         }), 500
 
 
+@products_bp.route('/license/<int:license_id>/config', methods=['PUT'])
+@require_auth
+def update_license_config(license_id):
+    """
+    更新授权配置
+    
+    PUT /api/products/license/<id>/config
+    Body: { config: { ... } }
+    """
+    try:
+        user_id = g.current_user_id
+        data = request.get_json()
+        config = data.get('config', {})
+        
+        db = get_db_session()
+        try:
+            # 查找授权记录
+            license = db.query(License).filter(
+                License.id == license_id,
+                License.user_id == user_id
+            ).first()
+            
+            if not license:
+                return jsonify({
+                    'success': False,
+                    'error': '授权不存在或无权限'
+                }), 404
+            
+            # 更新配置
+            license.config_json = json.dumps(config)
+            license.updated_at = datetime.utcnow()
+            
+            db.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': '配置已保存',
+                'license': license.to_dict()
+            })
+            
+        finally:
+            db.close()
+            
+    except Exception as e:
+        print(f'更新授权配置错误: {e}')
+        return jsonify({
+            'success': False,
+            'error': '服务器错误',
+            'message': str(e)
+        }), 500
+
+
 if __name__ == '__main__':
     print('商品管理路由模块')
     print('可用端点:')
@@ -420,3 +485,4 @@ if __name__ == '__main__':
     print('  GET  /api/products/<id> - 获取商品详情')
     print('  POST /api/products/purchase - 购买商品')
     print('  GET  /api/products/my-licenses - 获取我的授权')
+    print('  PUT  /api/products/license/<id>/config - 更新授权配置')

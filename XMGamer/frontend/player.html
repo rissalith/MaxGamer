@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaxGamer Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+        }
+        
+        #gameFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            z-index: 9999;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 16px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        #errorOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            z-index: 9999;
+        }
+        
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .error-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .error-message {
+            font-size: 14px;
+            opacity: 0.8;
+            text-align: center;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">加载游戏中...</div>
+    </div>
+    
+    <div id="errorOverlay">
+        <div class="error-icon">⚠️</div>
+        <div class="error-title">加载失败</div>
+        <div class="error-message" id="errorMessage">游戏加载失败，请刷新重试</div>
+    </div>
+    
+    <iframe id="gameFrame" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    
+    <script>
+        /**
+         * MaxGamer Player - 游戏运行时沙盒
+         * 负责加载游戏、传递配置、转发动作指令
+         */
+        const Player = {
+            // 配置
+            gameId: null,
+            gameUrl: null,
+            userConfig: null,
+            isReady: false,
+            
+            // DOM 元素
+            frame: null,
+            loadingOverlay: null,
+            errorOverlay: null,
+            
+            /**
+             * 初始化播放器
+             */
+            init() {
+                this.frame = document.getElementById('gameFrame');
+                this.loadingOverlay = document.getElementById('loadingOverlay');
+                this.errorOverlay = document.getElementById('errorOverlay');
+                
+                // 解析 URL 参数
+                const params = new URLSearchParams(window.location.search);
+                this.gameId = params.get('game');
+                const ticket = params.get('ticket');
+                
+                if (!this.gameId || !ticket) {
+                    this.showError('参数缺失', '请通过正确的入口访问游戏');
+                    return;
+                }
+                
+                // 验证票据并获取游戏信息
+                this.loadGame(ticket);
+                
+                // 监听来自游戏的消息
+                window.addEventListener('message', this.handleGameMessage.bind(this));
+            },
+            
+            /**
+             * 加载游戏
+             */
+            async loadGame(ticket) {
+                try {
+                    // 验证票据并获取游戏配置
+                    const response = await fetch(`/api/player/verify?game=${this.gameId}&ticket=${ticket}`);
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        this.showError('验证失败', data.message || '请重新登录后再试');
+                        return;
+                    }
+                    
+                    this.gameUrl = data.game_url;
+                    this.userConfig = data.user_config || {};
+                    
+                    // 加载游戏
+                    this.frame.src = this.gameUrl;
+                    
+                    // 设置加载超时
+                    this.loadTimeout = setTimeout(() => {
+                        if (!this.isReady) {
+                            this.showError('加载超时', '游戏加载时间过长，请检查网络');
+                        }
+                    }, 30000);
+                    
+                    // 监听 iframe 加载完成
+                    this.frame.onload = () => {
+                        console.log('[Player] iframe 加载完成');
+                    };
+                    
+                } catch (error) {
+                    console.error('[Player] 加载游戏失败:', error);
+                    this.showError('加载失败', error.message);
+                }
+            },
+            
+            /**
+             * 处理来自游戏的消息
+             */
+            handleGameMessage(event) {
+                const data = event.data;
+                if (!data || typeof data !== 'object') return;
+                
+                console.log('[Player] 收到游戏消息:', data.type);
+                
+                switch (data.type) {
+                    case 'MAXGAMER_READY':
+                        this.onGameReady();
+                        break;
+                        
+                    case 'CONFIG_REQUEST':
+                        this.sendConfig();
+                        break;
+                        
+                    case 'MAXGAMER_LOG':
+                        console.log(`[Game ${this.gameId}] ${data.level}: ${data.message}`);
+                        break;
+                        
+                    case 'MAXGAMER_EVENT':
+                        this.handleGameEvent(data.event, data.data);
+                        break;
+                }
+            },
+            
+            /**
+             * 游戏准备就绪
+             */
+            onGameReady() {
+                console.log('[Player] 游戏准备就绪');
+                this.isReady = true;
+                
+                // 清除超时
+                if (this.loadTimeout) {
+                    clearTimeout(this.loadTimeout);
+                }
+                
+                // 隐藏加载界面
+                this.loadingOverlay.style.display = 'none';
+                
+                // 发送初始化配置
+                this.sendInit();
+            },
+            
+            /**
+             * 发送初始化数据
+             */
+            sendInit() {
+                this.postToGame({
+                    type: 'INIT',
+                    config: {
+                        gameId: this.gameId,
+                        userConfig: this.userConfig,
+                        timestamp: Date.now()
+                    }
+                });
+            },
+            
+            /**
+             * 发送用户配置
+             */
+            sendConfig() {
+                this.postToGame({
+                    type: 'CONFIG',
+                    config: this.userConfig
+                });
+            },
+            
+            /**
+             * 发送动作指令给游戏
+             */
+            sendAction(actionCode, params = {}, user = null, source = null) {
+                if (!this.isReady) {
+                    console.warn('[Player] 游戏未就绪，动作已忽略');
+                    return;
+                }
+                
+                this.postToGame({
+                    type: 'ACTION',
+                    code: actionCode,
+                    params: params,
+                    user: user,
+                    source: source,
+                    timestamp: Date.now()
+                });
+            },
+            
+            /**
+             * 暂停游戏
+             */
+            pause() {
+                this.postToGame({ type: 'PAUSE' });
+            },
+            
+            /**
+             * 恢复游戏
+             */
+            resume() {
+                this.postToGame({ type: 'RESUME' });
+            },
+            
+            /**
+             * 发送消息给游戏
+             */
+            postToGame(data) {
+                if (this.frame && this.frame.contentWindow) {
+                    this.frame.contentWindow.postMessage(data, '*');
+                }
+            },
+            
+            /**
+             * 处理游戏事件
+             */
+            handleGameEvent(eventName, eventData) {
+                console.log('[Player] 游戏事件:', eventName, eventData);
+                // 可以将事件上报到服务器进行统计
+            },
+            
+            /**
+             * 显示错误
+             */
+            showError(title, message) {
+                this.loadingOverlay.style.display = 'none';
+                this.errorOverlay.style.display = 'flex';
+                document.querySelector('.error-title').textContent = title;
+                document.getElementById('errorMessage').textContent = message;
+            }
+        };
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => Player.init());
+        
+        // 暴露给外部调用 (如直播服务)
+        window.MaxGamerPlayer = Player;
+    </script>
+</body>
+</html>
+
+

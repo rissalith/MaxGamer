@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XMGamer - 直播互动游戏平台</title>
+    <!-- Google Fonts - 统一字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- CSS 通过 version.js 动态加载，自动添加版本号 -->
     <script src="js/version.js"></script>
     <script>
@@ -11,6 +15,13 @@
         loadStylesheet('css/main.css');
         loadStylesheet('css/game-market.css');
         loadStylesheet('css/settings.css');
+        loadStylesheet('css/themes.css');
+        
+        // 立即应用保存的主题
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'white';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
     </script>
     <style>
         /* ========== 侧边栏样式 - 固定宽度，不收缩 ========== */
@@ -19,6 +30,10 @@
             min-width: 200px !important;
             max-width: 200px !important;
             transition: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            /* 隐藏侧边栏整体滚动条 */
+            overflow: hidden !important;
         }
         .sidebar:hover {
             width: 200px !important;
@@ -64,6 +79,14 @@
         .sidebar-menu {
             padding: 15px 10px !important;
             width: 100% !important;
+            overflow-y: auto !important;
+            flex: 1 !important;
+            /* 隐藏滚动条但保持可滚动 */
+            scrollbar-width: none !important; /* Firefox */
+            -ms-overflow-style: none !important; /* IE/Edge */
+        }
+        .sidebar-menu::-webkit-scrollbar {
+            display: none !important; /* Chrome/Safari/Opera */
         }
         .menu-item {
             display: flex !important;
@@ -108,6 +131,9 @@
         .sidebar-footer {
             padding: 15px 10px !important;
             width: 100% !important;
+            position: relative !important;
+            flex-shrink: 0 !important;
+            border-top: 1px solid rgba(255,255,255,0.1) !important;
         }
         .user-profile {
             display: flex !important;
@@ -148,6 +174,53 @@
             max-height: 16px !important;
             flex-shrink: 0 !important;
             opacity: 1 !important;
+            transition: transform 0.2s ease !important;
+        }
+        .user-profile:hover .user-menu-toggle {
+            transform: rotate(180deg) !important;
+        }
+        
+        /* 用户弹出菜单美化 */
+        .user-menu {
+            position: absolute !important;
+            bottom: 100% !important;
+            left: 10px !important;
+            right: 10px !important;
+            background: rgba(30, 30, 45, 0.95) !important;
+            backdrop-filter: blur(10px) !important;
+            border-radius: 12px !important;
+            padding: 8px !important;
+            margin-bottom: 8px !important;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        .menu-option {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            padding: 10px 12px !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            color: rgba(255,255,255,0.85) !important;
+            font-size: 13px !important;
+        }
+        .menu-option:hover {
+            background: rgba(255,255,255,0.1) !important;
+        }
+        .menu-option .menu-icon {
+            width: 18px !important;
+            height: 18px !important;
+            opacity: 0.8 !important;
+        }
+        .menu-option-danger {
+            color: #ff6b6b !important;
+            margin-top: 4px !important;
+            border-top: 1px solid rgba(255,255,255,0.08) !important;
+            padding-top: 12px !important;
+        }
+        .menu-option-danger:hover {
+            background: rgba(255,107,107,0.15) !important;
         }
         
         /* ========== 主内容区域 ========== */
@@ -235,12 +308,93 @@
             
             <!-- 菜单导航 -->
             <nav class="sidebar-menu">
-                <div class="menu-item active" data-page="game-market">
-                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
-                        <polyline points="17 2 12 7 7 2"></polyline>
-                    </svg>
-                    <span class="menu-text" data-i18n="sidebar_game_market">Game Market</span>
+                <!-- 应用分组 -->
+                <div class="menu-group">
+                    <div class="menu-group-title">应用</div>
+                    <div class="menu-item active" data-page="game-market">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                            <polyline points="17 2 12 7 7 2"></polyline>
+                        </svg>
+                        <span class="menu-text">游戏市场</span>
+                    </div>
+                    <div class="menu-item" data-page="my-apps">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span class="menu-text">我的应用</span>
+                    </div>
+                </div>
+                
+                <!-- 数据分组 -->
+                <div class="menu-group">
+                    <div class="menu-group-title">数据</div>
+                    <div class="menu-item" data-page="analytics">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                        <span class="menu-text">数据统计</span>
+                    </div>
+                    <div class="menu-item" data-page="logs">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <span class="menu-text">游戏日志</span>
+                    </div>
+                </div>
+                
+                <!-- 创作者分组 (仅创作者可见) -->
+                <div class="menu-group creator-only" id="creatorMenuGroup" style="display: none;">
+                    <div class="menu-group-title">创作</div>
+                    <div class="menu-item" data-page="creator-games">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="6" width="20" height="12" rx="2"/>
+                            <circle cx="8" cy="12" r="2"/>
+                            <path d="M14 10h4M16 8v4"/>
+                        </svg>
+                        <span class="menu-text">我的游戏库</span>
+                    </div>
+                </div>
+                
+                <!-- 管理分组 (仅管理员可见) -->
+                <div class="menu-group admin-only" id="adminMenuGroup" style="display: none;">
+                    <div class="menu-group-title">管理</div>
+                    <div class="menu-item" data-page="admin-games">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="6" width="20" height="12" rx="2"/>
+                            <path d="M12 6v12"/>
+                            <path d="M2 12h20"/>
+                        </svg>
+                        <span class="menu-text">游戏库管理</span>
+                    </div>
+                    <div class="menu-item" data-page="admin-users">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        <span class="menu-text">用户管理</span>
+                    </div>
+                    <div class="menu-item" data-page="admin-logs">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        <span class="menu-text">管理日志</span>
+                    </div>
                 </div>
             </nav>
 
@@ -254,34 +408,35 @@
                     </div>
                     <div class="user-info">
                         <div class="user-name">访客用户</div>
+                        <div class="user-role" id="userRole"></div>
                     </div>
                     <svg class="user-menu-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="18 15 12 9 6 15"></polyline>
                     </svg>
                 </div>
                 <div class="user-menu" id="userMenu" style="display: none;">
-                    <div class="menu-option" data-action="settings">
-                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                        <span>个人设置</span>
-                    </div>
                     <div class="menu-option" data-action="wallet">
                         <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
                             <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
                             <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
                         </svg>
-                        <span>钱包</span>
+                        <span>充值中心</span>
                     </div>
-                    <div class="menu-option" data-action="logout">
+                    <div class="menu-option" data-action="settings">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        <span>账号设置</span>
+                    </div>
+                    <div class="menu-option menu-option-danger" data-action="logout">
                         <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                             <polyline points="16 17 21 12 16 7"></polyline>
                             <line x1="21" y1="12" x2="9" y2="12"></line>
                         </svg>
-                        <span>退出</span>
+                        <span>退出登录</span>
                     </div>
                 </div>
             </div>
@@ -289,14 +444,24 @@
 
         <!-- 主内容区域 -->
         <main class="main-area">
-            <header class="main-header">
-                <h2 class="page-title" id="pageTitle">游戏市场</h2>
-            </header>
-
             <div class="main-content" id="mainContent">
                 <!-- 页面内容将通过路由动态加载到这里 -->
             </div>
         </main>
+    </div>
+
+    <!-- 右上角固定余额显示 -->
+    <div class="floating-balance" id="balanceCard">
+        <div class="balance-info">
+            <span class="balance-value" id="userBalance">0</span>
+            <span class="balance-unit">MP</span>
+        </div>
+        <button class="btn-recharge" id="btnRecharge" title="充值">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+        </button>
     </div>
 
     <!-- 功能模块 -->
@@ -304,6 +469,8 @@
     <script src="js/modules/authManager.js"></script>
     <script src="js/modules/router.js"></script>
     <script src="js/modules/gameMarket.js"></script>
+    <script src="js/modules/myApps.js"></script>
+    <script src="js/modules/walletManager.js"></script>
     <script src="js/modules/settings.js"></script>
     
     <!-- 主入口 -->

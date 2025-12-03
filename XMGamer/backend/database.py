@@ -27,6 +27,8 @@ class User(Base):
     wechat_unionid = Column(String(100))
     oauth_provider = Column(String(20), index=True)  # google, wechat, etc.
     oauth_id = Column(String(255), index=True)  # OAuth提供商的用户ID
+    role = Column(String(20), default='user', index=True)  # 【核心】用户角色: 'user', 'creator' 或 'admin'
+    balance = Column(Integer, default=0)  # 【核心】用户当前积分余额 (MaxPoints)
     status = Column(String(20), default='active', index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -46,6 +48,8 @@ class User(Base):
             'nickname': self.nickname,
             'avatar_url': self.avatar_url,
             'oauth_provider': self.oauth_provider,
+            'role': self.role,
+            'balance': self.balance,
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at is not None else None,
             'last_login_at': self.last_login_at.isoformat() if self.last_login_at is not None else None
@@ -238,6 +242,75 @@ class Transaction(Base):
         }
 
 
+class Game(Base):
+    """游戏商品表 - MaxGamer 游戏库系统"""
+    __tablename__ = 'games'
+    
+    # 基础标识 (来自 manifest)
+    id = Column(String(50), primary_key=True)  # 游戏唯一标识 (来自 manifest.id)
+    version = Column(String(20))  # 当前版本 (来自 manifest.version)
+    engine = Column(String(20), default='HTML5')  # 引擎类型
+    
+    # 创作者信息 - 用于游戏库隔离
+    creator_id = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)  # 创作者用户ID
+    
+    # 运营数据 (平台控制)
+    name = Column(String(100), nullable=False)  # 原始名称 (来自 manifest)
+    name_display = Column(String(100))  # 展示名称 (可由运营修改)
+    description = Column(Text)
+    price = Column(Integer, default=0)  # 租赁价格 (MaxPoints)
+    duration_days = Column(Integer, default=30)  # 租赁时长
+    status = Column(String(20), default='draft', index=True)  # 'draft', 'published', 'offline'
+    category = Column(String(50))  # 游戏分类
+    tags = Column(Text)  # JSON: 标签列表
+    sort_order = Column(Integer, default=0)
+    
+    # 资源链接 (自动生成)
+    index_url = Column(String(255))  # 游戏入口 (index.html 地址)
+    icon_url = Column(String(255))  # 图标地址
+    cover_url = Column(String(255))  # 封面地址
+    
+    # 核心逻辑 (从 Manifest 解析)
+    actions_schema = Column(Text)  # 【重点】动作定义列表 JSON，用于生成前端配置页
+    tech_config = Column(Text)  # 技术参数 JSON (分辨率、透明开关)
+    
+    # 时间戳
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 关系
+    creator = relationship('User', backref='created_games', foreign_keys=[creator_id])
+    
+    def to_dict(self):
+        """转换为字典"""
+        import json
+        tags_str: str = self.tags  # type: ignore
+        actions_str: str = self.actions_schema  # type: ignore
+        tech_str: str = self.tech_config  # type: ignore
+        return {
+            'id': self.id,
+            'version': self.version,
+            'engine': self.engine,
+            'creator_id': self.creator_id,
+            'name': self.name,
+            'name_display': self.name_display or self.name,
+            'description': self.description,
+            'price': self.price,
+            'duration_days': self.duration_days,
+            'status': self.status,
+            'category': self.category,
+            'tags': json.loads(tags_str) if tags_str else [],
+            'sort_order': self.sort_order,
+            'index_url': self.index_url,
+            'icon_url': self.icon_url,
+            'cover_url': self.cover_url,
+            'actions_schema': json.loads(actions_str) if actions_str else [],
+            'tech_config': json.loads(tech_str) if tech_str else {},
+            'created_at': self.created_at.isoformat() if self.created_at is not None else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at is not None else None
+        }
+
+
 class Product(Base):
     """商品表"""
     __tablename__ = 'products'
@@ -277,7 +350,7 @@ class Product(Base):
 
 
 class License(Base):
-    """游戏授权表（新版）"""
+    """游戏授权表（新版）- 对应蓝图中的 user_licenses"""
     __tablename__ = 'licenses'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -286,8 +359,9 @@ class License(Base):
     license_type = Column(String(20), nullable=False)  # rental/permanent
     plan = Column(String(20), default='basic')  # basic/pro/premium
     features = Column(Text)  # JSON: ["no_watermark", "ai_enabled"]
+    config_json = Column(Text)  # 【核心】用户的个性化配置 (OBS链接参数, 触发词等)
     purchased_at = Column(DateTime, default=datetime.utcnow)
-    expires_at = Column(DateTime, index=True)  # NULL = 永久
+    expires_at = Column(DateTime, index=True)  # 【核心】过期时间。NULL = 永久
     auto_renew = Column(Boolean, default=False)
     transaction_id = Column(Integer, ForeignKey('transactions.id'))
     status = Column(String(20), default='active', index=True)  # active/expired/revoked
@@ -303,6 +377,15 @@ class License(Base):
         import json
         # 类型注释帮助Pylance理解这是字符串值
         features_str: str = self.features  # type: ignore
+        config_str: str = self.config_json  # type: ignore
+        
+        # 计算剩余天数
+        days_remaining = None
+        if self.expires_at:
+            from datetime import datetime
+            delta = self.expires_at - datetime.utcnow()
+            days_remaining = max(0, delta.days)
+        
         return {
             'id': self.id,
             'user_id': self.user_id,
@@ -310,8 +393,10 @@ class License(Base):
             'license_type': self.license_type,
             'plan': self.plan,
             'features': json.loads(features_str) if features_str else [],
+            'config': json.loads(config_str) if config_str else {},
             'purchased_at': self.purchased_at.isoformat() if self.purchased_at is not None else None,
             'expires_at': self.expires_at.isoformat() if self.expires_at is not None else None,
+            'days_remaining': days_remaining,
             'auto_renew': self.auto_renew,
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at is not None else None
@@ -342,6 +427,45 @@ class GameLicense(Base):
             'plan': self.plan,
             'expires_at': self.expires_at.isoformat() if self.expires_at is not None else None,
             'created_at': self.created_at.isoformat() if self.created_at is not None else None
+        }
+
+
+class AdminLog(Base):
+    """管理员操作日志表"""
+    __tablename__ = 'admin_logs'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    admin_id = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
+    admin_email = Column(String(255))  # 冗余存储，防止用户被删后无法查看
+    admin_nickname = Column(String(50))
+    action = Column(String(50), nullable=False, index=True)  # 操作类型: login, create_user, edit_user, delete_user, adjust_balance, set_role, etc.
+    target_type = Column(String(50), index=True)  # 目标类型: user, game, system
+    target_id = Column(String(100))  # 目标ID
+    target_name = Column(String(255))  # 目标名称（冗余存储）
+    details = Column(Text)  # JSON格式的详细信息
+    ip_address = Column(String(50))
+    user_agent = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    
+    # 关系
+    admin = relationship('User', backref='admin_logs')
+    
+    def to_dict(self):
+        """转换为字典"""
+        import json
+        details_str = self.details
+        return {
+            'id': self.id,
+            'admin_id': self.admin_id,
+            'admin_email': self.admin_email,
+            'admin_nickname': self.admin_nickname,
+            'action': self.action,
+            'target_type': self.target_type,
+            'target_id': self.target_id,
+            'target_name': self.target_name,
+            'details': json.loads(details_str) if details_str else None,
+            'ip_address': self.ip_address,
+            'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
 
@@ -404,7 +528,7 @@ def init_db():
     print(f'   数据库位置: {DATABASE_URL}')
     print(f'   创建的表: users, sessions, sms_codes, email_codes, generation_history, user_quotas')
     print(f'   点数系统表: wallets, transactions, products, licenses')
-    print(f'   游戏相关表: game_licenses, game_launches')
+    print(f'   游戏相关表: games, game_licenses, game_launches')
 
 
 # 自动初始化数据库（如果不存在）

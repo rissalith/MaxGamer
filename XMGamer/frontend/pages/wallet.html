@@ -1,132 +1,648 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的钱包 - XMGamer</title>
-    <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/wallet.css">
-</head>
-<body>
-    <div class="container">
-        <!-- 顶部导航 -->
-        <header class="header">
-            <div class="header-content">
-                <h1 class="logo">XMGamer</h1>
-                <nav class="nav">
-                    <a href="../index.html">游戏市场</a>
-                    <a href="wallet.html" class="active">我的钱包</a>
-                    <a href="my-games.html">我的游戏</a>
-                    <div class="user-menu">
-                        <span id="userNickname">加载中...</span>
-                        <button id="logoutBtn" class="btn-text">退出</button>
-                    </div>
-                </nav>
-            </div>
-        </header>
-
-        <!-- 钱包概览 -->
-        <section class="wallet-overview">
-            <div class="balance-card">
-                <div class="balance-icon">💎</div>
-                <div class="balance-info">
-                    <h2>当前余额</h2>
-                    <div class="balance-amount">
-                        <span id="currentBalance">--</span>
-                        <span class="balance-unit">点</span>
-                    </div>
-                </div>
-                <button id="rechargeBtn" class="btn-primary">充值</button>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">累计充值</div>
-                    <div class="stat-value" id="totalRecharged">--</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">累计消费</div>
-                    <div class="stat-value" id="totalConsumed">--</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">冻结余额</div>
-                    <div class="stat-value" id="frozenBalance">--</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 交易历史 -->
-        <section class="transaction-history">
-            <div class="section-header">
-                <h2>交易记录</h2>
-                <div class="filter-tabs">
-                    <button class="tab-btn active" data-type="all">全部</button>
-                    <button class="tab-btn" data-type="DEPOSIT">充值</button>
-                    <button class="tab-btn" data-type="PURCHASE">消费</button>
-                    <button class="tab-btn" data-type="REFUND">退款</button>
-                </div>
-            </div>
-
-            <div id="transactionList" class="transaction-list">
-                <div class="loading">加载中...</div>
-            </div>
-
-            <div class="pagination">
-                <button id="prevPage" class="btn-secondary" disabled>上一页</button>
-                <span id="pageInfo">第 1 页</span>
-                <button id="nextPage" class="btn-secondary">下一页</button>
-            </div>
-        </section>
+<!-- 充值中心页面 - Google风格 -->
+<div class="settings-page">
+    <div class="settings-header">
+        <h1 class="settings-title">充值中心</h1>
     </div>
 
-    <!-- 充值弹窗 -->
-    <div id="rechargeModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>选择充值套餐</h3>
-                <button class="modal-close">&times;</button>
+    <div class="settings-body">
+        <!-- 左侧导航 -->
+        <nav class="settings-nav">
+            <div class="settings-nav-item active" data-tab="overview">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+                </svg>
+                <span>余额概览</span>
             </div>
-            <div class="modal-body">
-                <div id="rechargePackages" class="package-grid">
-                    <div class="loading">加载中...</div>
+            <div class="settings-nav-item" data-tab="recharge">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                <span>充值</span>
+            </div>
+            <div class="settings-nav-item" data-tab="history">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <span>交易记录</span>
+            </div>
+        </nav>
+
+        <!-- 右侧内容区 -->
+        <div class="settings-content">
+            <!-- 余额概览 -->
+            <div class="settings-panel active" id="overview-panel">
+                <div class="panel-card">
+                    <div class="card-header">
+                        <h2>当前余额</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="balance-display">
+                            <div class="balance-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 6v12M6 12h12"/>
+                                </svg>
+                            </div>
+                            <div class="balance-info">
+                                <span class="balance-amount" id="walletBalance">0</span>
+                                <span class="balance-unit">MaxPoints</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="card-header">
+                        <h2>账户统计</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">累计充值</span>
+                                <span class="stat-value" id="totalRecharged">0 MP</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">累计消费</span>
+                                <span class="stat-value" id="totalConsumed">0 MP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="card-header">
+                        <h2>快捷操作</h2>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn-primary" onclick="WalletManager.switchTab('recharge')">
+                            立即充值
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 充值套餐 -->
+            <div class="settings-panel" id="recharge-panel">
+                <div class="panel-card">
+                    <div class="card-header">
+                        <h2>选择充值套餐</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="package-options" id="packagesGrid">
+                            <!-- 套餐将动态加载 -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="card-header">
+                        <h2>充值说明</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="info-icon">💡</span>
+                                <span class="info-text">MaxPoints (MP) 可用于购买游戏和功能</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">🔒</span>
+                                <span class="info-text">所有交易均有记录，安全透明</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">⚡</span>
+                                <span class="info-text">充值即时到账，无需等待</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交易记录 -->
+            <div class="settings-panel" id="history-panel">
+                <div class="panel-card">
+                    <div class="card-header">
+                        <h2>交易记录</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="transactions-list" id="transactionsList">
+                            <!-- 交易记录将动态加载 -->
+                        </div>
+                        <div class="load-more" id="loadMoreBtn" style="display: none;">
+                            <button class="btn-text" onclick="WalletManager.loadMoreTransactions()">加载更多</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- 支付弹窗 -->
-    <div id="paymentModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>选择支付方式</h3>
-                <button class="modal-close">&times;</button>
+<!-- 充值确认弹窗 -->
+<div class="modal-overlay" id="rechargeModal" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3>确认充值</h3>
+            <button class="btn-icon" onclick="WalletManager.closeRechargeModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="confirm-info">
+                <div class="confirm-row">
+                    <span class="confirm-label">套餐名称</span>
+                    <span class="confirm-value" id="rechargePackageName">-</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">获得积分</span>
+                    <span class="confirm-value highlight" id="rechargePoints">-</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">支付金额</span>
+                    <span class="confirm-value price" id="rechargePrice">-</span>
+                </div>
             </div>
-            <div class="modal-body">
-                <div class="payment-info">
-                    <p>充值金额: <strong id="payAmount">--</strong> 点</p>
-                    <p>支付金额: <strong id="payCny">¥--</strong></p>
-                </div>
-                <div class="payment-methods">
-                    <button class="payment-btn" data-method="stripe">
-                        <span class="payment-icon">💳</span>
-                        <span>信用卡支付</span>
-                    </button>
-                    <button class="payment-btn" data-method="wechat">
-                        <span class="payment-icon">💚</span>
-                        <span>微信支付</span>
-                    </button>
-                    <button class="payment-btn" data-method="alipay">
-                        <span class="payment-icon">💙</span>
-                        <span>支付宝</span>
-                    </button>
-                </div>
-                <div class="payment-note">
-                    <p>⚠️ 测试环境：点击任意支付方式将模拟支付成功</p>
-                </div>
+            <div class="confirm-note">
+                <p>💡 测试模式：点击确认直接到账</p>
             </div>
         </div>
+        <div class="modal-footer">
+            <button class="btn-text" onclick="WalletManager.closeRechargeModal()">取消</button>
+            <button class="btn-primary" onclick="WalletManager.confirmRecharge()">确认充值</button>
+        </div>
     </div>
+</div>
 
-    <script type="module" src="../js/wallet.js"></script>
-</body>
-</html>
+<style>
+/* 全局字体 */
+* {
+    font-family: 'Noto Sans SC', 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 余额显示 */
+.balance-display {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+}
+
+.balance-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+}
+
+.balance-icon svg {
+    width: 32px;
+    height: 32px;
+    color: white;
+}
+
+.balance-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.balance-amount {
+    font-size: 36px;
+    font-weight: 400;
+    color: #202124;
+    letter-spacing: -0.5px;
+}
+
+.balance-unit {
+    font-size: 14px;
+    font-weight: 400;
+    color: #5f6368;
+    margin-top: 4px;
+}
+
+/* 统计网格 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #5f6368;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 500;
+    color: #202124;
+}
+
+/* 充值套餐选项 */
+.package-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.package-option {
+    cursor: pointer;
+}
+
+.package-option input {
+    display: none;
+}
+
+.package-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 2px solid #e8eaed;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+
+.package-option:hover .package-content {
+    background: #f8f9fa;
+    border-color: #dadce0;
+}
+
+.package-option input:checked + .package-content {
+    background: #e8f0fe;
+    border-color: #1a73e8;
+}
+
+.package-icon {
+    font-size: 32px;
+    line-height: 1;
+}
+
+.package-info {
+    flex: 1;
+}
+
+.package-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #202124;
+}
+
+.package-desc {
+    display: block;
+    font-size: 12px;
+    color: #5f6368;
+    margin-top: 2px;
+}
+
+.package-price {
+    font-size: 18px;
+    font-weight: 500;
+    color: #1a73e8;
+}
+
+.package-badge {
+    background: #ea4335;
+    color: white;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+.check-icon {
+    width: 20px;
+    height: 20px;
+    color: #1a73e8;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.package-option input:checked + .package-content .check-icon {
+    opacity: 1;
+}
+
+/* 说明列表 */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.info-icon {
+    font-size: 18px;
+}
+
+.info-text {
+    font-size: 14px;
+    color: #5f6368;
+}
+
+/* 交易列表 */
+.transactions-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.transaction-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.transaction-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+.transaction-icon.deposit { background: #e6f4ea; }
+.transaction-icon.purchase { background: #fce8e6; }
+.transaction-icon.adjust { background: #e8f0fe; }
+
+.transaction-info {
+    flex: 1;
+}
+
+.transaction-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #202124;
+}
+
+.transaction-time {
+    font-size: 12px;
+    color: #5f6368;
+    margin-top: 2px;
+}
+
+.transaction-amount {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.transaction-amount.positive { color: #1e8e3e; }
+.transaction-amount.negative { color: #d93025; }
+
+.empty-transactions {
+    text-align: center;
+    padding: 40px 0;
+    color: #5f6368;
+}
+
+.empty-transactions-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+/* 加载更多 */
+.load-more {
+    text-align: center;
+    padding-top: 16px;
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: #1a73e8;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+}
+
+.btn-text:hover {
+    background: #f1f3f4;
+}
+
+/* 弹窗 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-dialog {
+    background: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #202124;
+    margin: 0;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5f6368;
+    transition: background 0.15s ease;
+}
+
+.btn-icon:hover {
+    background: #f1f3f4;
+}
+
+.btn-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.confirm-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.confirm-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.confirm-row:last-child {
+    border-bottom: none;
+}
+
+.confirm-label {
+    color: #5f6368;
+    font-size: 14px;
+}
+
+.confirm-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #202124;
+}
+
+.confirm-value.highlight {
+    color: #1a73e8;
+}
+
+.confirm-value.price {
+    color: #d93025;
+    font-size: 16px;
+}
+
+.confirm-note {
+    text-align: center;
+    font-size: 12px;
+    color: #5f6368;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 24px;
+    border-top: 1px solid #e8eaed;
+}
+
+/* 深色模式支持 */
+body.dark-mode .balance-amount,
+body.dark-mode .stat-value {
+    color: #e8eaed;
+}
+
+body.dark-mode .package-content {
+    border-color: #3c4043;
+}
+
+body.dark-mode .package-option:hover .package-content {
+    background: #3c4043;
+}
+
+body.dark-mode .package-option input:checked + .package-content {
+    background: #394457;
+    border-color: #8ab4f8;
+}
+
+body.dark-mode .package-name,
+body.dark-mode .transaction-title {
+    color: #e8eaed;
+}
+
+body.dark-mode .package-price {
+    color: #8ab4f8;
+}
+
+body.dark-mode .transaction-icon.deposit { background: #1e3a2f; }
+body.dark-mode .transaction-icon.purchase { background: #3c2a2a; }
+body.dark-mode .transaction-icon.adjust { background: #394457; }
+
+body.dark-mode .modal-dialog {
+    background: #292a2d;
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    border-color: #3c4043;
+}
+
+body.dark-mode .modal-header h3 {
+    color: #e8eaed;
+}
+
+body.dark-mode .confirm-info {
+    background: #3c4043;
+}
+
+body.dark-mode .confirm-row {
+    border-color: #5f6368;
+}
+
+body.dark-mode .confirm-value {
+    color: #e8eaed;
+}
+
+body.dark-mode .confirm-value.highlight {
+    color: #8ab4f8;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .balance-display {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .balance-amount {
+        font-size: 28px;
+    }
+}
+</style>

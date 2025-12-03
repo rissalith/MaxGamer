@@ -14,7 +14,7 @@ import json
 # 添加父目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from database import get_db_session, User, Session, SmsCode, EmailCode, UserQuota
+from database import get_db_session, User, Session, SmsCode, EmailCode, UserQuota, AdminLog
 from utils.jwt_helper import create_access_token, verify_access_token
 from utils.password_helper import hash_password, verify_password
 from utils.sms_helper import generate_code, send_sms_code
@@ -26,6 +26,28 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
 
 # ==================== 辅助函数 ====================
+
+def log_admin_login(db, user):
+    """记录管理员登录日志"""
+    if user.role == 'admin':
+        try:
+            log = AdminLog(
+                admin_id=user.id,
+                admin_email=user.email,
+                admin_nickname=user.nickname,
+                action='login',
+                target_type='system',
+                target_id=None,
+                target_name=None,
+                details=json.dumps({'login_method': 'password'}, ensure_ascii=False),
+                ip_address=get_client_ip(),
+                user_agent=request.headers.get('User-Agent', '')[:500]
+            )
+            db.add(log)
+            db.commit()
+        except Exception as e:
+            print(f'[WARN] 记录管理员登录日志失败: {e}')
+
 
 def get_client_ip():
     """获取客户端IP地址"""
@@ -384,6 +406,9 @@ def login_with_email():
             db.add(session)
             db.commit()
             
+            # 记录管理员登录日志
+            log_admin_login(db, user)
+            
             response_data = {
                 'success': True,
                 'token': token,
@@ -635,6 +660,9 @@ def login_with_password():
             )
             db.add(session)
             db.commit()
+            
+            # 记录管理员登录日志
+            log_admin_login(db, user)
             
             return jsonify({
                 'success': True,

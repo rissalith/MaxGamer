@@ -12,10 +12,51 @@ const Router = {
     routes: {
         'game-market': {
             title: '游戏市场',
-            page: 'pages/game-market.html'
+            page: 'pages/game-market.html',
+            init: () => {
+                if (window.GameMarket) {
+                    GameMarket.init();
+                }
+            }
+        },
+        'my-apps': {
+            title: '我的应用',
+            page: 'pages/my-apps.html',
+            init: () => {
+                if (window.MyApps) {
+                    MyApps.init();
+                }
+            }
+        },
+        'analytics': {
+            title: '数据统计',
+            page: 'pages/analytics.html',
+            init: () => {
+                if (window.Analytics) {
+                    Analytics.init();
+                }
+            }
+        },
+        'logs': {
+            title: '游戏日志',
+            page: 'pages/logs.html',
+            init: () => {
+                if (window.GameLogs) {
+                    GameLogs.init();
+                }
+            }
+        },
+        'wallet': {
+            title: '充值中心',
+            page: 'pages/wallet.html',
+            init: () => {
+                if (window.WalletManager) {
+                    WalletManager.init();
+                }
+            }
         },
         'settings': {
-            title: '个人设置',
+            title: '账号设置',
             page: 'pages/settings.html',
             init: () => {
                 // 加载设置页面的CSS
@@ -28,6 +69,48 @@ const Router = {
                 // 初始化设置管理器
                 if (window.SettingsManager) {
                     SettingsManager.init();
+                }
+            }
+        },
+        // 管理员路由
+        'admin-games': {
+            title: '游戏库管理',
+            page: 'pages/admin-games.html',
+            adminOnly: true,
+            init: () => {
+                if (window.AdminGames) {
+                    AdminGames.init();
+                }
+            }
+        },
+        'admin-users': {
+            title: '用户管理',
+            page: 'pages/admin-users.html',
+            adminOnly: true,
+            init: () => {
+                if (window.AdminUsers) {
+                    AdminUsers.init();
+                }
+            }
+        },
+        'admin-logs': {
+            title: '管理日志',
+            page: 'pages/admin-logs.html',
+            adminOnly: true,
+            init: () => {
+                if (window.AdminLogs) {
+                    AdminLogs.init();
+                }
+            }
+        },
+        // 创作者路由
+        'creator-games': {
+            title: '我的游戏库',
+            page: 'pages/creator-games.html',
+            creatorOnly: true,
+            init: () => {
+                if (window.CreatorGames) {
+                    CreatorGames.init();
                 }
             }
         }
@@ -81,12 +164,11 @@ const Router = {
         // 更新当前路由
         this.currentRoute = route;
         
-        // 更新页面标题
+        // 更新路由配置
         const routeConfig = this.routes[route];
-        const pageTitle = document.getElementById('pageTitle');
-        if (pageTitle) {
-            pageTitle.textContent = routeConfig.title;
-        }
+        
+        // 更新浏览器标题
+        document.title = `${routeConfig.title} - XMGamer`;
         
         // 更新菜单active状态
         this._updateMenuState(route);
@@ -123,6 +205,9 @@ const Router = {
             const html = await response.text();
             mainContent.innerHTML = html;
             
+            // 执行加载的脚本标签
+            this._executeScripts(mainContent);
+            
             // 重新绑定页面内的事件
             this._bindPageEvents();
             
@@ -131,6 +216,28 @@ const Router = {
             console.error(`加载页面失败: ${pageUrl}`, error);
             mainContent.innerHTML = '<div style="padding: 20px; text-align: center;">页面加载失败</div>';
         }
+    },
+    
+    /**
+     * 执行容器内的脚本标签
+     * @private
+     */
+    _executeScripts(container) {
+        const scripts = container.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            
+            // 复制属性
+            Array.from(oldScript.attributes).forEach(attr => {
+                newScript.setAttribute(attr.name, attr.value);
+            });
+            
+            // 复制内容
+            newScript.textContent = oldScript.textContent;
+            
+            // 替换旧脚本
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
     },
     
     /**

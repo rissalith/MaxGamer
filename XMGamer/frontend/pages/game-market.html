@@ -1,19 +1,30 @@
-<!-- 游戏市场页面 -->
-<div class="page-content" id="game-market-page">
-    <div class="game-market-container">
-        <div class="games-container">
-            <div class="market-toolbar">
-                <div class="view-mode-toggle">
-                    <button class="view-btn active" data-view="card" data-i18n-title="market_view_card" title="Card View">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+<!-- 游戏市场页面 - 统一风格 -->
+<div class="page-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+        <h1 class="page-title">游戏市场</h1>
+        <p class="page-subtitle">探索精彩的直播互动游戏</p>
+    </div>
+
+    <!-- 页面内容 -->
+    <div class="page-body">
+        <!-- 工具栏 -->
+        <div class="content-toolbar">
+            <div class="toolbar-left">
+                <span class="result-count" id="gameCount">0 个游戏</span>
+            </div>
+            <div class="toolbar-right">
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="card" title="卡片视图">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
                             <rect x="3" y="3" width="7" height="7" rx="1"/>
                             <rect x="14" y="3" width="7" height="7" rx="1"/>
                             <rect x="3" y="14" width="7" height="7" rx="1"/>
                             <rect x="14" y="14" width="7" height="7" rx="1"/>
                         </svg>
                     </button>
-                    <button class="view-btn" data-view="list" data-i18n-title="market_view_list" title="List View">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <button class="view-btn" data-view="list" title="列表视图">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
                             <rect x="3" y="4" width="18" height="3" rx="1"/>
                             <rect x="3" y="10" width="18" height="3" rx="1"/>
                             <rect x="3" y="16" width="18" height="3" rx="1"/>
@@ -21,41 +32,640 @@
                     </button>
                 </div>
             </div>
-            
-            <div class="games-grid" data-view-mode="card">
-                <!-- 巫女占卜游戏卡片 -->
-                <div class="game-card" data-game="fortune-game">
-                    <div class="game-card-image">
-                        <div class="game-icon">🔮</div>
-                    </div>
-                    <div class="game-card-content">
-                        <h4 class="game-title" data-i18n="game_fortune">Fortune Teller</h4>
-                        <p class="game-description" data-i18n="game_fortune_desc">Experience a mystical fortune-telling journey</p>
-                        <div class="game-tags">
-                            <span class="tag" data-i18n="tag_fortune">Fortune</span>
-                            <span class="tag" data-i18n="tag_interactive">Interactive</span>
-                            <span class="tag" data-i18n="tag_live">Live</span>
-                        </div>
-                    </div>
-                    <div class="game-card-footer">
-                        <button class="btn-play" data-i18n="market_start_game">Play Now</button>
-                    </div>
-                </div>
-                
-                <!-- 更多游戏卡片可以在这里添加 -->
-                <div class="game-card coming-soon">
-                    <div class="game-card-image">
-                        <div class="game-icon">🎲</div>
-                    </div>
-                    <div class="game-card-content">
-                        <h4 class="game-title" data-i18n="game_coming_soon">Coming Soon</h4>
-                        <p class="game-description" data-i18n="game_coming_soon_desc">More exciting games coming soon</p>
-                    </div>
-                    <div class="game-card-footer">
-                        <button class="btn-play disabled" disabled data-i18n="market_coming_soon">Coming Soon</button>
-                    </div>
-                </div>
+        </div>
+
+        <!-- 游戏网格 -->
+        <div class="games-grid" data-view-mode="card" id="gamesGrid">
+            <div class="loading-placeholder">
+                <div class="spinner"></div>
+                <p>加载游戏中...</p>
             </div>
         </div>
     </div>
 </div>
+
+<!-- 购买确认弹窗 -->
+<div class="modal-overlay" id="purchaseModal" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3>购买游戏</h3>
+            <button class="btn-close" onclick="GameMarket.closePurchaseModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="purchase-game-info">
+                <div class="purchase-game-icon" id="purchaseGameIcon"></div>
+                <div class="purchase-game-details">
+                    <h4 id="purchaseGameName">游戏名称</h4>
+                    <p id="purchaseGameDesc">游戏描述</p>
+                </div>
+            </div>
+            
+            <div class="purchase-plans" id="purchasePlans"></div>
+            
+            <div class="purchase-summary">
+                <div class="summary-row">
+                    <span>当前余额</span>
+                    <span id="purchaseBalance">0 MP</span>
+                </div>
+                <div class="summary-row total">
+                    <span>需支付</span>
+                    <span id="purchaseTotal">0 MP</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="GameMarket.closePurchaseModal()">取消</button>
+            <button class="btn-primary" id="btnConfirmPurchase" onclick="GameMarket.confirmPurchase()">确认购买</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ========== 全局字体 ========== */
+* {
+    font-family: 'Noto Sans SC', 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ========== 统一页面容器 ========== */
+.page-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 页面头部 */
+.page-header {
+    padding: 24px 32px 20px;
+    border-bottom: 1px solid #e8eaed;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 400;
+    color: #202124;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.2px;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: #5f6368;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* 页面主体 */
+.page-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+}
+
+/* ========== 工具栏 ========== */
+.content-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.result-count {
+    font-size: 14px;
+    color: #5f6368;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.view-toggle {
+    display: flex;
+    background: #f1f3f4;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.view-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5f6368;
+    transition: all 0.15s ease;
+}
+
+.view-btn:hover {
+    background: #e8eaed;
+}
+
+.view-btn.active {
+    background: #fff;
+    color: #1a73e8;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.view-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ========== 游戏网格 ========== */
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.games-grid[data-view-mode="list"] {
+    grid-template-columns: 1fr;
+}
+
+/* ========== 游戏卡片 ========== */
+.game-card {
+    background: #fff;
+    border: 1px solid #e8eaed;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.game-card:hover {
+    border-color: #dadce0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.game-card-image {
+    height: 140px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-icon svg {
+    width: 48px;
+    height: 48px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.game-price-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    color: #1a1a2e;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(255, 215, 0, 0.3);
+}
+
+.game-price-badge.owned {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+    color: white;
+}
+
+.game-card-content {
+    padding: 16px;
+}
+
+.game-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #202124;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.1px;
+}
+
+.game-description {
+    font-size: 13px;
+    color: #5f6368;
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+    font-weight: 400;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.game-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.tag {
+    padding: 4px 8px;
+    background: #f1f3f4;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #5f6368;
+}
+
+.game-card-footer {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #f1f3f4;
+}
+
+/* ========== 操作按钮 ========== */
+.btn-game-action {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-game-action svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.btn-game-action.primary {
+    background: #1a73e8;
+    color: white;
+}
+
+.btn-game-action.primary:hover {
+    background: #1557b0;
+    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.3);
+}
+
+.btn-game-action.secondary {
+    background: #f1f3f4;
+    color: #5f6368;
+}
+
+.btn-game-action.secondary:hover {
+    background: #e8eaed;
+    color: #202124;
+}
+
+.btn-game-action.purchase {
+    background: #1a73e8;
+    color: white;
+}
+
+.btn-game-action.purchase:hover {
+    background: #1557b0;
+}
+
+.btn-game-action.disabled {
+    background: #f1f3f4;
+    color: #9aa0a6;
+    cursor: not-allowed;
+}
+
+/* ========== 加载状态 ========== */
+.loading-placeholder {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #5f6368;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e8eaed;
+    border-top-color: #1a73e8;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========== 弹窗 ========== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-dialog {
+    background: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #202124;
+    margin: 0;
+}
+
+.btn-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5f6368;
+    transition: background 0.15s ease;
+}
+
+.btn-close:hover {
+    background: #f1f3f4;
+}
+
+.btn-close svg {
+    width: 20px;
+    height: 20px;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid #e8eaed;
+}
+
+/* 购买信息 */
+.purchase-game-info {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.purchase-game-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.purchase-game-icon svg {
+    width: 32px;
+    height: 32px;
+    color: white;
+}
+
+.purchase-game-details h4 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #202124;
+    margin: 0 0 4px 0;
+}
+
+.purchase-game-details p {
+    font-size: 13px;
+    color: #5f6368;
+    margin: 0;
+}
+
+/* 套餐选项 */
+.purchase-plans {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.plan-option {
+    cursor: pointer;
+}
+
+.plan-option input {
+    display: none;
+}
+
+.plan-option .plan-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 2px solid #e8eaed;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+
+.plan-option:hover .plan-content {
+    border-color: #dadce0;
+    background: #fafafa;
+}
+
+.plan-option input:checked + .plan-content {
+    border-color: #1a73e8;
+    background: #e8f0fe;
+}
+
+.plan-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #dadce0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.plan-option input:checked + .plan-content .plan-radio {
+    border-color: #1a73e8;
+}
+
+.plan-option input:checked + .plan-content .plan-radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #1a73e8;
+    border-radius: 50%;
+}
+
+.plan-info {
+    flex: 1;
+}
+
+.plan-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #202124;
+}
+
+.plan-duration {
+    font-size: 12px;
+    color: #5f6368;
+}
+
+.plan-price {
+    font-size: 16px;
+    font-weight: 500;
+    color: #1a73e8;
+}
+
+/* 购买摘要 */
+.purchase-summary {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 14px;
+    color: #5f6368;
+}
+
+.summary-row.total {
+    border-top: 1px solid #e8eaed;
+    margin-top: 8px;
+    padding-top: 12px;
+    font-weight: 500;
+    color: #202124;
+}
+
+.summary-row.total span:last-child {
+    color: #d93025;
+    font-size: 16px;
+}
+
+/* 按钮 */
+.btn-secondary {
+    padding: 10px 20px;
+    background: #fff;
+    color: #5f6368;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+    background: #f8f9fa;
+    border-color: #c6c9cc;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    background: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-primary:hover {
+    background: #1557b0;
+    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.3);
+}
+
+.btn-primary:disabled {
+    background: #dadce0;
+    color: #9aa0a6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 768px) {
+    .page-header {
+        padding: 20px;
+    }
+    
+    .page-body {
+        padding: 20px;
+    }
+    
+    .games-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .content-toolbar {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+}
+</style>
