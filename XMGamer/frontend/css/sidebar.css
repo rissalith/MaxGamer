@@ -248,13 +248,17 @@
 .user-menu-toggle {
     width: 16px;
     height: 16px;
-    transition: transform 0.3s;
+    max-width: 16px;
+    max-height: 16px;
+    transition: transform 0.3s, opacity 0.3s;
     flex-shrink: 0;
     opacity: 0;
+    display: none;
 }
 
 .sidebar:hover .user-menu-toggle {
     opacity: 1;
+    display: block;
 }
 
 .user-profile.active .user-menu-toggle {
