@@ -4,8 +4,8 @@
  */
 
 const I18n = {
-    // 当前语言
-    currentLang: 'zh-CN',
+    // 当前语言 - 默认英文
+    currentLang: 'en-US',
     
     // 语言包
     translations: {

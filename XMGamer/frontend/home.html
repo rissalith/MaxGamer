@@ -4,68 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XMGamer - 直播互动游戏平台</title>
-    <link rel="stylesheet" href="css/main.css?v=20251203v4">
-    <link rel="stylesheet" href="css/game-market.css?v=20251203v4">
-    <link rel="stylesheet" href="css/settings.css?v=20251203v4">
+    <link rel="stylesheet" href="css/main.css?v=20251203v5">
+    <link rel="stylesheet" href="css/game-market.css?v=20251203v5">
+    <link rel="stylesheet" href="css/settings.css?v=20251203v5">
     <style>
-        /* ========== 侧边栏样式 ========== */
+        /* ========== 侧边栏样式 - 统一本地和远程 ========== */
         .sidebar {
-            width: 70px !important;
-            transition: width 0.3s ease !important;
-        }
-        .sidebar:hover {
             width: 200px !important;
+            min-width: 200px !important;
+            transition: none !important;
         }
         
-        /* Logo 区域 */
+        /* Logo 区域 - 居中显示 */
         .sidebar-header {
-            padding: 15px 0 !important;
+            padding: 20px 15px !important;
             overflow: hidden !important;
-        }
-        .logo {
+            display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
+            text-align: center !important;
+        }
+        .logo {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
             gap: 0 !important;
+            margin: 0 !important;
         }
         .logo-icon-svg {
-            width: 36px !important;
-            height: 36px !important;
-            transition: all 0.3s ease !important;
+            width: 48px !important;
+            height: 48px !important;
+            margin-bottom: 8px !important;
         }
-        .sidebar:hover .logo-icon-svg {
-            width: 45px !important;
-            height: 45px !important;
-        }
-        /* 隐藏品牌名 */
-        .logo-text, .logo > br, .logo::after {
+        .logo-text {
             display: none !important;
         }
         .logo-subtitle {
-            font-size: 0 !important;
-            opacity: 0 !important;
-            height: 0 !important;
+            font-size: 0.75em !important;
+            opacity: 0.9 !important;
             margin: 0 !important;
-            transition: all 0.3s ease !important;
-        }
-        .sidebar:hover .logo-subtitle {
-            font-size: 0.7em !important;
-            opacity: 0.8 !important;
-            height: auto !important;
-            margin-top: 5px !important;
+            white-space: nowrap !important;
+            text-align: center !important;
         }
         
-        /* 菜单项 */
+        /* 菜单项 - 统一样式 */
         .sidebar-menu {
-            padding: 10px 8px !important;
+            padding: 15px 10px !important;
+            width: 100% !important;
         }
         .menu-item {
-            justify-content: center !important;
-            padding: 12px 8px !important;
-            height: 48px !important;
-        }
-        .sidebar:hover .menu-item {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
             justify-content: flex-start !important;
+            gap: 12px !important;
             padding: 12px 15px !important;
+            height: auto !important;
+            min-height: 48px !important;
+            border-radius: 12px !important;
+            background: transparent !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
         }
         .menu-icon {
             width: 22px !important;
@@ -73,48 +79,53 @@
             flex-shrink: 0 !important;
         }
         .menu-text {
-            font-size: 0 !important;
-            opacity: 0 !important;
-            white-space: nowrap !important;
-            transition: all 0.3s ease !important;
-        }
-        .sidebar:hover .menu-text {
-            font-size: 0.9em !important;
+            font-size: 0.95em !important;
             opacity: 1 !important;
-            margin-left: 10px !important;
+            white-space: nowrap !important;
+            font-weight: 500 !important;
         }
         
         /* 用户区域 */
         .sidebar-footer {
-            padding: 12px 8px !important;
+            padding: 15px 10px !important;
+            width: 100% !important;
         }
         .user-profile {
-            justify-content: center !important;
-            padding: 8px !important;
-        }
-        .sidebar:hover .user-profile {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
             justify-content: flex-start !important;
-            padding: 10px 12px !important;
+            gap: 12px !important;
+            padding: 10px 15px !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-radius: 12px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
         }
         .user-avatar {
-            width: 32px !important;
-            height: 32px !important;
+            width: 36px !important;
+            height: 36px !important;
+            flex-shrink: 0 !important;
         }
         .user-info {
-            display: none !important;
-        }
-        .sidebar:hover .user-info {
             display: block !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
+        .user-name {
+            font-size: 0.9em !important;
+            font-weight: 600 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
         .user-menu-toggle {
-            display: none !important;
+            display: block !important;
             width: 16px !important;
             height: 16px !important;
             max-width: 16px !important;
             max-height: 16px !important;
-        }
-        .sidebar:hover .user-menu-toggle {
-            display: block !important;
+            flex-shrink: 0 !important;
         }
         
         /* ========== 主内容区域 ========== */
@@ -195,8 +206,9 @@
                         <path d="M30 20 L40 8" stroke="white" stroke-width="4" stroke-linecap="round"/>
                         <path d="M70 20 L60 8" stroke="white" stroke-width="4" stroke-linecap="round"/>
                     </svg>
+                    <span class="logo-text">XMGamer</span>
                 </h1>
-                <p class="logo-subtitle">XMGamer</p>
+                <p class="logo-subtitle" data-i18n="app_subtitle">Live Interactive Gaming Platform</p>
             </div>
             
             <!-- 菜单导航 -->
@@ -206,7 +218,7 @@
                         <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
                         <polyline points="17 2 12 7 7 2"></polyline>
                     </svg>
-                    <span class="menu-text">游戏市场</span>
+                    <span class="menu-text" data-i18n="sidebar_game_market">Game Market</span>
                 </div>
             </nav>
 
@@ -266,13 +278,13 @@
     </div>
 
     <!-- 功能模块 -->
-    <script src="js/modules/i18n.js?v=20251203v4"></script>
-    <script src="js/modules/authManager.js?v=20251203v4"></script>
-    <script src="js/modules/router.js?v=20251203v4"></script>
-    <script src="js/modules/gameMarket.js?v=20251203v4"></script>
-    <script src="js/modules/settings.js?v=20251203v4"></script>
+    <script src="js/modules/i18n.js?v=20251203v5"></script>
+    <script src="js/modules/authManager.js?v=20251203v5"></script>
+    <script src="js/modules/router.js?v=20251203v5"></script>
+    <script src="js/modules/gameMarket.js?v=20251203v5"></script>
+    <script src="js/modules/settings.js?v=20251203v5"></script>
     
     <!-- 主入口 -->
-    <script src="js/main.js?v=20251203v4"></script>
+    <script src="js/main.js?v=20251203v5"></script>
 </body>
 </html>
