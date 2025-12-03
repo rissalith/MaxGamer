@@ -22,43 +22,83 @@ class AIDialogue {
             comment: 0
         };
         
-        // 知识库相关的介绍台词
-        this.introMessages = [
-            '欢迎来到MaxGamer！直播间里的AI互动专家~ ✨',
-            'MaxGamer - 为主播提供AI驱动的互动工具，让每一秒都有价值！',
-            '我是Max，你的AI助手！让直播更有趣，让互动更智能~',
-            '无需下载，即插即用！5分钟让你的直播间焕然一新！',
-            '支持抖音、B站、Twitch等所有主流平台，一套工具走天下！',
-            '点击右侧按钮体验互动，看看AI如何让直播更精彩~'
-        ];
-        
-        // 交互响应消息模板
-        this.interactionResponses = {
-            like: [
-                '谢谢你的点赞！❤️',
-                '哇！收到你的赞了！感觉超开心的~ ✨',
-                '你的点赞让我充满能量！💪',
-                '感谢认可！让我们一起创造更多精彩吧~'
-            ],
-            gift: [
-                '哇！收到礼物了！🎁 太感谢啦~',
-                '这个礼物好棒！你真是太贴心了~ ✨',
-                '谢谢你的礼物！我会好好珍惜的~ 💝',
-                '收到你的心意了！让我给你一个大大的拥抱~ 🤗'
-            ],
-            comment: [
-                '看到你的评论啦！有什么想说的吗？💭',
-                '欢迎留言互动！我很期待听到你的想法~ 📝',
-                '你的评论我都会认真看的哦！💬',
-                '感谢你的互动！让我们聊聊天吧~ ☺️'
-            ]
-        };
-        
         // 配置
         this.config = {
             autoIntroInterval: 15000, // 自动介绍间隔（15秒）
             typingSpeed: 50, // 打字速度（毫秒/字符）
             displayDuration: 8000 // 消息显示时长（8秒）
+        };
+    }
+    
+    /**
+     * 获取当前语言
+     */
+    getCurrentLanguage() {
+        if (window.LoginI18n) {
+            return window.LoginI18n.currentLang;
+        }
+        return localStorage.getItem('preferred_language') || 'en-US';
+    }
+    
+    /**
+     * 获取翻译文本
+     */
+    t(key) {
+        if (window.LoginI18n) {
+            return window.LoginI18n.t(key);
+        }
+        return key;
+    }
+    
+    /**
+     * 获取介绍消息列表（根据当前语言）
+     */
+    getIntroMessages() {
+        return [
+            this.t('max_intro_1'),
+            this.t('max_intro_2'),
+            this.t('max_intro_3'),
+            this.t('max_intro_4'),
+            this.t('max_intro_5'),
+            this.t('max_intro_6')
+        ];
+    }
+    
+    /**
+     * 获取交互响应消息（根据当前语言）
+     */
+    getInteractionResponses() {
+        return {
+            like: [
+                this.t('max_like_1'),
+                this.t('max_like_2'),
+                this.t('max_like_3'),
+                this.t('max_like_4')
+            ],
+            gift: [
+                this.t('max_gift_1'),
+                this.t('max_gift_2'),
+                this.t('max_gift_3'),
+                this.t('max_gift_4')
+            ],
+            comment: [
+                this.t('max_comment_1'),
+                this.t('max_comment_2'),
+                this.t('max_comment_3'),
+                this.t('max_comment_4')
+            ]
+        };
+    }
+    
+    /**
+     * 获取思考中消息（根据当前语言）
+     */
+    getThinkingMessages() {
+        return {
+            like: this.t('max_thinking_like'),
+            gift: this.t('max_thinking_gift'),
+            comment: this.t('max_thinking_comment'),
+            default: this.t('max_thinking_default')
         };
     }
 
@@ -135,8 +175,9 @@ class AIDialogue {
      * 显示随机介绍消息
      */
     showRandomIntro() {
-        const randomIndex = Math.floor(Math.random() * this.introMessages.length);
-        const message = this.introMessages[randomIndex];
+        const introMessages = this.getIntroMessages();
+        const randomIndex = Math.floor(Math.random() * introMessages.length);
+        const message = introMessages[randomIndex];
         this.updateBubble(message, 'intro');
     }
 
@@ -157,7 +198,7 @@ class AIDialogue {
             this.callAIAPI(type);
         } else {
             // 使用预设消息（备用方案）
-            const responses = this.interactionResponses[type];
+            const responses = this.getInteractionResponses()[type];
             if (responses && responses.length > 0) {
                 const randomIndex = Math.floor(Math.random() * responses.length);
                 const message = responses[randomIndex];
@@ -286,7 +327,8 @@ class AIDialogue {
                     context: {
                         platform: 'MaxGamer',
                         page: 'login',
-                        count: this.interactionCounts[interactionType] || 1  // 传递交互次数
+                        count: this.interactionCounts[interactionType] || 1,  // 传递交互次数
+                        language: this.getCurrentLanguage()  // 传递当前语言
                     }
                 })
             });
@@ -317,7 +359,7 @@ class AIDialogue {
      * 使用备用消息（当API失败时）
      */
     useFallbackMessage(interactionType) {
-        const responses = this.interactionResponses[interactionType];
+        const responses = this.getInteractionResponses()[interactionType];
         if (responses && responses.length > 0) {
             const randomIndex = Math.floor(Math.random() * responses.length);
             const message = responses[randomIndex];
@@ -329,13 +371,8 @@ class AIDialogue {
      * 显示思考中消息
      */
     showThinkingMessage(interactionType) {
-        const thinkingMessages = {
-            like: '收到你的赞了！让我想想怎么回应... 🤔',
-            gift: '哇！礼物！让我好好看看... ✨',
-            comment: '看到你的评论了！思考中... 💭'
-        };
-        
-        const message = thinkingMessages[interactionType] || '正在思考中...';
+        const thinkingMessages = this.getThinkingMessages();
+        const message = thinkingMessages[interactionType] || thinkingMessages.default;
         this.updateBubble(message, 'thinking');
     }
     

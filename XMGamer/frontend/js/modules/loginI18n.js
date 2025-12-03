@@ -70,7 +70,39 @@ const LoginI18n = {
             
             // 错误消息
             video_not_supported: '您的浏览器不支持视频播放',
-            toggle_volume: '切换音量'
+            toggle_volume: '切换音量',
+            
+            // Max 对话 - 介绍消息
+            max_intro_1: '欢迎来到MaxGamer！直播间里的AI互动专家~ ✨',
+            max_intro_2: 'MaxGamer - 为主播提供AI驱动的互动工具，让每一秒都有价值！',
+            max_intro_3: '我是Max，你的AI助手！让直播更有趣，让互动更智能~',
+            max_intro_4: '无需下载，即插即用！5分钟让你的直播间焕然一新！',
+            max_intro_5: '支持抖音、B站、Twitch等所有主流平台，一套工具走天下！',
+            max_intro_6: '点击右侧按钮体验互动，看看AI如何让直播更精彩~',
+            
+            // Max 对话 - 点赞回复
+            max_like_1: '谢谢你的点赞！❤️',
+            max_like_2: '哇！收到你的赞了！感觉超开心的~ ✨',
+            max_like_3: '你的点赞让我充满能量！💪',
+            max_like_4: '感谢认可！让我们一起创造更多精彩吧~',
+            
+            // Max 对话 - 礼物回复
+            max_gift_1: '哇！收到礼物了！🎁 太感谢啦~',
+            max_gift_2: '这个礼物好棒！你真是太贴心了~ ✨',
+            max_gift_3: '谢谢你的礼物！我会好好珍惜的~ 💝',
+            max_gift_4: '收到你的心意了！让我给你一个大大的拥抱~ 🤗',
+            
+            // Max 对话 - 评论回复
+            max_comment_1: '看到你的评论啦！有什么想说的吗？💭',
+            max_comment_2: '欢迎留言互动！我很期待听到你的想法~ 📝',
+            max_comment_3: '你的评论我都会认真看的哦！💬',
+            max_comment_4: '感谢你的互动！让我们聊聊天吧~ ☺️',
+            
+            // Max 对话 - 思考中消息
+            max_thinking_like: '收到你的赞了！让我想想怎么回应... 🤔',
+            max_thinking_gift: '哇！礼物！让我好好看看... ✨',
+            max_thinking_comment: '看到你的评论了！思考中... 💭',
+            max_thinking_default: '正在思考中...'
         },
         
         'zh-TW': {
@@ -113,7 +145,39 @@ const LoginI18n = {
             privacy: '隱私權',
             terms: '條款',
             video_not_supported: '您的瀏覽器不支持視頻播放',
-            toggle_volume: '切換音量'
+            toggle_volume: '切換音量',
+            
+            // Max 對話 - 介紹消息
+            max_intro_1: '歡迎來到MaxGamer！直播間裡的AI互動專家~ ✨',
+            max_intro_2: 'MaxGamer - 為主播提供AI驅動的互動工具，讓每一秒都有價值！',
+            max_intro_3: '我是Max，你的AI助手！讓直播更有趣，讓互動更智能~',
+            max_intro_4: '無需下載，即插即用！5分鐘讓你的直播間煥然一新！',
+            max_intro_5: '支持抖音、B站、Twitch等所有主流平台，一套工具走天下！',
+            max_intro_6: '點擊右側按鈕體驗互動，看看AI如何讓直播更精彩~',
+            
+            // Max 對話 - 點讚回覆
+            max_like_1: '謝謝你的點讚！❤️',
+            max_like_2: '哇！收到你的讚了！感覺超開心的~ ✨',
+            max_like_3: '你的點讚讓我充滿能量！💪',
+            max_like_4: '感謝認可！讓我們一起創造更多精彩吧~',
+            
+            // Max 對話 - 禮物回覆
+            max_gift_1: '哇！收到禮物了！🎁 太感謝啦~',
+            max_gift_2: '這個禮物好棒！你真是太貼心了~ ✨',
+            max_gift_3: '謝謝你的禮物！我會好好珍惜的~ 💝',
+            max_gift_4: '收到你的心意了！讓我給你一個大大的擁抱~ 🤗',
+            
+            // Max 對話 - 評論回覆
+            max_comment_1: '看到你的評論啦！有什麼想說的嗎？💭',
+            max_comment_2: '歡迎留言互動！我很期待聽到你的想法~ 📝',
+            max_comment_3: '你的評論我都會認真看的哦！💬',
+            max_comment_4: '感謝你的互動！讓我們聊聊天吧~ ☺️',
+            
+            // Max 對話 - 思考中消息
+            max_thinking_like: '收到你的讚了！讓我想想怎麼回應... 🤔',
+            max_thinking_gift: '哇！禮物！讓我好好看看... ✨',
+            max_thinking_comment: '看到你的評論了！思考中... 💭',
+            max_thinking_default: '正在思考中...'
         },
         
         'en-US': {
@@ -156,7 +220,39 @@ const LoginI18n = {
             privacy: 'Privacy',
             terms: 'Terms',
             video_not_supported: 'Your browser does not support video playback',
-            toggle_volume: 'Toggle volume'
+            toggle_volume: 'Toggle volume',
+            
+            // Max Dialogue - Intro messages
+            max_intro_1: 'Welcome to MaxGamer! Your AI interaction expert for livestreaming~ ✨',
+            max_intro_2: 'MaxGamer - AI-powered tools for streamers, making every second count!',
+            max_intro_3: "I'm Max, your AI assistant! Making streams more fun and interactions smarter~",
+            max_intro_4: 'No download needed, plug and play! Transform your stream in 5 minutes!',
+            max_intro_5: 'Supporting TikTok, YouTube, Twitch and all major platforms!',
+            max_intro_6: 'Click the buttons to experience the interaction, see how AI enhances your stream~',
+            
+            // Max Dialogue - Like responses
+            max_like_1: 'Thanks for the like! ❤️',
+            max_like_2: 'Wow! Got your like! Feeling super happy~ ✨',
+            max_like_3: 'Your like fills me with energy! 💪',
+            max_like_4: "Thanks for the support! Let's create more amazing moments~",
+            
+            // Max Dialogue - Gift responses
+            max_gift_1: 'Wow! Got a gift! 🎁 Thank you so much~',
+            max_gift_2: 'This gift is amazing! You are so thoughtful~ ✨',
+            max_gift_3: 'Thank you for the gift! I will treasure it~ 💝',
+            max_gift_4: 'Received your kindness! Let me give you a big hug~ 🤗',
+            
+            // Max Dialogue - Comment responses
+            max_comment_1: 'I see your comment! What would you like to say? 💭',
+            max_comment_2: "Welcome to interact! I'm looking forward to hearing your thoughts~ 📝",
+            max_comment_3: 'I read all your comments carefully! 💬',
+            max_comment_4: "Thanks for the interaction! Let's chat~ ☺️",
+            
+            // Max Dialogue - Thinking messages
+            max_thinking_like: 'Got your like! Let me think how to respond... 🤔',
+            max_thinking_gift: 'Wow! A gift! Let me take a good look... ✨',
+            max_thinking_comment: 'I see your comment! Thinking... 💭',
+            max_thinking_default: 'Thinking...'
         },
         
         'ja-JP': {
@@ -199,7 +295,39 @@ const LoginI18n = {
             privacy: 'プライバシー',
             terms: '利用規約',
             video_not_supported: 'お使いのブラウザは動画再生に対応していません',
-            toggle_volume: '音量切替'
+            toggle_volume: '音量切替',
+            
+            // Max 対話 - 紹介メッセージ
+            max_intro_1: 'MaxGamerへようこそ！配信のAIインタラクションエキスパート~ ✨',
+            max_intro_2: 'MaxGamer - 配信者向けAIツール、毎秒を価値あるものに！',
+            max_intro_3: '私はMax、あなたのAIアシスタント！配信をもっと楽しく、インタラクションをスマートに~',
+            max_intro_4: 'ダウンロード不要、すぐに使える！5分で配信を変えよう！',
+            max_intro_5: 'TikTok、YouTube、Twitchなど全プラットフォーム対応！',
+            max_intro_6: 'ボタンをクリックして体験、AIがどう配信を盛り上げるか見てみよう~',
+            
+            // Max 対話 - いいね応答
+            max_like_1: 'いいねありがとう！❤️',
+            max_like_2: 'わあ！いいねもらった！超うれしい~ ✨',
+            max_like_3: 'あなたのいいねでエネルギー満タン！💪',
+            max_like_4: '応援ありがとう！一緒にもっと素敵な瞬間を作ろう~',
+            
+            // Max 対話 - ギフト応答
+            max_gift_1: 'わあ！ギフトもらった！🎁 ありがとう~',
+            max_gift_2: 'このギフト素敵！優しいね~ ✨',
+            max_gift_3: 'ギフトありがとう！大切にするね~ 💝',
+            max_gift_4: '気持ち受け取った！大きなハグを送るね~ 🤗',
+            
+            // Max 対話 - コメント応答
+            max_comment_1: 'コメント見たよ！何か言いたいことある？💭',
+            max_comment_2: 'コメント歓迎！あなたの考えを聞きたいな~ 📝',
+            max_comment_3: 'コメント全部ちゃんと読むよ！💬',
+            max_comment_4: 'インタラクションありがとう！おしゃべりしよう~ ☺️',
+            
+            // Max 対話 - 思考中メッセージ
+            max_thinking_like: 'いいねもらった！どう返そうか考え中... 🤔',
+            max_thinking_gift: 'わあ！ギフト！じっくり見させて... ✨',
+            max_thinking_comment: 'コメント見たよ！考え中... 💭',
+            max_thinking_default: '考え中...'
         },
         
         'ko-KR': {
@@ -242,7 +370,39 @@ const LoginI18n = {
             privacy: '개인정보',
             terms: '약관',
             video_not_supported: '브라우저가 비디오 재생을 지원하지 않습니다',
-            toggle_volume: '음량 전환'
+            toggle_volume: '음량 전환',
+            
+            // Max 대화 - 소개 메시지
+            max_intro_1: 'MaxGamer에 오신 것을 환영합니다! 방송 AI 인터랙션 전문가~ ✨',
+            max_intro_2: 'MaxGamer - 스트리머를 위한 AI 도구, 매 순간을 가치있게!',
+            max_intro_3: '저는 Max, 당신의 AI 어시스턴트! 방송을 더 재미있게, 인터랙션을 더 스마트하게~',
+            max_intro_4: '다운로드 없이 바로 사용! 5분 만에 방송을 변화시키세요!',
+            max_intro_5: 'TikTok, YouTube, Twitch 등 모든 플랫폼 지원!',
+            max_intro_6: '버튼을 클릭해서 체험해보세요, AI가 방송을 어떻게 업그레이드하는지~',
+            
+            // Max 대화 - 좋아요 응답
+            max_like_1: '좋아요 감사합니다! ❤️',
+            max_like_2: '와! 좋아요 받았어요! 너무 기뻐요~ ✨',
+            max_like_3: '당신의 좋아요로 에너지 충전! 💪',
+            max_like_4: '응원 감사해요! 함께 더 멋진 순간을 만들어요~',
+            
+            // Max 대화 - 선물 응답
+            max_gift_1: '와! 선물 받았어요! 🎁 정말 감사해요~',
+            max_gift_2: '이 선물 너무 좋아요! 정말 세심하시네요~ ✨',
+            max_gift_3: '선물 감사합니다! 소중히 간직할게요~ 💝',
+            max_gift_4: '마음 받았어요! 큰 포옹 보낼게요~ 🤗',
+            
+            // Max 대화 - 댓글 응답
+            max_comment_1: '댓글 봤어요! 하고 싶은 말 있으세요? 💭',
+            max_comment_2: '댓글 환영해요! 당신의 생각이 궁금해요~ 📝',
+            max_comment_3: '댓글 다 정성껏 읽을게요! 💬',
+            max_comment_4: '인터랙션 감사해요! 이야기해요~ ☺️',
+            
+            // Max 대화 - 생각 중 메시지
+            max_thinking_like: '좋아요 받았어요! 어떻게 답할지 생각 중... 🤔',
+            max_thinking_gift: '와! 선물! 잘 볼게요... ✨',
+            max_thinking_comment: '댓글 봤어요! 생각 중... 💭',
+            max_thinking_default: '생각 중...'
         }
     },
     
