@@ -565,9 +565,9 @@ const I18n = {
      * 更新特定元素
      */
     _updateSpecificElements() {
-        // 侧边栏
-        const logoSubtitle = document.querySelector('.logo-subtitle');
-        if (logoSubtitle) logoSubtitle.textContent = this.t('app_subtitle');
+        // 侧边栏 - logo-subtitle 固定显示 "Max Gamer"，不翻译
+        // const logoSubtitle = document.querySelector('.logo-subtitle');
+        // if (logoSubtitle) logoSubtitle.textContent = this.t('app_subtitle');
         
         const menuText = document.querySelector('.menu-text');
         if (menuText) menuText.textContent = this.t('sidebar_game_market');
