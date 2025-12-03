@@ -24,6 +24,17 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
       
+      - name: Update version timestamp
+        run: |
+          echo "更新版本时间戳..."
+          BUILD_TIMESTAMP=$(date +%s)
+          echo "BUILD_TIMESTAMP: $BUILD_TIMESTAMP"
+          
+          # 替换 version.js 中的占位符
+          sed -i "s/__BUILD_TIMESTAMP__/$BUILD_TIMESTAMP/g" XMGamer/frontend/js/version.js
+          
+          echo "版本时间戳已更新"
+      
       - name: Deploy to server
         env:
           SERVER_IP: ${{ secrets.SERVER_IP }}

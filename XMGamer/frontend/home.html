@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XMGamer - 直播互动游戏平台</title>
-    <link rel="stylesheet" href="css/main.css?v=20251203v7">
-    <link rel="stylesheet" href="css/game-market.css?v=20251203v7">
-    <link rel="stylesheet" href="css/settings.css?v=20251203v7">
+    <!-- CSS 通过 version.js 动态加载，自动添加版本号 -->
+    <script src="js/version.js"></script>
+    <script>
+        // 动态加载CSS（带自动版本号）
+        loadStylesheet('css/main.css');
+        loadStylesheet('css/game-market.css');
+        loadStylesheet('css/settings.css');
+    </script>
     <style>
         /* ========== 侧边栏样式 - 固定宽度，不收缩 ========== */
         .sidebar {
@@ -295,13 +300,13 @@
     </div>
 
     <!-- 功能模块 -->
-    <script src="js/modules/i18n.js?v=20251203v7"></script>
-    <script src="js/modules/authManager.js?v=20251203v7"></script>
-    <script src="js/modules/router.js?v=20251203v7"></script>
-    <script src="js/modules/gameMarket.js?v=20251203v7"></script>
-    <script src="js/modules/settings.js?v=20251203v7"></script>
+    <script src="js/modules/i18n.js"></script>
+    <script src="js/modules/authManager.js"></script>
+    <script src="js/modules/router.js"></script>
+    <script src="js/modules/gameMarket.js"></script>
+    <script src="js/modules/settings.js"></script>
     
     <!-- 主入口 -->
-    <script src="js/main.js?v=20251203v7"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
