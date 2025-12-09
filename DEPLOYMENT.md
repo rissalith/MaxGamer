@@ -10,19 +10,98 @@
 - ✅ 修复游戏 API 注册逻辑
 - ✅ 新增管理员账号创建脚本
 - ✅ 新增游戏注册脚本（修复"0个游戏"问题）
+- ✅ **修复数据库持久化问题（防止数据丢失）**
+
+## ⚠️ 重要提示：数据持久化
+
+**问题**: 之前的部署方式中，数据库文件存储在 Docker 容器内部，每次重新部署容器时数据会丢失！
+
+**解决方案**: 本次更新添加了 `docker-compose.yml` 配置，将数据库目录挂载到宿主机，确保数据持久化。
 
 ## 部署步骤
 
-### 1. 在服务器上拉取最新代码
+### 方法一：使用 Docker Compose（推荐）
+
+#### 1. 在服务器上拉取最新代码
 
 ```bash
 cd /path/to/MaxGamer
 git pull origin main
 ```
 
-### 2. 配置 Twitch 环境变量
+#### 2. 配置环境变量
 
-在服务器上的 `.env` 文件中添加 Twitch Client Secret：
+复制环境变量模板并配置：
+
+```bash
+cp .env.example .env
+nano .env  # 或使用 vim 编辑
+```
+
+必须配置的环境变量：
+```bash
+FLASK_ENV=production
+SECRET_KEY=生成一个随机字符串
+JWT_SECRET=生成另一个随机字符串
+TWITCH_CLIENT_SECRET=你的Twitch Client Secret
+TWITCH_REDIRECT_URI=https://your-domain.com/api/auth/platform-callback/twitch
+```
+
+生成随机密钥（可选）：
+```bash
+python3 -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+#### 3. 使用 Docker Compose 启动服务
+
+```bash
+# 首次启动（会自动构建镜像）
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+
+# 重新构建并启动（代码更新后）
+docker-compose up -d --build
+```
+
+#### 4. 进入容器执行初始化脚本
+
+```bash
+# 进入容器
+docker-compose exec maxgamer-backend bash
+
+# 创建管理员账号
+python create_admin.py
+
+# 注册游戏到数据库
+python register_games.py
+
+# 退出容器
+exit
+```
+
+#### 5. 验证部署
+
+访问 `http://your-domain:3000/api/games` 应该能看到游戏列表。
+
+---
+
+### 方法二：直接部署（不使用 Docker）
+
+#### 1. 在服务器上拉取最新代码
+
+```bash
+cd /path/to/MaxGamer
+git pull origin main
+```
+
+#### 2. 配置环境变量
+
+在服务器上的 `.env` 文件中配置环境变量（如果没有则创建）：
 
 ```bash
 # Twitch OAuth 配置
@@ -152,7 +231,29 @@ GameLibrary/twitch/fortune-game-twitch/
 
 ## 常见问题
 
-### Q1: Token 刷新失败怎么办？
+### Q1: 部署后数据（账号、游戏）丢失怎么办？
+
+**问题**: 每次重新部署容器后，用户账号、游戏授权等数据都消失了。
+
+**原因**: 数据库文件存储在Docker容器内部，容器重建时数据会丢失。
+
+**解决方案**:
+1. **使用 Docker Compose（推荐）**: 参考上面的"方法一"，`docker-compose.yml` 已经配置了数据持久化
+2. **检查数据目录**: 确保宿主机的 `./data` 目录存在且有正确权限
+   ```bash
+   ls -la ./data
+   # 应该能看到 frameworker.db 文件
+   ```
+3. **备份数据库**: 定期备份数据库文件
+   ```bash
+   cp ./data/frameworker.db ./data/frameworker.db.backup.$(date +%Y%m%d)
+   ```
+
+**数据存储位置**:
+- Docker Compose: `./data/frameworker.db`（挂载到宿主机）
+- 直接部署: `MaxGamer/backend/data/frameworker.db`
+
+### Q2: Token 刷新失败怎么办？
 
 **A**: 检查 `TWITCH_CLIENT_SECRET` 环境变量是否正确设置。查看后端日志：
 
@@ -160,11 +261,11 @@ GameLibrary/twitch/fortune-game-twitch/
 tail -f /path/to/logs/backend.log | grep "Fortune Twitch"
 ```
 
-### Q2: 游戏界面加载不完整？
+### Q3: 游戏界面加载不完整？
 
 **A**: 检查浏览器控制台，可能是资源路径问题。确保前端静态文件正确部署。
 
-### Q3: IRC 连接失败？
+### Q4: IRC 连接失败？
 
 **A**: 目前 IRC 连接功能需要额外的依赖。如果不需要实时直播功能，可以暂时跳过。
 

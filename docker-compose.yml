@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  maxgamer-backend:
+    build:
+      context: ./MaxGamer
+      dockerfile: Dockerfile
+    container_name: maxgamer-backend
+    restart: unless-stopped
+
+    ports:
+      - "3000:5000"  # 映射容器的 5000 到宿主机的 3000
+
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-this}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-this}
+      - TWITCH_CLIENT_ID=3tfkf4ohu90fmn5v6r339cgim5task
+      - TWITCH_CLIENT_SECRET=${TWITCH_CLIENT_SECRET}
+      - TWITCH_REDIRECT_URI=${TWITCH_REDIRECT_URI:-http://localhost:3000/api/auth/platform-callback/twitch}
+
+    volumes:
+      # 【重要】持久化数据库目录 - 防止数据丢失
+      - ./data:/app/data
+      # 【重要】挂载 GameLibrary 目录 - 游戏文件
+      - ./GameLibrary:/app/GameLibrary:ro
+      # 日志目录
+      - ./logs:/app/logs
+      # 向量数据库（RAG知识库）
+      - ./vector_db:/app/vector_db
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    networks:
+      - maxgamer-network
+
+networks:
+  maxgamer-network:
+    driver: bridge
