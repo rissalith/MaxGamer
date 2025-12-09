@@ -15,7 +15,7 @@ services:
       - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-this}
       - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-this}
-      - TWITCH_CLIENT_ID=3tfkf4ohu90fmn5v6r339cgim5task
+      - TWITCH_CLIENT_ID=${TWITCH_CLIENT_ID:-your-twitch-client-id}
       - TWITCH_CLIENT_SECRET=${TWITCH_CLIENT_SECRET}
       - TWITCH_REDIRECT_URI=${TWITCH_REDIRECT_URI:-http://localhost:3000/api/auth/platform-callback/twitch}
 
