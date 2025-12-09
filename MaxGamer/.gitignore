@@ -17,7 +17,6 @@ backend/.env.*
 *.md
 !README.md
 !DEPLOYMENT.md
-!RELEASE_GUIDE.md
 
 # SSH工具和配置（包含服务器信息）
 plink.exe
