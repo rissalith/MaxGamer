@@ -1,0 +1,302 @@
+/* 顶部队列面板 - 半透明科技感UI */
+.top-queue-panel {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    max-width: 650px;
+    background: linear-gradient(135deg,
+        rgba(15, 23, 42, 0.85) 0%,
+        rgba(30, 41, 59, 0.85) 50%,
+        rgba(15, 23, 42, 0.85) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 12px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 40px rgba(99, 102, 241, 0.2);
+    padding: 8px 12px;
+    z-index: 2000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideDown 0.5s ease-out;
+}
+
+/* 关闭按钮 - 隐藏 */
+.top-queue-close-btn {
+    display: none;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.top-queue-panel.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(-30px);
+}
+
+/* 队列容器 */
+.top-queue-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+/* 单个队列卡片 */
+.top-queue-card {
+    background: linear-gradient(135deg,
+        rgba(30, 41, 59, 0.6) 0%,
+        rgba(51, 65, 85, 0.6) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 8px;
+    padding: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.top-queue-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(99, 102, 241, 0.5) 50%, 
+        transparent 100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.top-queue-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+}
+
+.top-queue-card.empty {
+    opacity: 0.85;
+    border-style: dashed;
+}
+
+/* 队列卡片头部 */
+.top-queue-card-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.top-queue-card-emoji {
+    font-size: 16px;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+}
+
+.top-queue-card-type {
+    font-size: 11px;
+    font-weight: 600;
+    color: #e0e7ff;
+    flex: 1;
+    white-space: nowrap;
+    writing-mode: horizontal-tb;
+}
+
+.top-queue-card-count {
+    font-size: 10px;
+    font-weight: 700;
+    color: #818cf8;
+    background: rgba(99, 102, 241, 0.2);
+    padding: 1px 6px;
+    border-radius: 8px;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* 上上签统计显示 - 隐藏 */
+.top-queue-card-great-fortune {
+    display: none;
+}
+
+/* 队列用户列表 */
+.top-queue-users {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.top-queue-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 6px;
+    border-left: 2px solid rgba(99, 102, 241, 0.3);
+    transition: all 0.2s ease;
+}
+
+.top-queue-user:hover {
+    background: rgba(15, 23, 42, 0.6);
+    border-left-color: rgba(99, 102, 241, 0.6);
+}
+
+.top-queue-user.current {
+    background: linear-gradient(90deg, 
+        rgba(239, 68, 68, 0.2) 0%, 
+        rgba(239, 68, 68, 0.1) 100%);
+    border-left-color: #ef4444;
+    animation: currentPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes currentPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+    }
+}
+
+.top-queue-user-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid rgba(99, 102, 241, 0.3);
+    flex-shrink: 0;
+}
+
+.top-queue-user.current .top-queue-user-avatar {
+    border-color: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.top-queue-user-placeholder {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    border: 1.5px solid rgba(99, 102, 241, 0.3);
+    flex-shrink: 0;
+}
+
+.top-queue-user-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.top-queue-user-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #cbd5e1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    writing-mode: horizontal-tb;
+    word-break: keep-all;
+}
+
+.top-queue-user.current .top-queue-user-name {
+    color: #fca5a5;
+}
+
+.top-queue-user-status {
+    font-size: 9px;
+    color: #64748b;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.top-queue-user.current .top-queue-user-status {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* 空队列提示 - 保持运势类型可见 */
+.top-queue-empty {
+    text-align: center;
+    padding: 8px;
+    color: #64748b;
+    font-size: 9px;
+}
+
+.top-queue-empty-text {
+    opacity: 0.6;
+}
+
+/* 更多指示器 */
+.top-queue-more {
+    text-align: center;
+    padding: 3px;
+    font-size: 8px;
+    color: #64748b;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 4px;
+    margin-top: 3px;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+    .top-queue-panel {
+        width: 95%;
+        padding: 12px 16px;
+    }
+    
+    .top-queue-container {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-queue-panel {
+        top: 10px;
+        width: 98%;
+        padding: 8px 10px;
+    }
+    
+    .top-queue-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .top-queue-card {
+        padding: 10px;
+    }
+    
+    .top-queue-user-avatar,
+    .top-queue-user-placeholder {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* 科技感扫描线效果 - 已删除 */

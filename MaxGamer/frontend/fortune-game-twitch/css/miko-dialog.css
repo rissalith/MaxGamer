@@ -1,0 +1,274 @@
+/* 2D人物形象+漫画对话框样式 - 已禁用，改用3D气泡 */
+#miko-character-container {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    display: none !important; /* 完全隐藏2D对话框 */
+    align-items: flex-end;
+    gap: 15px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+#miko-character-container.show {
+    opacity: 0; /* 不显示 */
+    visibility: hidden;
+}
+
+/* 2D人物形象 */
+.miko-character {
+    width: 120px;
+    height: 150px;
+    background: linear-gradient(135deg, #9370db 0%, #ba55d3 100%);
+    border-radius: 60px 60px 20px 20px;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(147, 112, 219, 0.4);
+    animation: character-float 3s ease-in-out infinite;
+}
+
+/* 人物头部 */
+.miko-character::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 70px;
+    background: #ffdab9;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 人物眼睛 */
+.miko-character::after {
+    content: '◕ ◡ ◕';
+    position: absolute;
+    top: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px;
+    color: #333;
+    z-index: 1;
+}
+
+/* 人物头发装饰 */
+.miko-hair {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 40px;
+    background: #2c1810;
+    border-radius: 40px 40px 0 0;
+    z-index: 0;
+}
+
+/* 人物头饰 */
+.miko-ornament {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    background: #ffd700;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+/* 人物身体装饰 */
+.miko-body-decoration {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+}
+
+/* 漫画风格对话框 */
+.miko-dialog-bubble {
+    position: relative;
+    max-width: 280px;
+    min-width: 200px;
+    background: white;
+    padding: 18px 22px;
+    border-radius: 20px;
+    border: 4px solid #333;
+    box-shadow: 
+        0 4px 0 #333,
+        0 8px 20px rgba(0, 0, 0, 0.3);
+    font-size: 16px;
+    color: #333;
+    line-height: 1.6;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    font-weight: 500;
+    animation: bubble-appear 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* 对话框尾巴（指向人物） */
+.miko-dialog-bubble::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    bottom: 30px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 15px 20px 15px 0;
+    border-color: transparent #333 transparent transparent;
+}
+
+.miko-dialog-bubble::after {
+    content: '';
+    position: absolute;
+    left: -12px;
+    bottom: 32px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 13px 16px 13px 0;
+    border-color: transparent white transparent transparent;
+}
+
+/* 用户名高亮样式 - 漫画风格 */
+.miko-dialog-bubble .username-highlight {
+    color: #ff3b30;
+    font-weight: 900;
+    font-size: 18px;
+    text-shadow: 
+        2px 2px 0 #ffd700,
+        -1px -1px 0 #333;
+    display: inline-block;
+    padding: 0 4px;
+    animation: username-pop 0.5s ease-out;
+}
+
+/* 对话框内的表情符号 */
+.miko-dialog-bubble .emoji {
+    font-size: 20px;
+    display: inline-block;
+    animation: emoji-bounce 0.6s ease-in-out;
+}
+
+/* 人物浮动动画 */
+@keyframes character-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* 对话框出现动画 */
+@keyframes bubble-appear {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* 用户名弹出动画 */
+@keyframes username-pop {
+    0% {
+        transform: scale(0.8);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* 表情符号弹跳动画 */
+@keyframes emoji-bounce {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-5px) rotate(-5deg);
+    }
+    75% {
+        transform: translateY(-3px) rotate(5deg);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    #miko-character-container {
+        left: 10px;
+        bottom: 10px;
+        gap: 10px;
+    }
+    
+    .miko-character {
+        width: 100px;
+        height: 130px;
+    }
+    
+    .miko-character::before {
+        width: 60px;
+        height: 60px;
+        top: 12px;
+    }
+    
+    .miko-character::after {
+        top: 30px;
+        font-size: 18px;
+    }
+    
+    .miko-dialog-bubble {
+        max-width: 220px;
+        min-width: 180px;
+        padding: 15px 18px;
+        font-size: 14px;
+    }
+    
+    .miko-dialog-bubble .username-highlight {
+        font-size: 16px;
+    }
+}
+
+/* 可爱的闪烁效果 */
+.miko-character.blink::after {
+    content: '◕ ‿ ◕';
+    animation: blink-animation 0.3s;
+}
+
+@keyframes blink-animation {
+    0%, 100% {
+        content: '◕ ◡ ◕';
+    }
+    50% {
+        content: '- ◡ -';
+    }
+}
+
+/* 说话时的动画效果 */
+.miko-character.talking {
+    animation: character-float 3s ease-in-out infinite, talking-bounce 0.5s ease-in-out infinite;
+}
+
+@keyframes talking-bounce {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-5px) scale(1.02);
+    }
+}

@@ -1,0 +1,465 @@
+/* 直播弹幕面板样式 */
+
+/* 飞行弹幕样式 */
+.flying-danmaku {
+    position: fixed;
+    right: -300px;
+    padding: 8px 15px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    white-space: nowrap;
+    z-index: 2000;
+    animation: flyLeft 8s linear;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.danmaku-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.danmaku-avatar-img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #667eea;
+    flex-shrink: 0;
+}
+
+.danmaku-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.danmaku-user {
+    font-weight: bold;
+    color: #764ba2;
+    font-size: 12px;
+}
+
+.danmaku-text {
+    color: #333;
+    font-size: 13px;
+}
+
+.danmaku-gift {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+.danmaku-like {
+    color: #ff69b4;
+}
+
+.danmaku-follow {
+    color: #4caf50;
+}
+
+.danmaku-member {
+    color: #2196f3;
+}
+
+/* 融合的直播弹幕面板 - 紧凑窗口样式，放在右上方 */
+#live-danmaku-panel {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    width: 240px;
+    max-height: 85vh;
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.98) 0%,
+        rgba(248, 250, 252, 0.98) 100%);
+    backdrop-filter: blur(15px);
+    border-radius: 16px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(102, 126, 234, 0.15);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    pointer-events: auto;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 隐藏状态 */
+#live-danmaku-panel.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(20px);
+}
+
+.live-panel-header {
+    padding: 10px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: 16px 16px 0 0;
+}
+
+.live-panel-title {
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.3px;
+}
+
+.live-panel-close {
+    background: rgba(255, 59, 48, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.live-panel-close:hover {
+    background: rgba(255, 59, 48, 0.4);
+    transform: scale(1.1);
+}
+
+.live-panel-close:active {
+    transform: scale(0.95);
+}
+
+/* 直播间连接区域 */
+.live-connection-area {
+    padding: 10px;
+    background: linear-gradient(135deg,
+        rgba(102, 126, 234, 0.08) 0%,
+        rgba(118, 75, 162, 0.05) 100%);
+    border-bottom: 1px solid rgba(102, 126, 234, 0.15);
+    flex-shrink: 0;
+}
+
+#live-room-input-container {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+#live-room-input {
+    flex: 1;
+    padding: 7px 10px;
+    border: 2px solid rgba(118, 75, 162, 0.3);
+    border-radius: 8px;
+    font-size: 12px;
+    outline: none;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+#live-room-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#connect-live-btn, #disconnect-live-btn {
+    padding: 7px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+#connect-live-btn:hover, #disconnect-live-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+#connect-live-btn:active, #disconnect-live-btn:active {
+    transform: scale(0.95);
+}
+
+#disconnect-live-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    display: none;
+}
+
+#disconnect-live-btn:hover {
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+#disconnect-live-btn.show {
+    display: block;
+}
+
+#live-status {
+    font-size: 11px;
+    color: #64748b;
+    text-align: center;
+    padding: 6px;
+    border-radius: 6px;
+    background: rgba(102, 126, 234, 0.08);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+#live-status.connected {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+#live-status.error {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* 统计数据区域 */
+.danmaku-stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px;
+    background: linear-gradient(135deg,
+        rgba(102, 126, 234, 0.08) 0%,
+        rgba(118, 75, 162, 0.05) 100%);
+    margin: 0 10px 8px 10px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.danmaku-stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.danmaku-stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.danmaku-stat-label {
+    font-size: 10px;
+    color: #64748b;
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+/* 标签页 */
+.danmaku-tabs {
+    display: flex;
+    background: rgba(102, 126, 234, 0.05);
+    padding: 4px 10px;
+    gap: 4px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.danmaku-tab {
+    flex: 1;
+    padding: 7px 4px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 10px;
+    color: #64748b;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.danmaku-tab:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.danmaku-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* 弹幕内容区域 */
+.danmaku-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 10px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.danmaku-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.danmaku-content::-webkit-scrollbar-track {
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 3px;
+}
+
+.danmaku-content::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 3px;
+}
+
+.danmaku-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.5);
+}
+
+.danmaku-item {
+    padding: 8px;
+    margin-bottom: 8px;
+    background: white;
+    border-radius: 8px;
+    border-left: 3px solid #667eea;
+    font-size: 11px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.danmaku-item:hover {
+    transform: translateX(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.danmaku-item.slideInRight {
+    animation: slideInRight 0.3s ease;
+}
+
+.danmaku-item.chat {
+    border-left-color: #667eea;
+}
+
+.danmaku-item.gift {
+    border-left-color: #ff6b6b;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+}
+
+.danmaku-item.member {
+    border-left-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.danmaku-item.like {
+    border-left-color: #ec4899;
+    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+}
+
+.danmaku-item.follow {
+    border-left-color: #10b981;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.danmaku-item-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.danmaku-item-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.danmaku-item-avatar-img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #667eea;
+    flex-shrink: 0;
+}
+
+.danmaku-item-user {
+    font-weight: bold;
+    color: #333;
+    font-size: 10px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.danmaku-item-time {
+    font-size: 8px;
+    color: #999;
+}
+
+.danmaku-item-content {
+    font-size: 11px;
+    color: #555;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.danmaku-item-content.gift {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+.danmaku-item-content.member {
+    color: #2196f3;
+}
+
+.danmaku-item-content.like {
+    color: #ff69b4;
+}
+
+.danmaku-item-content.follow {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+/* 隐藏切换按钮 */
+#toggle-live-panel {
+    display: none;
+}
+
+/* 飞行弹幕动画 */
+@keyframes flyLeft {
+    from {
+        right: -300px;
+    }
+    to {
+        right: 100%;
+    }
+}

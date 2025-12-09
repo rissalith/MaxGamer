@@ -1,0 +1,270 @@
+/* 右下角按钮容器 - 统一管理所有圆形按钮 */
+.button-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    z-index: 999;
+    align-items: center;
+}
+
+/* 通用圆形按钮样式 */
+.circle-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.circle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.circle-btn:active {
+    transform: scale(0.95);
+}
+
+/* 直播弹幕按钮 */
+.circle-btn.live-danmaku-btn {
+    background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+    animation: liveDanmakuPulse 2s ease-in-out infinite;
+}
+
+@keyframes liveDanmakuPulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(74, 144, 226, 0.7), 0 0 20px rgba(74, 144, 226, 0.3);
+    }
+}
+
+.circle-btn.live-danmaku-btn:hover {
+    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.6);
+    animation: none;
+}
+
+.circle-btn.live-danmaku-btn.active {
+    background: linear-gradient(135deg, #357ABD 0%, #2868A8 100%);
+    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.8);
+    animation: none;
+}
+
+/* 模拟窗口按钮 */
+.circle-btn.user-panel-btn {
+    background: linear-gradient(135deg, #50C878 0%, #3CB371 100%);
+    box-shadow: 0 4px 15px rgba(80, 200, 120, 0.4);
+    animation: userPanelPulse 2s ease-in-out infinite;
+}
+
+@keyframes userPanelPulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(80, 200, 120, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(80, 200, 120, 0.7), 0 0 20px rgba(80, 200, 120, 0.3);
+    }
+}
+
+.circle-btn.user-panel-btn:hover {
+    box-shadow: 0 6px 20px rgba(80, 200, 120, 0.6);
+    animation: none;
+}
+
+.circle-btn.user-panel-btn.active {
+    background: linear-gradient(135deg, #3CB371 0%, #2E8B57 100%);
+    box-shadow: 0 6px 20px rgba(80, 200, 120, 0.8);
+    animation: none;
+}
+
+/* 弹幕设置按钮 */
+.circle-btn.danmaku-settings-btn {
+    background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+    box-shadow: 0 4px 15px rgba(255, 165, 0, 0.4);
+    animation: danmakuSettingsPulse 2s ease-in-out infinite;
+}
+
+@keyframes danmakuSettingsPulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(255, 165, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(255, 165, 0, 0.7), 0 0 20px rgba(255, 165, 0, 0.3);
+    }
+}
+
+.circle-btn.danmaku-settings-btn:hover {
+    box-shadow: 0 6px 20px rgba(255, 165, 0, 0.6);
+    animation: none;
+}
+
+.circle-btn.danmaku-settings-btn.active {
+    background: linear-gradient(135deg, #FF8C00 0%, #FF7F00 100%);
+    box-shadow: 0 6px 20px rgba(255, 165, 0, 0.8);
+    animation: none;
+}
+
+/* 权重面板按钮 */
+.circle-btn.probability-btn {
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    animation: buttonPulse 2s ease-in-out infinite;
+}
+
+@keyframes buttonPulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(255, 107, 107, 0.7), 0 0 20px rgba(255, 107, 107, 0.3);
+    }
+}
+
+.circle-btn.probability-btn:hover {
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+    animation: none;
+}
+
+.circle-btn.probability-btn.active {
+    background: linear-gradient(135deg, #FF8E53 0%, #FFB347 100%);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.8);
+    animation: none;
+}
+
+/* 娃娃设置按钮 */
+.circle-btn.miko-settings-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    animation: mikoButtonPulse 2s ease-in-out infinite;
+}
+
+@keyframes mikoButtonPulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.7), 0 0 20px rgba(102, 126, 234, 0.3);
+    }
+}
+
+.circle-btn.miko-settings-btn:hover {
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    animation: none;
+}
+
+.circle-btn.miko-settings-btn.active {
+    background: linear-gradient(135deg, #764ba2 0%, #9370DB 100%);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.8);
+    animation: none;
+}
+
+/* 对话按钮 */
+.circle-btn.chat-btn {
+    background: linear-gradient(135deg, #9370DB, #8A2BE2);
+    box-shadow: 0 4px 15px rgba(147, 112, 219, 0.4);
+    animation: chatButtonPulse 2s ease-in-out infinite;
+}
+
+@keyframes chatButtonPulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(147, 112, 219, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(147, 112, 219, 0.7), 0 0 20px rgba(147, 112, 219, 0.3);
+    }
+}
+
+.circle-btn.chat-btn:hover {
+    box-shadow: 0 6px 20px rgba(147, 112, 219, 0.6);
+    animation: none;
+}
+
+.circle-btn.chat-btn.active {
+    background: linear-gradient(135deg, #BA55D3, #9370DB);
+    animation: none;
+}
+
+/* 按钮提示文字 */
+.circle-btn::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: 65px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.circle-btn:hover::before {
+    opacity: 1;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .button-container {
+        bottom: 15px;
+        right: 15px;
+        gap: 8px;
+    }
+    
+    .circle-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+    
+    .circle-btn::before {
+        right: 55px;
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+}
+
+/* 按钮进入动画 */
+@keyframes buttonSlideIn {
+    from {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.circle-btn {
+    animation: buttonSlideIn 0.4s ease-out;
+}
+
+.circle-btn:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.circle-btn:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.circle-btn:nth-child(3) {
+    animation-delay: 0.2s;
+}

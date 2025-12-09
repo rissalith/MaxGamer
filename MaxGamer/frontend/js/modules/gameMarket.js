@@ -133,7 +133,7 @@ const GameMarket = {
                 cover_url: '/fortune-game/images/cover.jpg',
                 price: 500,
                 duration_days: 30,
-                status: 'coming_soon',
+                status: 'published',
                 category: this.t('category_live_interactive'),
                 platform: 'twitch',
                 platformIcon: 'fab fa-twitch',

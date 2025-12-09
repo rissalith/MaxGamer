@@ -1,0 +1,342 @@
+/* 占卜配置面板样式 */
+.fortune-config-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.fortune-config-overlay.active {
+    display: flex;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.fortune-config-panel {
+    background: linear-gradient(135deg, rgba(20, 20, 40, 0.98), rgba(40, 20, 60, 0.98));
+    border: 3px solid rgba(255, 215, 0, 0.6);
+    border-radius: 20px;
+    width: 500px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.4);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: scale(0.9) translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+.fortune-config-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.fortune-config-panel::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.fortune-config-panel::-webkit-scrollbar-thumb {
+    background: rgba(255, 215, 0, 0.3);
+    border-radius: 4px;
+}
+
+.fortune-config-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 215, 0, 0.5);
+}
+
+/* 配置面板头部 */
+.fortune-config-header {
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.9), rgba(184, 134, 11, 0.9));
+    padding: 20px;
+    border-radius: 17px 17px 0 0;
+    border-bottom: 2px solid rgba(255, 215, 0, 0.4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fortune-config-header-title {
+    color: #FFD700;
+    font-size: 22px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.fortune-config-header-title::before {
+    content: '⚙️';
+    font-size: 24px;
+}
+
+.fortune-config-close {
+    background: rgba(255, 0, 0, 0.2);
+    border: 2px solid rgba(255, 0, 0, 0.4);
+    color: #ff6b6b;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.fortune-config-close:hover {
+    background: rgba(255, 0, 0, 0.4);
+    transform: rotate(90deg) scale(1.1);
+}
+
+/* 配置面板内容 */
+.fortune-config-content {
+    padding: 25px;
+}
+
+.fortune-config-section {
+    margin-bottom: 25px;
+}
+
+.fortune-config-section:last-child {
+    margin-bottom: 0;
+}
+
+.fortune-config-label {
+    color: #FFD700;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fortune-config-label-icon {
+    font-size: 18px;
+}
+
+.fortune-config-description {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.fortune-config-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    color: white;
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s;
+    box-sizing: border-box;
+    font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.fortune-config-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #FFD700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.fortune-config-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.fortune-config-textarea {
+    min-height: 120px;
+    resize: vertical;
+    font-family: 'Microsoft YaHei', sans-serif;
+}
+
+/* 提示信息 */
+.fortune-config-hint {
+    background: rgba(255, 215, 0, 0.1);
+    border-left: 3px solid #FFD700;
+    padding: 10px 15px;
+    margin-top: 10px;
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.fortune-config-hint-icon {
+    color: #FFD700;
+    margin-right: 5px;
+}
+
+/* 警告信息 */
+.fortune-config-warning {
+    background: rgba(255, 152, 0, 0.1);
+    border-left: 3px solid #ff9800;
+    padding: 10px 15px;
+    margin-top: 10px;
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.fortune-config-warning-icon {
+    color: #ff9800;
+    margin-right: 5px;
+}
+
+/* 按钮区域 */
+.fortune-config-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.fortune-config-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.fortune-config-btn-primary {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #8B4513;
+}
+
+.fortune-config-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.6);
+}
+
+.fortune-config-btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.fortune-config-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.fortune-config-btn-danger {
+    background: linear-gradient(135deg, #ff6b6b, #ff4757);
+    color: white;
+}
+
+.fortune-config-btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 75, 87, 0.6);
+}
+
+.fortune-config-btn:active {
+    transform: translateY(0);
+}
+
+/* 成功提示 */
+.fortune-config-success {
+    background: rgba(76, 175, 80, 0.2);
+    border: 2px solid rgba(76, 175, 80, 0.5);
+    color: #4caf50;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+    animation: successPulse 0.5s ease-out;
+}
+
+@keyframes successPulse {
+    0% {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* 错误提示 */
+.fortune-config-error {
+    background: rgba(244, 67, 54, 0.2);
+    border: 2px solid rgba(244, 67, 54, 0.5);
+    color: #f44336;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+    animation: errorShake 0.5s ease-out;
+}
+
+@keyframes errorShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-10px);
+    }
+    75% {
+        transform: translateX(10px);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .fortune-config-panel {
+        width: 95vw;
+        max-height: 90vh;
+    }
+    
+    .fortune-config-content {
+        padding: 20px;
+    }
+    
+    .fortune-config-actions {
+        flex-direction: column;
+    }
+    
+    .fortune-config-btn {
+        width: 100%;
+    }
+}

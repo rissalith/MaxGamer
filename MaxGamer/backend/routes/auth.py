@@ -14,7 +14,7 @@ import json
 # 添加父目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from database import get_db_session, User, Session, SmsCode, EmailCode, UserQuota, AdminLog
+from database import get_db_session, User, Session, SmsCode, EmailCode, UserQuota, AdminLog, PlatformBinding
 from utils.jwt_helper import create_access_token, verify_access_token
 from utils.password_helper import hash_password, verify_password
 from utils.sms_helper import generate_code, send_sms_code
@@ -2099,21 +2099,582 @@ def test_token():
     try:
         # 生成测试token
         token = create_access_token(1, '13800138000')
-        
+
         # 验证token
         payload = verify_access_token(token)
-        
+
         return jsonify({
             'success': True,
             'token': token,
             'payload': payload,
             'message': 'Token测试成功'
         })
-        
+
     except Exception as e:
         return jsonify({
             'success': False,
             'error': '测试失败',
+            'message': str(e)
+        }), 500
+
+
+# ==================== 平台绑定 API ====================
+
+@auth_bp.route('/platform-bindings', methods=['GET'])
+@require_auth
+def get_platform_bindings():
+    """获取用户的平台绑定列表"""
+    try:
+        db = get_db_session()
+        user_id = g.current_user_id
+
+        try:
+            # 从数据库查询用户绑定的平台
+            bindings = db.query(PlatformBinding).filter(
+                PlatformBinding.user_id == user_id,
+                PlatformBinding.is_active == True
+            ).all()
+
+            # 转换为字典列表（不包含token）
+            bindings_list = [binding.to_dict(include_tokens=False) for binding in bindings]
+
+            return jsonify({
+                'success': True,
+                'bindings': bindings_list
+            })
+
+        finally:
+            db.close()
+
+    except Exception as e:
+        print(f'[ERROR] 获取平台绑定失败: {e}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': '获取平台绑定失败',
+            'message': str(e)
+        }), 500
+
+
+@auth_bp.route('/platform-oauth/<platform>', methods=['GET'])
+@require_auth
+def get_platform_oauth_url(platform):
+    """获取平台OAuth授权URL"""
+    try:
+        user_id = g.current_user_id
+
+        # 获取环境变量中的OAuth配置
+        oauth_configs = {
+            'twitch': {
+                'client_id': os.getenv('TWITCH_CLIENT_ID', ''),
+                'redirect_uri': os.getenv('TWITCH_REDIRECT_URI', 'http://localhost:3000/api/auth/platform-callback/twitch'),
+                'scope': 'user:read:email chat:read',
+                'auth_url': 'https://id.twitch.tv/oauth2/authorize'
+            },
+            'youtube': {
+                'client_id': os.getenv('YOUTUBE_CLIENT_ID', ''),
+                'redirect_uri': os.getenv('YOUTUBE_REDIRECT_URI', 'http://localhost:5000/api/auth/platform-callback/youtube'),
+                'scope': 'https://www.googleapis.com/auth/youtube.readonly',
+                'auth_url': 'https://accounts.google.com/o/oauth2/v2/auth'
+            },
+            'douyin': {
+                'client_key': os.getenv('DOUYIN_CLIENT_KEY', ''),
+                'redirect_uri': os.getenv('DOUYIN_REDIRECT_URI', 'http://localhost:5000/api/auth/platform-callback/douyin'),
+                'scope': 'user_info',
+                'auth_url': 'https://open.douyin.com/platform/oauth/connect'
+            },
+            'tiktok': {
+                'client_key': os.getenv('TIKTOK_CLIENT_KEY', ''),
+                'redirect_uri': os.getenv('TIKTOK_REDIRECT_URI', 'http://localhost:5000/api/auth/platform-callback/tiktok'),
+                'scope': 'user.info.basic',
+                'auth_url': 'https://www.tiktok.com/auth/authorize'
+            }
+        }
+
+        if platform not in oauth_configs:
+            return jsonify({
+                'success': False,
+                'error': '不支持的平台'
+            }), 400
+
+        config = oauth_configs[platform]
+
+        # 检查是否配置了client_id
+        client_id_key = 'client_id' if platform in ['twitch', 'youtube'] else 'client_key'
+        client_id_value = config.get(client_id_key)
+
+        # 检查是否为空或者是占位符
+        if not client_id_value or client_id_value.startswith('YOUR_'):
+            return jsonify({
+                'success': False,
+                'error': '平台未配置',
+                'message': f'{platform}平台OAuth未配置。请先在 Twitch Developer Console 创建应用，然后在 .env 文件中配置 TWITCH_CLIENT_ID 和 TWITCH_CLIENT_SECRET'
+            }), 400
+
+        # 生成state参数（包含user_id，用于回调时验证）
+        import base64
+        state_data = {
+            'user_id': user_id,
+            'timestamp': datetime.utcnow().isoformat()
+        }
+        state = base64.b64encode(json.dumps(state_data).encode('utf-8')).decode('utf-8')
+
+        # 构建OAuth授权URL
+        if platform == 'twitch':
+            from urllib.parse import urlencode
+            params = {
+                'client_id': config['client_id'],
+                'redirect_uri': config['redirect_uri'],
+                'response_type': 'code',
+                'scope': config['scope'],
+                'state': state
+            }
+            auth_url = f"{config['auth_url']}?{urlencode(params)}"
+        elif platform == 'youtube':
+            from urllib.parse import urlencode
+            params = {
+                'client_id': config['client_id'],
+                'redirect_uri': config['redirect_uri'],
+                'response_type': 'code',
+                'scope': config['scope'],
+                'state': state,
+                'access_type': 'offline'
+            }
+            auth_url = f"{config['auth_url']}?{urlencode(params)}"
+        elif platform in ['douyin', 'tiktok']:
+            from urllib.parse import urlencode
+            params = {
+                'client_key': config['client_key'],
+                'redirect_uri': config['redirect_uri'],
+                'response_type': 'code',
+                'scope': config['scope'],
+                'state': state
+            }
+            auth_url = f"{config['auth_url']}?{urlencode(params)}"
+        else:
+            auth_url = ""
+
+        return jsonify({
+            'success': True,
+            'auth_url': auth_url,
+            'state': state
+        })
+
+    except Exception as e:
+        print(f'[ERROR] 获取OAuth链接失败: {e}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': '获取授权链接失败',
+            'message': str(e)
+        }), 500
+
+
+@auth_bp.route('/platform-callback/<platform>', methods=['GET'])
+def platform_oauth_callback(platform):
+    """处理平台OAuth回调 - 用户绑定平台账号"""
+    try:
+        code = request.args.get('code')
+        state = request.args.get('state')
+        error = request.args.get('error')
+
+        print(f'[DEBUG] {platform} OAuth回调 - code: {bool(code)}, state: {state}, error: {error}')
+
+        if error:
+            error_description = request.args.get('error_description', '授权被拒绝')
+            print(f'[ERROR] {platform} OAuth错误: {error} - {error_description}')
+            return f"""
+            <html>
+            <script>
+                window.opener.postMessage({{
+                    type: 'platform_oauth_error',
+                    platform: '{platform}',
+                    message: '{error_description}'
+                }}, '*');
+                window.close();
+            </script>
+            </html>
+            """
+
+        if not code:
+            return f"""
+            <html>
+            <script>
+                window.opener.postMessage({{
+                    type: 'platform_oauth_error',
+                    platform: '{platform}',
+                    message: '缺少授权码'
+                }}, '*');
+                window.close();
+            </script>
+            </html>
+            """
+
+        # TODO: 验证state参数（从session/Redis中获取并验证，防止CSRF攻击）
+        # 这里简化处理，生产环境必须验证state
+
+        db = get_db_session()
+        try:
+            # 根据不同平台处理OAuth
+            if platform == 'twitch':
+                result = handle_twitch_oauth(code, state, db)
+            elif platform == 'youtube':
+                result = handle_youtube_oauth(code, state, db)
+            elif platform == 'douyin':
+                result = handle_douyin_oauth(code, state, db)
+            elif platform == 'tiktok':
+                result = handle_tiktok_oauth(code, state, db)
+            else:
+                return f"""
+                <html>
+                <script>
+                    window.opener.postMessage({{
+                        type: 'platform_oauth_error',
+                        platform: '{platform}',
+                        message: '不支持的平台'
+                    }}, '*');
+                    window.close();
+                </script>
+                </html>
+                """
+
+            if result['success']:
+                # 绑定成功
+                return f"""
+                <html>
+                <script>
+                    window.opener.postMessage({{
+                        type: 'platform_oauth_success',
+                        platform: '{platform}',
+                        data: {json.dumps(result['data'])}
+                    }}, '*');
+                    window.close();
+                </script>
+                </html>
+                """
+            else:
+                # 绑定失败
+                return f"""
+                <html>
+                <script>
+                    window.opener.postMessage({{
+                        type: 'platform_oauth_error',
+                        platform: '{platform}',
+                        message: '{result.get("message", "绑定失败")}'
+                    }}, '*');
+                    window.close();
+                </script>
+                </html>
+                """
+
+        finally:
+            db.close()
+
+    except Exception as e:
+        print(f'[ERROR] {platform} OAuth回调错误: {e}')
+        import traceback
+        traceback.print_exc()
+        return f"""
+        <html>
+        <script>
+            window.opener.postMessage({{
+                type: 'platform_oauth_error',
+                platform: '{platform}',
+                message: '服务器错误: {str(e)}'
+            }}, '*');
+            window.close();
+        </script>
+        </html>
+        """
+
+
+def handle_twitch_oauth(code, state, db):
+    """处理Twitch OAuth回调"""
+    try:
+        # 从state中提取user_id（实际应该从session/Redis中获取）
+        # 这里简化处理，假设前端在state中包含了user_id
+        # 生产环境应该使用session来存储user_id
+        import base64
+        try:
+            state_data = json.loads(base64.b64decode(state).decode('utf-8'))
+            user_id = state_data.get('user_id')
+        except:
+            # 如果state解析失败，返回错误
+            print('[ERROR] 无法从state中提取user_id')
+            return {'success': False, 'message': '状态参数无效'}
+
+        if not user_id:
+            return {'success': False, 'message': '缺少用户信息'}
+
+        # 验证用户存在
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return {'success': False, 'message': '用户不存在'}
+
+        # 获取配置
+        client_id = os.getenv('TWITCH_CLIENT_ID', '')
+        client_secret = os.getenv('TWITCH_CLIENT_SECRET', '')
+        redirect_uri = os.getenv('TWITCH_REDIRECT_URI', 'http://localhost:3000/api/auth/platform-callback/twitch')
+
+        # 检查是否为空或者是占位符
+        if not client_id or not client_secret or client_id.startswith('YOUR_') or client_secret.startswith('YOUR_'):
+            print('[ERROR] Twitch OAuth未配置')
+            return {
+                'success': False,
+                'message': 'Twitch OAuth未配置。请先访问 https://dev.twitch.tv/console/apps 创建应用，然后在 .env 文件中配置 TWITCH_CLIENT_ID 和 TWITCH_CLIENT_SECRET'
+            }
+
+        print(f'[DEBUG] Twitch OAuth - 交换token')
+        print(f'[DEBUG] client_id: {client_id}')
+        print(f'[DEBUG] redirect_uri: {redirect_uri}')
+
+        # 交换授权码获取access_token
+        token_url = 'https://id.twitch.tv/oauth2/token'
+        token_data = {
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'code': code,
+            'grant_type': 'authorization_code',
+            'redirect_uri': redirect_uri
+        }
+
+        token_response = requests.post(token_url, data=token_data)
+        print(f'[DEBUG] Twitch token响应状态: {token_response.status_code}')
+
+        if token_response.status_code != 200:
+            print(f'[ERROR] Twitch token响应: {token_response.text}')
+            return {'success': False, 'message': 'Twitch认证失败'}
+
+        token_json = token_response.json()
+        access_token = token_json.get('access_token')
+        refresh_token = token_json.get('refresh_token')
+        expires_in = token_json.get('expires_in')  # 秒数
+        scope = ' '.join(token_json.get('scope', []))
+
+        if not access_token:
+            return {'success': False, 'message': '未获取到访问令牌'}
+
+        # 获取Twitch用户信息
+        userinfo_url = 'https://api.twitch.tv/helix/users'
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Client-Id': client_id
+        }
+
+        userinfo_response = requests.get(userinfo_url, headers=headers)
+        print(f'[DEBUG] Twitch用户信息响应状态: {userinfo_response.status_code}')
+
+        if userinfo_response.status_code != 200:
+            print(f'[ERROR] Twitch用户信息响应: {userinfo_response.text}')
+            return {'success': False, 'message': '获取Twitch用户信息失败'}
+
+        userinfo = userinfo_response.json()
+        twitch_user = userinfo['data'][0]
+
+        twitch_user_id = twitch_user['id']
+        twitch_username = twitch_user['login']
+        twitch_display_name = twitch_user['display_name']
+        twitch_avatar = twitch_user.get('profile_image_url')
+
+        print(f'[DEBUG] Twitch用户: {twitch_username} (ID: {twitch_user_id})')
+
+        # 计算token过期时间
+        token_expires_at = None
+        if expires_in:
+            from datetime import timedelta
+            token_expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+
+        # 检查是否已绑定
+        existing_binding = db.query(PlatformBinding).filter(
+            PlatformBinding.user_id == user_id,
+            PlatformBinding.platform == 'twitch'
+        ).first()
+
+        if existing_binding:
+            # 更新已有绑定
+            existing_binding.platform_user_id = twitch_user_id
+            existing_binding.platform_username = twitch_username
+            existing_binding.platform_display_name = twitch_display_name
+            existing_binding.platform_avatar_url = twitch_avatar
+            existing_binding.access_token = access_token
+            existing_binding.refresh_token = refresh_token
+            existing_binding.token_expires_at = token_expires_at
+            existing_binding.scope = scope
+            existing_binding.is_active = True
+            existing_binding.updated_at = datetime.utcnow()
+            db.commit()
+            print(f'[OK] 更新Twitch绑定: user_id={user_id}, twitch_user={twitch_username}')
+        else:
+            # 创建新绑定
+            new_binding = PlatformBinding(
+                user_id=user_id,
+                platform='twitch',
+                platform_user_id=twitch_user_id,
+                platform_username=twitch_username,
+                platform_display_name=twitch_display_name,
+                platform_avatar_url=twitch_avatar,
+                access_token=access_token,
+                refresh_token=refresh_token,
+                token_expires_at=token_expires_at,
+                scope=scope,
+                is_active=True
+            )
+            db.add(new_binding)
+            db.commit()
+            print(f'[OK] 创建Twitch绑定: user_id={user_id}, twitch_user={twitch_username}')
+
+        return {
+            'success': True,
+            'data': {
+                'platform': 'twitch',
+                'username': twitch_username,
+                'display_name': twitch_display_name,
+                'avatar_url': twitch_avatar
+            }
+        }
+
+    except Exception as e:
+        print(f'[ERROR] Twitch OAuth处理错误: {e}')
+        import traceback
+        traceback.print_exc()
+        db.rollback()
+        return {'success': False, 'message': f'处理失败: {str(e)}'}
+
+
+def handle_youtube_oauth(code, state, db):
+    """处理YouTube OAuth回调"""
+    # TODO: 实现YouTube OAuth处理
+    return {'success': False, 'message': 'YouTube绑定功能开发中'}
+
+
+def handle_douyin_oauth(code, state, db):
+    """处理抖音 OAuth回调"""
+    # TODO: 实现抖音 OAuth处理
+    return {'success': False, 'message': '抖音绑定功能开发中'}
+
+
+def handle_tiktok_oauth(code, state, db):
+    """处理TikTok OAuth回调"""
+    # TODO: 实现TikTok OAuth处理
+    return {'success': False, 'message': 'TikTok绑定功能开发中'}
+
+
+@auth_bp.route('/platform-unbind/<platform>', methods=['DELETE'])
+@require_auth
+def unbind_platform(platform):
+    """解除平台绑定"""
+    try:
+        db = get_db_session()
+        user_id = g.current_user_id
+
+        try:
+            # 查找绑定记录
+            binding = db.query(PlatformBinding).filter(
+                PlatformBinding.user_id == user_id,
+                PlatformBinding.platform == platform,
+                PlatformBinding.is_active == True
+            ).first()
+
+            if not binding:
+                return jsonify({
+                    'success': False,
+                    'error': '未找到绑定',
+                    'message': f'未找到{platform}平台的绑定记录'
+                }), 404
+
+            # 设置为不活跃（软删除）
+            binding.is_active = False
+            binding.updated_at = datetime.utcnow()
+            db.commit()
+
+            print(f'[OK] 解除平台绑定: user_id={user_id}, platform={platform}')
+
+            return jsonify({
+                'success': True,
+                'message': f'{platform}平台已解除绑定'
+            })
+
+        finally:
+            db.close()
+
+    except Exception as e:
+        print(f'[ERROR] 解除绑定失败: {e}')
+        import traceback
+        traceback.print_exc()
+        if 'db' in locals():
+            db.rollback()
+        return jsonify({
+            'success': False,
+            'error': '解除绑定失败',
+            'message': str(e)
+        }), 500
+
+
+@auth_bp.route('/platform-credentials/<platform>', methods=['GET'])
+@require_auth
+def get_platform_credentials(platform):
+    """
+    获取用户的平台凭证（包含 token，仅供内部游戏使用）
+
+    GET /api/auth/platform-credentials/twitch
+    Headers: Authorization: Bearer <token>
+
+    返回用户绑定的平台 OAuth token，用于游戏连接直播间
+    """
+    try:
+        db = get_db_session()
+        user_id = g.current_user_id
+
+        try:
+            # 查询用户的平台绑定
+            binding = db.query(PlatformBinding).filter(
+                PlatformBinding.user_id == user_id,
+                PlatformBinding.platform == platform,
+                PlatformBinding.is_active == True
+            ).first()
+
+            if not binding:
+                return jsonify({
+                    'success': False,
+                    'error': '未绑定',
+                    'message': f'请先绑定{platform}账号'
+                }), 404
+
+            # 检查 token 是否过期
+            if binding.token_expires_at and binding.token_expires_at < datetime.utcnow():
+                # TODO: 使用 refresh_token 刷新 access_token
+                return jsonify({
+                    'success': False,
+                    'error': 'token已过期',
+                    'message': '授权已过期，请重新绑定账号'
+                }), 401
+
+            return jsonify({
+                'success': True,
+                'platform': platform,
+                'credentials': {
+                    'user_id': binding.platform_user_id,
+                    'username': binding.platform_username,
+                    'display_name': binding.platform_display_name,
+                    'avatar_url': binding.platform_avatar_url,
+                    'access_token': binding.access_token,
+                    'scope': binding.scope,
+                    'expires_at': binding.token_expires_at.isoformat() if binding.token_expires_at else None
+                }
+            })
+
+        finally:
+            db.close()
+
+    except Exception as e:
+        print(f'[ERROR] 获取平台凭证失败: {e}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': '获取凭证失败',
             'message': str(e)
         }), 500
 

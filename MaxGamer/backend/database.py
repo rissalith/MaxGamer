@@ -479,7 +479,7 @@ class AdminLog(Base):
 class GameLaunch(Base):
     """游戏启动记录表"""
     __tablename__ = 'game_launches'
-    
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
     game_id = Column(String(50), nullable=False, index=True)
@@ -487,10 +487,10 @@ class GameLaunch(Base):
     ip_address = Column(String(50))
     user_agent = Column(Text)
     launched_at = Column(DateTime, default=datetime.utcnow, index=True)
-    
+
     # 关系
     user = relationship('User', backref='game_launches')
-    
+
     def to_dict(self):
         """转换为字典"""
         return {
@@ -500,6 +500,72 @@ class GameLaunch(Base):
             'ip_address': self.ip_address,
             'launched_at': self.launched_at.isoformat() if self.launched_at is not None else None
         }
+
+
+class PlatformBinding(Base):
+    """平台绑定表 - 存储用户绑定的直播/游戏平台信息"""
+    __tablename__ = 'platform_bindings'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    platform = Column(String(20), nullable=False, index=True)  # twitch, youtube, douyin, tiktok
+    platform_user_id = Column(String(255), nullable=False)  # 平台用户ID
+    platform_username = Column(String(255))  # 平台用户名
+    platform_display_name = Column(String(255))  # 平台显示名称
+    platform_avatar_url = Column(String(500))  # 平台头像
+
+    # OAuth 凭证
+    access_token = Column(Text, nullable=False)  # 访问令牌
+    refresh_token = Column(Text)  # 刷新令牌
+    token_expires_at = Column(DateTime)  # 令牌过期时间
+    scope = Column(String(500))  # 授权范围
+
+    # 附加数据
+    platform_data = Column(Text)  # JSON: 平台特定的额外数据
+
+    # 状态
+    is_active = Column(Boolean, default=True, index=True)  # 是否启用
+    last_used_at = Column(DateTime)  # 最后使用时间
+
+    # 时间戳
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # 关系
+    user = relationship('User', backref='platform_bindings')
+
+    def to_dict(self, include_tokens=False):
+        """转换为字典
+
+        Args:
+            include_tokens: 是否包含敏感的token信息（默认不包含）
+        """
+        import json
+        platform_data_str = self.platform_data
+
+        result = {
+            'id': self.id,
+            'user_id': self.user_id,
+            'platform': self.platform,
+            'platform_user_id': self.platform_user_id,
+            'platform_username': self.platform_username,
+            'platform_display_name': self.platform_display_name,
+            'platform_avatar_url': self.platform_avatar_url,
+            'scope': self.scope,
+            'platform_data': json.loads(platform_data_str) if platform_data_str else {},
+            'is_active': self.is_active,
+            'last_used_at': self.last_used_at.isoformat() if self.last_used_at else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+        # 只在明确要求时才包含敏感token
+        if include_tokens:
+            result['access_token'] = self.access_token
+            result['refresh_token'] = self.refresh_token
+            result['token_expires_at'] = self.token_expires_at.isoformat() if self.token_expires_at else None
+
+        return result
 
 
 # 数据库配置
@@ -536,6 +602,7 @@ def init_db():
     print(f'   创建的表: users, sessions, sms_codes, email_codes, generation_history, user_quotas')
     print(f'   点数系统表: wallets, transactions, products, licenses')
     print(f'   游戏相关表: games, game_licenses, game_launches')
+    print(f'   平台绑定表: platform_bindings')
 
 
 # 自动初始化数据库（如果不存在）

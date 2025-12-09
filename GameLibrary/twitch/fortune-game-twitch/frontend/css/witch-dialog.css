@@ -1,0 +1,317 @@
+/* 游戏风格对话框 - 位于卡片下方 */
+.witch-dialog-container {
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 55%;
+    max-width: 500px;
+    background: linear-gradient(135deg,
+        rgba(15, 23, 42, 0.95) 0%,
+        rgba(30, 41, 59, 0.95) 100%);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(147, 112, 219, 0.5);
+    border-radius: 16px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 40px rgba(147, 112, 219, 0.3);
+    padding: 12px;
+    z-index: 1500;
+    display: none;
+    animation: dialogSlideUp 0.4s ease-out;
+}
+
+.witch-dialog-container.show {
+    display: flex;
+    gap: 12px;
+}
+
+@keyframes dialogSlideUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* 左侧：人物形象区域 */
+.witch-character-area {
+    flex-shrink: 0;
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.witch-character-image {
+    width: 180px;
+    height: 180px;
+    position: relative;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+    background: transparent;
+    /* 使用Canvas渲染精灵图，移除白底 */
+}
+
+/* Canvas元素样式 */
+.witch-character-image canvas {
+    width: 100%;
+    height: 100%;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* 4x4精灵图动画关键帧 - 16帧逐帧播放 */
+@keyframes spriteAnimation4x4 {
+    0% { background-position: 0% 0%; }
+    6.25% { background-position: 33.333% 0%; }
+    12.5% { background-position: 66.666% 0%; }
+    18.75% { background-position: 100% 0%; }
+    25% { background-position: 0% 33.333%; }
+    31.25% { background-position: 33.333% 33.333%; }
+    37.5% { background-position: 66.666% 33.333%; }
+    43.75% { background-position: 100% 33.333%; }
+    50% { background-position: 0% 66.666%; }
+    56.25% { background-position: 33.333% 66.666%; }
+    62.5% { background-position: 66.666% 66.666%; }
+    68.75% { background-position: 100% 66.666%; }
+    75% { background-position: 0% 100%; }
+    81.25% { background-position: 33.333% 100%; }
+    87.5% { background-position: 66.666% 100%; }
+    93.75% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+}
+
+/* 移除旧的CSS绘制元素 */
+.witch-character-image::before,
+.witch-character-image::after {
+    display: none;
+}
+
+/* 人物头发 */
+.witch-hair {
+    display: none;
+}
+
+/* 人物头饰 */
+.witch-ornament {
+    display: none;
+}
+
+/* 人物名字标签 - 隐藏 */
+.witch-name-tag {
+    display: none;
+}
+
+/* 右侧：对话内容区域 */
+.witch-dialog-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 160px;
+}
+
+/* 对话气泡 */
+.witch-dialog-bubble {
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 2px solid #9370db;
+    box-shadow:
+        0 3px 0 #7b5cb8,
+        0 6px 16px rgba(0, 0, 0, 0.3);
+    font-size: 13px;
+    line-height: 1.6;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    position: relative;
+    animation: bubblePop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes bubblePop {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* 对话气泡尾巴（指向人物） */
+.witch-dialog-bubble::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 20px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 14px 10px 0;
+    border-color: transparent #7b5cb8 transparent transparent;
+}
+
+.witch-dialog-bubble::after {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 22px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 12px 8px 0;
+    border-color: transparent rgba(255, 255, 255, 0.95) transparent transparent;
+}
+
+/* 用户名高亮 */
+.witch-dialog-bubble .username-highlight {
+    color: #ff3b30;
+    font-weight: 900;
+    font-size: 14px;
+    text-shadow:
+        1px 1px 0 #ffd700,
+        -1px -1px 0 #333;
+    display: inline-block;
+    padding: 0 3px;
+}
+
+/* 表情符号 */
+.witch-dialog-bubble .emoji {
+    font-size: 16px;
+    display: inline-block;
+    animation: emojiFloat 0.6s ease-in-out;
+}
+
+@keyframes emojiFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* 回复输入区域 */
+.witch-reply-area {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.witch-reply-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid rgba(147, 112, 219, 0.5);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 12px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.witch-reply-input:focus {
+    border-color: #9370db;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 15px rgba(147, 112, 219, 0.3);
+}
+
+.witch-reply-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.witch-reply-btn {
+    padding: 8px 18px;
+    background: linear-gradient(135deg, #9370db 0%, #ba55d3 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(147, 112, 219, 0.4);
+}
+
+.witch-reply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(147, 112, 219, 0.6);
+}
+
+.witch-reply-btn:active {
+    transform: translateY(0);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .witch-dialog-container {
+        width: 95%;
+        padding: 10px;
+        flex-direction: column;
+        bottom: 8px;
+    }
+    
+    .witch-character-area {
+        width: 100%;
+        flex-direction: row;
+        justify-content: center;
+    }
+    
+    .witch-character-image {
+        width: 100px;
+        height: 120px;
+    }
+    
+    .witch-character-image::before {
+        width: 50px;
+        height: 50px;
+        top: 12px;
+    }
+    
+    .witch-character-image::after {
+        top: 25px;
+        font-size: 16px;
+    }
+    
+    .witch-dialog-bubble {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    .witch-dialog-bubble::before,
+    .witch-dialog-bubble::after {
+        display: none;
+    }
+}
+
+/* 说话动画 - 移除弹跳效果，保持精灵图动画 */
+.witch-character-image.talking {
+    /* 说话时继续播放精灵图动画，不添加额外的弹跳 */
+    animation: spriteAnimation4x4 4.8s step-end infinite;
+}
+
+/* 眨眼动画 */
+.witch-character-image.blinking::after {
+    animation: blinkEyes 0.3s;
+}
+
+@keyframes blinkEyes {
+    0%, 100% {
+        content: '◕ ◡ ◕';
+    }
+    50% {
+        content: '- ◡ -';
+    }
+}

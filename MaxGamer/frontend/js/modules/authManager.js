@@ -14,7 +14,7 @@ const AuthManager = {
         const hostname = window.location.hostname;
         // 本地开发环境
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return 'http://localhost:5000/api';
+            return 'http://localhost:3000/api';
         }
         // 生产环境 - 使用HTTPS（Cloudflare提供SSL）
         return `https://api.${hostname.replace('www.', '')}/api`;

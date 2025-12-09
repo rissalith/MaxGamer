@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>精灵图测试</title>
+    <style>
+        body {
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .test-container {
+            text-align: center;
+            color: white;
+        }
+        
+        .sprite-test {
+            width: 130px;
+            height: 160px;
+            border: 3px solid #9370db;
+            background-image: url('../assets/待机2.png');
+            background-size: 400% 400%;
+            background-repeat: no-repeat;
+            background-position: 0% 0%;
+            margin: 20px auto;
+            animation: spriteAnimation4x4 1.6s steps(1) infinite;
+        }
+        
+        @keyframes spriteAnimation4x4 {
+            0% { background-position: 0% 0%; }
+            6.25% { background-position: 33.333% 0%; }
+            12.5% { background-position: 66.666% 0%; }
+            18.75% { background-position: 100% 0%; }
+            25% { background-position: 0% 33.333%; }
+            31.25% { background-position: 33.333% 33.333%; }
+            37.5% { background-position: 66.666% 33.333%; }
+            43.75% { background-position: 100% 33.333%; }
+            50% { background-position: 0% 66.666%; }
+            56.25% { background-position: 33.333% 66.666%; }
+            62.5% { background-position: 66.666% 66.666%; }
+            68.75% { background-position: 100% 66.666%; }
+            75% { background-position: 0% 100%; }
+            81.25% { background-position: 33.333% 100%; }
+            87.5% { background-position: 66.666% 100%; }
+            93.75% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+        
+        .direct-img {
+            max-width: 300px;
+            border: 2px solid #9370db;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>精灵图测试</h1>
+        
+        <h2>动画测试（CSS背景）</h2>
+        <div class="sprite-test"></div>
+        
+        <h2>直接显示图片</h2>
+        <img src="../assets/待机2.png" class="direct-img" alt="精灵图">
+        
+        <p>如果上面的动画区域是黑色的，说明图片路径有问题</p>
+    </div>
+</body>
+</html>

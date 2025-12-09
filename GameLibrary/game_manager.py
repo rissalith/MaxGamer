@@ -188,8 +188,9 @@ class GameManager:
         """注册所有游戏的API到Flask应用"""
         for game_id, blueprint in self.game_blueprints.items():
             try:
-                # 跳过 fortune-game 的蓝图注册，因为 MaxGamer app.py 已经提供了 /api/fortune/* 路由
-                if 'fortune-game' in game_id:
+                # 跳过旧版 fortune-game 的蓝图注册（不带平台后缀），因为 MaxGamer app.py 已经提供了 /api/fortune/* 路由
+                # 但要注册带平台后缀的版本 (fortune-game-douyin, fortune-game-tiktok, fortune-game-twitch)
+                if game_id == 'fortune-game':
                     print(f'[GameManager] 跳过游戏API注册（由MaxGamer提供）: {game_id}')
                     continue
 

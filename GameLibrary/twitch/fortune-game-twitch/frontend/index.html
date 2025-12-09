@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>巫女占卜 - 竖屏直播版</title>
+    
+    <!-- CSS 样式文件 -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/game-container.css">
+    <link rel="stylesheet" href="css/gift-panel.css">
+    <link rel="stylesheet" href="css/log-panel.css">
+    <link rel="stylesheet" href="css/live-danmaku.css">
+    <link rel="stylesheet" href="css/queue-display.css">
+    <link rel="stylesheet" href="css/top-queue-panel.css">
+    <link rel="stylesheet" href="css/probability-panel.css">
+    <link rel="stylesheet" href="css/fortune-config.css">
+    <link rel="stylesheet" href="css/button-container.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/witch-dialog.css">
+</head>
+<body>
+    <div id="orientation-warning">
+        <div class="rotate-icon">📱</div>
+        <p>请将手机竖屏以获得最佳体验</p>
+    </div>
+
+    <div id="game-container">
+        <div id="canvas-container"></div>
+
+        <!-- 权重调整面板 -->
+        <div id="probability-panel">
+            <div class="probability-header">
+                <span>⚖️ 签级权重</span>
+                <div class="probability-header-actions">
+                    <button id="reset-probability" class="reset-icon-btn" title="重置默认">↻</button>
+                    <button id="close-probability" class="close-icon-btn" title="关闭">×</button>
+                </div>
+            </div>
+            <div class="probability-content">
+                <div class="probability-item">
+                    <label>
+                        <span class="grade-name">上上签</span>
+                        <span class="prob-percent">5.0%</span>
+                    </label>
+                    <input type="range" id="prob-excellent" min="0" max="100" value="5" step="1">
+                    <span class="prob-value">5</span>
+                </div>
+                <div class="probability-item">
+                    <label>
+                        <span class="grade-name">上签</span>
+                        <span class="prob-percent">35.0%</span>
+                    </label>
+                    <input type="range" id="prob-good" min="0" max="100" value="35" step="1">
+                    <span class="prob-value">35</span>
+                </div>
+                <div class="probability-item">
+                    <label>
+                        <span class="grade-name">中签</span>
+                        <span class="prob-percent">40.0%</span>
+                    </label>
+                    <input type="range" id="prob-medium" min="0" max="100" value="40" step="1">
+                    <span class="prob-value">40</span>
+                </div>
+                <div class="probability-item">
+                    <label>
+                        <span class="grade-name">下签</span>
+                        <span class="prob-percent">15.0%</span>
+                    </label>
+                    <input type="range" id="prob-bad" min="0" max="100" value="15" step="1">
+                    <span class="prob-value">15</span>
+                </div>
+                <div class="probability-item">
+                    <label>
+                        <span class="grade-name">下下签</span>
+                        <span class="prob-percent">5.0%</span>
+                    </label>
+                    <input type="range" id="prob-worst" min="0" max="100" value="5" step="1">
+                    <span class="prob-value">5</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 右下角按钮容器 -->
+        <div class="button-container">
+            <!-- 直播弹幕按钮 -->
+            <button id="live-danmaku-toggle" class="circle-btn live-danmaku-btn" data-tooltip="直播弹幕">
+                📺
+            </button>
+            
+            <!-- 模拟窗口按钮 -->
+            <button id="user-panel-toggle" class="circle-btn user-panel-btn" data-tooltip="模拟窗口">
+                🎮
+            </button>
+            
+            <!-- 弹幕设置按钮 -->
+            <button id="danmaku-settings-btn" class="circle-btn danmaku-settings-btn" data-tooltip="弹幕设置">
+                💬
+            </button>
+            
+            <!-- 权重面板按钮 -->
+            <button id="probability-minimized-icon" class="circle-btn probability-btn" data-tooltip="签级权重">
+                ⚖️
+            </button>
+            
+        </div>
+
+
+        <!-- 融合的直播弹幕面板 - 常亮显示 -->
+        <div id="live-danmaku-panel">
+            <div class="live-panel-header">
+                <div class="live-panel-title">
+                    <span>📺</span>
+                    <span>直播弹幕</span>
+                </div>
+                <button class="live-panel-close" onclick="document.getElementById('live-danmaku-panel').classList.add('hidden')">×</button>
+            </div>
+            
+            <!-- 直播间连接区域 -->
+            <div class="live-connection-area">
+                <div id="live-room-input-container">
+                    <input type="text" id="live-room-input" placeholder="输入直播间ID" maxlength="20">
+                    <button id="connect-live-btn">连接</button>
+                    <button id="disconnect-live-btn">断开</button>
+                </div>
+                <div id="live-status">未连接</div>
+            </div>
+
+            <!-- 统计数据 -->
+            <div class="danmaku-stats">
+                <div class="danmaku-stat-item">
+                    <div class="danmaku-stat-value" id="stat-viewers">0</div>
+                    <div class="danmaku-stat-label">在线</div>
+                </div>
+                <div class="danmaku-stat-item">
+                    <div class="danmaku-stat-value" id="stat-total">0</div>
+                    <div class="danmaku-stat-label">累计</div>
+                </div>
+            </div>
+            
+            <!-- 标签页 -->
+            <div class="danmaku-tabs">
+                <button class="danmaku-tab active" data-tab="all">全部</button>
+                <button class="danmaku-tab" data-tab="chat">💬聊天</button>
+                <button class="danmaku-tab" data-tab="gift">🎁礼物</button>
+                <button class="danmaku-tab" data-tab="like">❤️点赞</button>
+                <button class="danmaku-tab" data-tab="member">👋进场</button>
+                <button class="danmaku-tab" data-tab="follow">⭐关注</button>
+            </div>
+
+            <!-- 弹幕内容 -->
+            <div class="danmaku-content" id="danmaku-content">
+                <div id="danmaku-list"></div>
+            </div>
+        </div>
+
+        <!-- 用户信息输入面板 -->
+        <div id="user-info-panel">
+            <button id="close-user-panel" class="panel-close-btn" title="关闭">×</button>
+            <div class="top-row">
+                <input type="text" id="user-name-input" placeholder="输入你的名字" maxlength="10">
+                <div id="avatar-upload-container" onclick="document.getElementById('avatar-input').click()">
+                    <img id="avatar-preview" alt="头像预览">
+                    <div id="avatar-upload-btn">+</div>
+                    <input type="file" id="avatar-input" accept="image/*">
+                </div>
+            </div>
+            
+            <div id="gift-panel">
+                <button class="gift-btn" data-type="daily" data-emoji="💖">
+                    <span class="gift-emoji">💖</span>
+                    <span class="gift-name">日常</span>
+                </button>
+                <button class="gift-btn" data-type="love" data-emoji="💐">
+                    <span class="gift-emoji">💐</span>
+                    <span class="gift-name">爱情</span>
+                </button>
+                <button class="gift-btn" data-type="wealth" data-emoji="🍭">
+                    <span class="gift-emoji">🍭</span>
+                    <span class="gift-name">财运</span>
+                </button>
+                <button class="gift-btn" data-type="health" data-emoji="🍺">
+                    <span class="gift-emoji">🍺</span>
+                    <span class="gift-name">健康</span>
+                </button>
+                <button class="gift-btn" data-type="career" data-emoji="🕶️">
+                    <span class="gift-emoji">🕶️</span>
+                    <span class="gift-name">事业</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>正在加载 2D 场景...</p>
+        </div>
+
+        <div id="result-modal">
+            <h3 id="modal-type"></h3>
+            <div class="fortune-level" id="modal-level"></div>
+            <div class="fortune-desc" id="modal-desc"></div>
+            <button id="close-modal">知道了</button>
+        </div>
+
+        <div id="controls-hint"></div>
+        
+        <!-- 游戏风格对话框 - 魔女形象和对话 -->
+        <div class="witch-dialog-container" id="witch-dialog-container">
+            <!-- 左侧：人物形象 -->
+            <div class="witch-character-area">
+                <div class="witch-character-image" id="witch-character">
+                    <div class="witch-hair"></div>
+                    <div class="witch-ornament"></div>
+                </div>
+                <div class="witch-name-tag">巫女莉莉</div>
+            </div>
+            
+            <!-- 右侧：对话内容 -->
+            <div class="witch-dialog-content">
+                <div class="witch-dialog-bubble" id="witch-dialog-text">
+                    欢迎来到占卜屋～我是巫女莉莉，让我为你揭示命运的秘密吧！✨
+                </div>
+                <div class="witch-reply-area">
+                    <input type="text" class="witch-reply-input" id="witch-reply-input" placeholder="输入你的回复...">
+                    <button class="witch-reply-btn" id="witch-reply-btn">发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Socket.IO客户端库 - 使用unpkg镜像 -->
+    <script src="https://unpkg.com/socket.io-client@4.5.4/dist/socket.io.min.js"></script>
+    
+    <!-- 游戏数据文件 -->
+    <script src="js/fortune-data-love.js"></script>
+    <script src="js/fortune-data-daily.js"></script>
+    <script src="js/fortune-data-career.js"></script>
+    <script src="js/fortune-data-health.js"></script>
+    <script src="js/fortune-data-wealth.js"></script>
+    
+    <!-- 游戏配置和核心模块 -->
+    <script src="js/config.js"></script>
+    <!-- 2D版本的核心模块 -->
+    <script src="js/scene-2d.js"></script>
+    <script src="js/cards-2d.js"></script>
+    <script src="js/miko-2d.js"></script>
+    <script src="js/particles-2d.js"></script>
+    <script src="js/witch-lili.js"></script>
+    <script src="js/witch-lili-agent.js"></script>
+    <script src="js/witch-dialog-handler.js"></script>
+    
+    <!-- 新增的模块文件 -->
+    <script src="js/utils/draggable.js"></script>
+    <script src="js/utils/avatar-handler.js"></script>
+    <script src="js/utils/probability-manager.js"></script>
+    <script src="js/utils/panel-manager.js"></script>
+    <script src="js/live/danmaku-manager.js"></script>
+    <script src="js/live/flying-danmaku.js"></script>
+    <script src="js/live/queue-display.js"></script>
+    <script src="js/live/top-queue-panel.js"></script>
+    <script src="js/live/gift-queue-manager.js"></script>
+    <script src="js/live/twitch-connection.js"></script>
+    <script src="js/live/fortune-config.js"></script>
+    <script src="js/live/danmaku-settings.js"></script>
+    <!-- 2D游戏主文件 -->
+    <script src="js/game-main-2d.js"></script>
+
+    <!-- 应用初始化入口（Twitch版本） -->
+    <script src="js/app-init-twitch.js"></script>
+</body>
+</html>

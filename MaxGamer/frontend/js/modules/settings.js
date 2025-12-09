@@ -10,21 +10,17 @@ const SettingsManager = {
      * 初始化设置管理器
      */
     init() {
-        console.log('[设置] 初始化设置管理器...');
-        
         // 加载用户信息
         this._loadUserInfo();
-        
+
         // 绑定标签切换事件
         this._bindTabEvents();
-        
+
         // 绑定表单事件
         this._bindFormEvents();
-        
+
         // 加载并应用用户偏好设置
         this._loadAndApplyPreferences();
-        
-        console.log('[设置] 设置管理器已初始化 ✅');
     },
     
     /**
@@ -98,6 +94,7 @@ const SettingsManager = {
         this._bindPreferenceToggles();
         this._bindLanguageChange();
         this._bindThemeChange();
+        this._bindPlatformBindings();
     },
     
     /**
@@ -477,7 +474,6 @@ const SettingsManager = {
      */
     _applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
-        console.log('[设置] 主题已切换为:', theme);
     },
     
     /**
@@ -500,7 +496,6 @@ const SettingsManager = {
         if (window.I18n) {
             I18n.setLanguage(language);
         }
-        console.log('[设置] 语言已切换为:', language);
     },
     
     /**
@@ -512,23 +507,234 @@ const SettingsManager = {
         if (oldToast) {
             oldToast.remove();
         }
-        
+
         // 创建新的toast
         const toast = document.createElement('div');
         toast.className = `toast-message ${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
-        
+
         // 显示动画
         requestAnimationFrame(() => {
             toast.classList.add('show');
         });
-        
+
         // 3秒后移除
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    },
+
+    /**
+     * 绑定平台绑定功能
+     */
+    _bindPlatformBindings() {
+        // 加载已绑定的平台
+        this._loadPlatformBindings();
+
+        // 绑定所有平台按钮
+        const bindButtons = document.querySelectorAll('.btn-platform-bind');
+        bindButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const platform = button.dataset.platform;
+                this._handlePlatformBind(platform);
+            });
+        });
+    },
+
+    /**
+     * 加载已绑定的平台
+     */
+    async _loadPlatformBindings() {
+        try {
+            const response = await AuthManager.authenticatedFetch(
+                `${AuthManager.apiBaseUrl}/auth/platform-bindings`,
+                { method: 'GET' }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                // 后端返回的是数组，转换为以 platform 为 key 的对象
+                const bindingsArray = data.bindings || [];
+                const bindingsMap = {};
+                bindingsArray.forEach(binding => {
+                    bindingsMap[binding.platform] = {
+                        username: binding.platform_display_name || binding.platform_username,
+                        user_id: binding.platform_user_id,
+                        avatar_url: binding.platform_avatar_url
+                    };
+                });
+                this._updatePlatformStatus(bindingsMap);
+            }
+        } catch (error) {
+            console.error('加载平台绑定失败:', error);
+            // 静默失败，不显示错误
+        }
+    },
+
+    /**
+     * 更新平台绑定状态
+     */
+    _updatePlatformStatus(bindings) {
+        const platforms = ['twitch', 'douyin', 'tiktok', 'youtube'];
+
+        platforms.forEach(platform => {
+            const statusEl = document.getElementById(`${platform}-status`);
+            const buttonEl = document.getElementById(`${platform}-bind-btn`);
+            const itemEl = document.querySelector(`[data-platform="${platform}"]`);
+
+            if (bindings[platform]) {
+                if (statusEl) {
+                    statusEl.textContent = `已绑定 - ${bindings[platform].username || bindings[platform].user_id}`;
+                    statusEl.style.color = '#1a73e8';
+                }
+                if (buttonEl) {
+                    buttonEl.textContent = '解除绑定';
+                    buttonEl.classList.add('unbind');
+                }
+                if (itemEl) {
+                    itemEl.classList.add('bound');
+                }
+            } else {
+                if (statusEl) {
+                    statusEl.textContent = '未绑定';
+                    statusEl.style.color = '#5f6368';
+                }
+                if (buttonEl) {
+                    buttonEl.textContent = '绑定账号';
+                    buttonEl.classList.remove('unbind');
+                }
+                if (itemEl) {
+                    itemEl.classList.remove('bound');
+                }
+            }
+        });
+    },
+
+    /**
+     * 处理平台绑定
+     */
+    async _handlePlatformBind(platform) {
+        const button = document.getElementById(`${platform}-bind-btn`);
+        const isUnbind = button.classList.contains('unbind');
+
+        if (isUnbind) {
+            // 解除绑定
+            if (confirm(`确定要解除绑定 ${this._getPlatformName(platform)} 吗？`)) {
+                await this._unbindPlatform(platform);
+            }
+        } else {
+            // 绑定平台
+            await this._bindPlatform(platform);
+        }
+    },
+
+    /**
+     * 绑定平台
+     */
+    async _bindPlatform(platform) {
+        try {
+            // 获取OAuth授权URL
+            const response = await AuthManager.authenticatedFetch(
+                `${AuthManager.apiBaseUrl}/auth/platform-oauth/${platform}`,
+                { method: 'GET' }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || data.message || '获取授权链接失败');
+            }
+
+            if (!data.auth_url) {
+                throw new Error('OAuth配置未完成，请联系管理员配置平台密钥');
+            }
+
+            // 打开OAuth授权窗口
+            const width = 600;
+            const height = 700;
+            const left = (screen.width - width) / 2;
+            const top = (screen.height - height) / 2;
+
+            const authWindow = window.open(
+                data.auth_url,
+                `${platform}_oauth`,
+                `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes`
+            );
+
+            if (!authWindow) {
+                throw new Error('无法打开授权窗口，请检查浏览器弹窗设置');
+            }
+
+            // 监听授权结果
+            const checkAuth = setInterval(async () => {
+                if (authWindow.closed) {
+                    clearInterval(checkAuth);
+                    // 重新加载绑定状态
+                    await this._loadPlatformBindings();
+                }
+            }, 1000);
+
+            // 监听消息（来自OAuth回调页面）
+            const messageHandler = async (event) => {
+                if (event.data.type === 'platform_oauth_success' && event.data.platform === platform) {
+                    window.removeEventListener('message', messageHandler);
+                    this._showToast(`${this._getPlatformName(platform)} 绑定成功！`, 'success');
+                    await this._loadPlatformBindings();
+                    if (authWindow && !authWindow.closed) {
+                        authWindow.close();
+                    }
+                } else if (event.data.type === 'platform_oauth_error') {
+                    window.removeEventListener('message', messageHandler);
+                    this._showToast(event.data.message || '绑定失败', 'error');
+                    if (authWindow && !authWindow.closed) {
+                        authWindow.close();
+                    }
+                }
+            };
+
+            window.addEventListener('message', messageHandler);
+
+        } catch (error) {
+            this._showToast(error.message || '绑定失败，请稍后重试', 'error');
+        }
+    },
+
+    /**
+     * 解除平台绑定
+     */
+    async _unbindPlatform(platform) {
+        try {
+            const response = await AuthManager.authenticatedFetch(
+                `${AuthManager.apiBaseUrl}/auth/platform-unbind/${platform}`,
+                { method: 'DELETE' }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+                this._showToast(`${this._getPlatformName(platform)} 已解除绑定`, 'success');
+                await this._loadPlatformBindings();
+            } else {
+                throw new Error(data.message || '解除绑定失败');
+            }
+        } catch (error) {
+            this._showToast(error.message || '解除绑定失败', 'error');
+        }
+    },
+
+    /**
+     * 获取平台中文名称
+     */
+    _getPlatformName(platform) {
+        const names = {
+            'twitch': 'Twitch',
+            'douyin': '抖音直播',
+            'tiktok': 'TikTok Live',
+            'youtube': 'YouTube Live'
+        };
+        return names[platform] || platform;
     }
 };
 

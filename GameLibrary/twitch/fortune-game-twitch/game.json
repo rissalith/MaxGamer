@@ -1,0 +1,69 @@
+{
+  "id": "fortune-game-twitch",
+  "name": "Miko Fortune",
+  "platform": "twitch",
+  "version": "1.0.0",
+  "description": "Twitch 直播互动抽奖游戏 - 观众通过聊天、订阅、Raid 等方式参与抽奖",
+  "author": "MaxGamer",
+  "category": "互动抽奖",
+  "icon": "🎰",
+  "thumbnail": "/games/fortune-twitch/thumbnail.png",
+  "tags": ["抽奖", "互动", "Twitch", "直播"],
+  "requirements": {
+    "platform_binding": "twitch",
+    "min_version": "1.0.0"
+  },
+  "features": [
+    {
+      "id": "chat_trigger",
+      "name": "聊天触发",
+      "description": "观众发送特定指令参与抽奖",
+      "enabled": true
+    },
+    {
+      "id": "subscription_trigger",
+      "name": "订阅触发",
+      "description": "新订阅或续订自动获得抽奖机会",
+      "enabled": true
+    },
+    {
+      "id": "raid_trigger",
+      "name": "Raid触发",
+      "description": "Raid 事件触发特殊奖励",
+      "enabled": true
+    },
+    {
+      "id": "gift_sub_trigger",
+      "name": "礼物订阅触发",
+      "description": "赠送订阅获得额外抽奖次数",
+      "enabled": true
+    }
+  ],
+  "config": {
+    "default_keyword": "!fortune",
+    "cooldown_seconds": 30,
+    "max_participants": 1000,
+    "auto_draw_interval": 300
+  },
+  "api": {
+    "base_url": "/api/fortune-twitch",
+    "endpoints": {
+      "start": "/live/start",
+      "stop": "/live/stop",
+      "status": "/live/status",
+      "check_binding": "/binding/check",
+      "game_info": "/game/info"
+    }
+  },
+  "socketio": {
+    "events": {
+      "chat": "twitch_chat",
+      "subscription": "twitch_subscription",
+      "raid": "twitch_raid",
+      "system": "twitch_system"
+    },
+    "room_prefix": "twitch_"
+  },
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z"
+}

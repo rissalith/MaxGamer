@@ -50,10 +50,10 @@
           "installedAt": "2024-12-05T10:00:00Z"
         },
         "twitch": {
-          "path": "twitch/fortune-game",
-          "enabled": false,
-          "status": "coming_soon",
-          "installedAt": "2024-12-06T14:50:00Z"
+          "path": "twitch/fortune-game-twitch",
+          "enabled": true,
+          "status": "published",
+          "installedAt": "2024-12-08T00:00:00Z"
         }
       },
       "price": 500,

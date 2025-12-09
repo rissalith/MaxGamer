@@ -1,0 +1,38 @@
+/* 全局样式和基础布局 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #1a1a2e;
+}
+
+body {
+    font-family: 'Microsoft YaHei', sans-serif;
+    touch-action: none;
+}
+
+/* 竖屏优化 */
+@media screen and (orientation: portrait) {
+    body {
+        max-width: 100vw;
+    }
+}
+
+/* 横屏提示 - 移除 */
+#orientation-warning {
+    display: none !important;
+}
+
+/* 控制提示 */
+#controls-hint {
+    display: none;
+}
