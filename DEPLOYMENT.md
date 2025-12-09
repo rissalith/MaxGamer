@@ -8,6 +8,8 @@
 - ✅ 集成 Twitch IRC 实时连接
 - ✅ 禁用未开放的平台绑定（抖音、TikTok、YouTube）
 - ✅ 修复游戏 API 注册逻辑
+- ✅ 新增管理员账号创建脚本
+- ✅ 新增游戏注册脚本（修复"0个游戏"问题）
 
 ## 部署步骤
 
@@ -43,7 +45,32 @@ cd ../frontend
 npm install
 ```
 
-### 4. 数据库迁移（如需要）
+### 4. 创建管理员账号
+
+**重要**: 必须先创建管理员账号才能登录后台管理系统。
+
+```bash
+cd MaxGamer/backend
+python create_admin.py
+```
+
+脚本会创建以下账号：
+- 邮箱: `admin@maxgamer.local`
+- 密码: `pXw1995`
+- 角色: `admin`
+
+### 5. 注册游戏到数据库
+
+**重要**: 这个步骤修复"0个游戏"问题。必须执行才能在游戏市场看到游戏。
+
+```bash
+cd MaxGamer/backend
+python register_games.py
+```
+
+脚本会自动扫描 `GameLibrary` 目录并将所有游戏注册到数据库。
+
+### 6. 数据库迁移（如需要）
 
 如果数据库模型有更新：
 
@@ -54,7 +81,7 @@ cd MaxGamer/backend
 # alembic upgrade head
 ```
 
-### 5. 重启服务
+### 7. 重启服务
 
 ```bash
 # 重启 Python 后端
