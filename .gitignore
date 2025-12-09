@@ -131,3 +131,4 @@ secrets.json
 *.mp4
 *.mp3
 *.wav
+SECURITY_AUDIT_REPORT.md
