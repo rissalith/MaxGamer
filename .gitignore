@@ -76,14 +76,18 @@ secrets.json
 
 # 忽略所有 Markdown 文件（除了特定的文档）
 *.md
+# 保留关键的项目文档
 !README.md
 !DEPLOYMENT.md
 !DEPLOY_GUIDE.md
 !LICENSE.md
-!.github/*.md
-!.github/**/*.md
+# 仅保留必要的 .github 配置文档
+!.github/DEPLOYMENT_SETUP.md
+!.github/ACTIONS_SETUP.md
+# 仅保留 GameLibrary 下的主 README
 !GameLibrary/README.md
-!GameLibrary/**/README.md
+!GameLibrary/*/README.md
+!GameLibrary/*/*/README.md
 
 # 忽略 Excel 和其他办公文档
 *.xlsx
@@ -99,3 +103,31 @@ secrets.json
 .env
 .env.local
 .env.*.local
+
+# 忽略脚本和配置文件
+*.bat
+*.sh
+!deploy.sh
+!scripts/server_setup.sh
+*.conf
+!nginx.conf
+
+# 忽略 YAML 文件（保留必要的 workflow）
+*.yml
+*.yaml
+!.github/workflows/*.yml
+!.github/workflows/*.yaml
+!docker-compose.yml
+!docker-compose.*.yml
+
+# 忽略图片和媒体文件
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.ico
+*.svg
+*.mp4
+*.mp3
+*.wav
