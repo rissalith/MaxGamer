@@ -73,3 +73,29 @@ id_rsa*
 credentials.json
 secrets.json
 .secrets/
+
+# 忽略所有 Markdown 文件（除了特定的文档）
+*.md
+!README.md
+!DEPLOYMENT.md
+!DEPLOY_GUIDE.md
+!LICENSE.md
+!.github/*.md
+!.github/**/*.md
+!GameLibrary/README.md
+!GameLibrary/**/README.md
+
+# 忽略 Excel 和其他办公文档
+*.xlsx
+*.xls
+*.xlsm
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.pdf
+
+# 忽略所有 .env 文件（已在上面配置，这里补充说明）
+.env
+.env.local
+.env.*.local
