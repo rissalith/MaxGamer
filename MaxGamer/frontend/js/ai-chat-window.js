@@ -68,6 +68,10 @@ class AIChatWindow {
      * 创建聊天窗口DOM结构
      */
     createChatWindow() {
+        // 获取当前语言
+        const currentLang = this.getCurrentLanguage();
+        const isZhCN = currentLang === 'zh-CN';
+
         // 创建主容器
         this.container = document.createElement('div');
         this.container.className = 'ai-chat-window hidden';
@@ -83,8 +87,8 @@ class AIChatWindow {
                         </svg>
                     </div>
                     <div class="chat-title">
-                        <h3>${this.t('chat_window_title')}</h3>
-                        <span class="chat-status online">Online</span>
+                        <h3>${isZhCN ? '与Max对话' : 'Chat with Max'}</h3>
+                        <span class="chat-status online">${isZhCN ? '在线' : 'Online'}</span>
                     </div>
                     <button class="chat-close-btn" aria-label="Close chat">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -105,9 +109,7 @@ class AIChatWindow {
                             </div>
                             <div class="message-content">
                                 <div class="message-bubble">
-                                    ${this.getCurrentLanguage() === 'zh-CN'
-                                        ? '你好！我是Max，有什么可以帮助你的吗？'
-                                        : 'Hi! I\'m Max, how can I help you today?'}
+                                    ${isZhCN ? '你好！我是Max，有什么可以帮助你的吗？' : 'Hi! I\'m Max, how can I help you today?'}
                                 </div>
                                 <div class="message-time">${this.getCurrentTime()}</div>
                             </div>
@@ -120,11 +122,11 @@ class AIChatWindow {
                         <input
                             type="text"
                             class="chat-input"
-                            placeholder="${this.t('chat_placeholder')}"
+                            placeholder="${isZhCN ? '输入消息...' : 'Type a message...'}"
                             maxlength="500"
                             id="chatInput"
                         />
-                        <button class="send-btn" id="chatSendBtn" aria-label="${this.t('chat_send')}">
+                        <button class="send-btn" id="chatSendBtn" aria-label="${isZhCN ? '发送' : 'Send'}">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="22" y1="2" x2="11" y2="13"></line>
                                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
