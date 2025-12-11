@@ -56,7 +56,13 @@
       "Bash(while IFS= read -r file)",
       "Bash(do git rm --cached \"$file\")",
       "Bash(done)",
-      "Bash(git grep:*)"
+      "Bash(git grep:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(git reflog:*)",
+      "Bash(git gc:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
