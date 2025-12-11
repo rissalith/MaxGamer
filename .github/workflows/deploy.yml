@@ -32,19 +32,29 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
-          ssh $SERVER_USER@$SERVER_HOST << 'ENDSSH'
+          ssh $SERVER_USER@$SERVER_HOST "bash -s" << EOF
             set -e
 
             echo "🚀 Starting deployment..."
 
             # 进入项目目录
-            cd ${{ secrets.DEPLOY_PATH }}
+            cd $DEPLOY_PATH
 
             # 拉取最新代码
             echo "📥 Pulling latest code..."
             git fetch origin
             git reset --hard origin/main
+
+            # 更新 .env 文件中的 API 密钥
+            echo "🔑 Updating API key in .env..."
+            if [ -f "MaxGamer/backend/.env" ]; then
+              sed -i "s|VECTORAPI_KEY=.*|VECTORAPI_KEY=$DEEPSEEK_API_KEY|g" MaxGamer/backend/.env
+              echo "✅ API key updated"
+            else
+              echo "⚠️  .env file not found at MaxGamer/backend/.env"
+            fi
 
             # 赋予部署脚本执行权限
             chmod +x deploy.sh
@@ -54,22 +64,26 @@ jobs:
             ./deploy.sh --skip-backup
 
             echo "✅ Deployment completed successfully!"
-          ENDSSH
+          EOF
 
       - name: Verify deployment
         env:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          ssh $SERVER_USER@$SERVER_HOST << 'ENDSSH'
+          ssh $SERVER_USER@$SERVER_HOST "bash -s" << EOF
+            # 进入项目目录
+            cd $DEPLOY_PATH
+
             # 检查服务状态
-            docker-compose ps
+            docker-compose -f docker-compose.isolated.yml ps
 
             # 检查 API 健康状态
             curl -f http://localhost:3000/api/health || exit 1
 
             echo "🎉 Deployment verified successfully!"
-          ENDSSH
+          EOF
 
       - name: Send notification
         if: always()
