@@ -16,8 +16,8 @@ const AuthManager = {
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
             return 'http://localhost:3000/api';
         }
-        // 生产环境 - 使用HTTPS（Cloudflare提供SSL）
-        return `https://api.${hostname.replace('www.', '')}/api`;
+        // 生产环境 - 使用同域代理（通过nginx）
+        return `${window.location.origin}/api`;
     })(),
     
     /**

@@ -4,7 +4,7 @@
  */
 
 // 版本号：部署时自动更新（GitHub Actions 会替换这个值）
-window.APP_VERSION = '20251211_v4';
+window.APP_VERSION = '20251211_v5';
 
 // 如果没有被替换，使用当前时间戳（开发环境）
 if (window.APP_VERSION === '__BUILD_TIMESTAMP__') {
