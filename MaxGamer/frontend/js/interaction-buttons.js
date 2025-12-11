@@ -280,14 +280,14 @@ class InteractionButtons {
             z-index: 100;
         `;
         bubble.textContent = '💭';
-        
+
         button.appendChild(bubble);
-        
+
         // 动画结束后移除
         setTimeout(() => {
             bubble.remove();
         }, 1200);
-        
+
         // 添加气泡动画样式
         if (!document.getElementById('bubbleFloatStyle')) {
             const style = document.createElement('style');
@@ -309,6 +309,11 @@ class InteractionButtons {
                 }
             `;
             document.head.appendChild(style);
+        }
+
+        // 打开聊天窗口
+        if (window.aiChatWindow) {
+            window.aiChatWindow.open();
         }
     }
 
