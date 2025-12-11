@@ -48,6 +48,16 @@ __pycache__/
 
 # 忽略数据库文件
 *.db
+
+# 忽略部署脚本（仅用于本地，不应提交到远程仓库）
+deploy.sh
+deploy-to-server.bat
+scripts/deploy_*.sh
+scripts/server_setup.sh
+*.ps1
+release.bat
+auto-deploy.*
+one-click-deploy.*
 *.sqlite
 *.sqlite3
 
