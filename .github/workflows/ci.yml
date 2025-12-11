@@ -100,7 +100,7 @@ jobs:
 
       - name: Test docker-compose
         run: |
-          docker-compose config
+          docker compose config
           echo "✅ Docker Compose configuration is valid"
 
   lint-frontend:
