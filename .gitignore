@@ -49,6 +49,10 @@ __pycache__/
 # 忽略数据库文件
 *.db
 
+# 忽略数据目录（数据库持久化、上传文件等）
+data/
+!data/.gitkeep
+
 # 忽略部署脚本（仅用于本地，不应提交到远程仓库）
 deploy.sh
 deploy-to-server.bat
@@ -98,6 +102,9 @@ secrets.json
 !GameLibrary/README.md
 !GameLibrary/*/README.md
 !GameLibrary/*/*/README.md
+# 保留 docs 目录下的文档
+!docs/*.md
+!docs/**/*.md
 
 # 忽略 Excel 和其他办公文档
 *.xlsx
