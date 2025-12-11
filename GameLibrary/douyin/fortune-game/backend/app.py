@@ -11,13 +11,19 @@ from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from services.live_service import LiveService
 from services.fortune_agent_llmx import get_agent, reset_agent
+from dotenv import load_dotenv
 
-# 设置DeepSeek API密钥
-# DEEPSEEK_API_KEY should be set in environment variables or .env file
-# os.environ['DEEPSEEK_API_KEY'] = 'your-api-key-here'
+# 加载环境变量
+load_dotenv()
+
+# API密钥从环境变量读取
+# 在生产环境中，应通过GitHub Secrets的FORTUNE_GAME_AIAGENT_API提供
+if not os.environ.get('DEEPSEEK_API_KEY'):
+    print("WARNING: DEEPSEEK_API_KEY not set in environment variables")
+    print("Please set it via .env file or environment variable")
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 
 # 配置CORS，允许来自任何源的请求，支持所有HTTP方法和头部
 CORS(app,
